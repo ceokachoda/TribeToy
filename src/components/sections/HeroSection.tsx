@@ -260,13 +260,16 @@ export default function HeroSection() {
                 </div>
               </Link>
               
-              <Link href="/shop" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform bg-[#f4f5f4] flex flex-col justify-between p-4 block">
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-                  <Sparkles size={14} className="text-primary" />
+              <Link href="/shop" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
+                <Image src="/ghibli_new_arrivals_v2.png" alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                
+                <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-sm z-10">
+                  <Sparkles size={14} className="text-white" />
                 </div>
-                <div>
-                  <span className="text-[10px] text-[#8a958c] font-black uppercase tracking-widest mb-0.5">Explore All</span>
-                  <h3 className="text-sm font-black text-[#1a1a1a] leading-tight">New Arrivals</h3>
+                <div className="absolute bottom-3 left-3 right-3 flex flex-col z-10">
+                  <span className="text-[10px] text-[#a4d4b4] font-black uppercase tracking-widest mb-0.5">Explore All</span>
+                  <h3 className="text-sm font-black text-white leading-tight">New Arrivals</h3>
                 </div>
               </Link>
             </div>
