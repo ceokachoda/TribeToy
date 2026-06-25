@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Eye, Heart, Sparkles, Filter, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
