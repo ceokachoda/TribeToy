@@ -279,7 +279,7 @@ export default function HeroSection() {
             className="w-full lg:hidden relative overflow-hidden -mx-6 px-6 mt-4 pb-2"
           >
             <div className="flex gap-3 w-max animate-[marquee_15s_linear_infinite] hover:[animation-play-state:paused]">
-              {[...products.slice(0, 5), ...products.slice(0, 5)].map((product, i) => (
+              {[...products.filter(p => p.image).slice(0, 5), ...products.filter(p => p.image).slice(0, 5)].map((product, i) => (
                 <Link href={`/product/${product.id}`} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95">
                   <Image src={product.image} alt={product.name} fill className="object-cover brightness-105" sizes="144px" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
