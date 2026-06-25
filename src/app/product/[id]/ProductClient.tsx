@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 export default function ProductClient({ product }: { product: Product }) {
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addToCart, totalItems } = useCart();
   const { showToast } = useToast();
   
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -68,7 +68,21 @@ export default function ProductClient({ product }: { product: Product }) {
           <ArrowLeft size={24} />
         </button>
         <div className="flex gap-2">
-          <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5">
+          <button 
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: product.name,
+                  text: `Check out ${product.name} on TribeToy!`,
+                  url: window.location.href,
+                }).catch(console.error);
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast("Link copied to clipboard!", "success");
+              }
+            }}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5"
+          >
             <Share2 size={20} />
           </button>
           <button onClick={toggleWishlist} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5">
@@ -76,6 +90,11 @@ export default function ProductClient({ product }: { product: Product }) {
           </button>
           <button onClick={() => router.push('/cart')} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 relative">
             <ShoppingBag size={20} />
+            {totalItems > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </button>
         </div>
       </header>
@@ -132,7 +151,21 @@ export default function ProductClient({ product }: { product: Product }) {
               <button onClick={toggleWishlist} className="w-12 h-12 bg-white/90 backdrop-blur-md flex items-center justify-center rounded-full hover:bg-white hover:scale-105 transition-all shadow-lg text-foreground/70">
                 <Heart size={20} className={wishlist.includes(product.id.toString()) ? "fill-red-500 text-red-500" : ""} />
               </button>
-              <button className="w-12 h-12 bg-white/90 backdrop-blur-md flex items-center justify-center rounded-full hover:bg-white hover:scale-105 transition-all shadow-lg text-foreground/70">
+              <button 
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: product.name,
+                      text: `Check out ${product.name} on TribeToy!`,
+                      url: window.location.href,
+                    }).catch(console.error);
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    showToast("Link copied to clipboard!", "success");
+                  }
+                }}
+                className="w-12 h-12 bg-white/90 backdrop-blur-md flex items-center justify-center rounded-full hover:bg-white hover:scale-105 transition-all shadow-lg text-foreground/70"
+              >
                 <Share2 size={20} />
               </button>
             </div>

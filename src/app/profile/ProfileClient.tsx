@@ -310,9 +310,9 @@ function ProfileContent() {
                 <X size={20} />
               </button>
 
-              <div className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
+              <div className="overflow-y-auto md:overflow-hidden custom-scrollbar flex-grow flex flex-col">
                 {/* Header Graphic */}
-                <div className="bg-[#4a5d4e] text-white p-10 md:py-14 md:pl-14 md:pr-24 relative overflow-hidden">
+                <div className="bg-[#4a5d4e] text-white p-10 md:py-14 md:pl-14 md:pr-24 relative overflow-hidden flex-shrink-0">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[60px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
                   
                   <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -327,7 +327,8 @@ function ProfileContent() {
                   </div>
                 </div>
 
-                <div className="p-8 md:p-12 flex flex-col gap-10">
+                <div className="md:overflow-y-auto custom-scrollbar flex-grow">
+                  <div className="p-8 md:p-12 flex flex-col gap-10">
                   {/* Tracking Timeline */}
                   <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
                     <h3 className="text-lg font-bold text-[#1a1a1a] mb-8">Tracking Status</h3>
@@ -402,6 +403,7 @@ function ProfileContent() {
                         <span className="font-black text-[#1a1a1a]">₹{selectedOrder.total.toFixed(2)}</span>
                       </div>
                     </div>
+                  </div>
                   </div>
                 </div>
               </div>
