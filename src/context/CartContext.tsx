@@ -29,6 +29,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const savedCart = localStorage.getItem("tribetoy_cart");
     if (savedCart) {
       try {
+         
         setCart(JSON.parse(savedCart));
       } catch (e) {
         console.error("Failed to parse cart", e);

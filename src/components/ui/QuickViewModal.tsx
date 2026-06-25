@@ -40,7 +40,8 @@ export function QuickViewModal({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      setActiveTab('details'); // Reset tab on open
+       
+      setActiveTab("details"); // Reset tab on open
       setIsWritingReview(false);
     } else {
       document.body.style.overflow = "unset";

@@ -33,6 +33,7 @@ export default function HeroSection() {
     },
   };
 
+   
   const revealVariants = {
     hidden: { y: "100%" },
     visible: {

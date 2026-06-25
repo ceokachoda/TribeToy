@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ShoppingBag, Eye, Heart, Sparkles, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { products, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
@@ -23,7 +23,10 @@ export default function FeaturedProducts() {
   useEffect(() => {
     const saved = localStorage.getItem("tribetoy_wishlist");
     if (saved) {
-      try { setWishlist(JSON.parse(saved)); } catch (e) {}
+      try { 
+       
+      setWishlist(JSON.parse(saved)); 
+    } catch (_e) {}
     }
   }, []);
 
