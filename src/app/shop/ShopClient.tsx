@@ -6,15 +6,44 @@ import { ShoppingBag, Eye, Heart, Sparkles, Filter, ChevronRight } from "lucide-
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
-import { Product } from "@/data/products";
+import { products, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { QuickViewModal } from "@/components/ui/QuickViewModal";
+import { useToast } from "@/context/ToastContext";
 
 function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const { addToCart } = useCart();
+  const { showToast } = useToast();
   
   const [activeCategory, setActiveCategory] = useState<string>("All Toys");
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("tribetoy_wishlist");
+    if (saved) {
+      try { setWishlist(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
+
+  const toggleWishlist = (id: string) => {
+    setWishlist(prev => {
+      const isRemoving = prev.includes(id);
+      const next = isRemoving ? prev.filter(p => p !== id) : [...prev, id];
+      localStorage.setItem("tribetoy_wishlist", JSON.stringify(next));
+      
+      const product = products.find(p => p.id === id);
+      if (isRemoving) {
+        showToast(`Removed ${product?.name || 'item'} from wishlist`, "success");
+      } else {
+        showToast(`Added ${product?.name || 'item'} to wishlist`, "wishlist");
+      }
+      
+      return next;
+    });
+  };
   
   useEffect(() => {
     if (categoryParam) {
@@ -144,10 +173,18 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
 
                 {/* Hover Actions */}
                 <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-2 md:translate-x-8 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                  <button className="w-8 h-8 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg">
-                    <Heart size={14} />
+                  <button 
+                    onClick={(e) => { e.preventDefault(); toggleWishlist(product.id); }}
+                    className={`w-8 h-8 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center transition-colors shadow-lg ${
+                      wishlist.includes(product.id) ? "text-red-500 hover:bg-red-50" : "text-foreground hover:bg-primary hover:border-primary hover:text-white"
+                    }`}
+                  >
+                    <Heart size={14} className={wishlist.includes(product.id) ? "fill-current" : ""} />
                   </button>
-                  <button className="w-8 h-8 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg">
+                  <button 
+                    onClick={(e) => { e.preventDefault(); setQuickViewProduct(product); }}
+                    className="w-8 h-8 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg"
+                  >
                     <Eye size={14} />
                   </button>
                 </div>
@@ -209,6 +246,14 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <QuickViewModal 
+        product={quickViewProduct} 
+        isOpen={!!quickViewProduct} 
+        onClose={() => setQuickViewProduct(null)}
+        isWishlisted={quickViewProduct ? wishlist.includes(quickViewProduct.id) : false}
+        toggleWishlist={() => quickViewProduct && toggleWishlist(quickViewProduct.id)}
+      />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { Product } from "@/data/products";
+import { useToast } from "@/context/ToastContext";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -22,6 +23,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const savedCart = localStorage.getItem("tribetoy_cart");
@@ -51,6 +53,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    showToast(`Added ${product.name} to cart`, "cart");
   };
 
   const removeFromCart = (id: number) => {
@@ -67,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = useCallback(() => setCart([]), []);
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   

@@ -1,12 +1,15 @@
 "use client";
 
 import { CartProvider } from "@/context/CartContext";
+import { ToastProvider } from "@/context/ToastContext";
 import { ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <CartProvider>
-      {children}
-    </CartProvider>
+    <ToastProvider>
+      <CartProvider>
+        {children}
+      </CartProvider>
+    </ToastProvider>
   );
 }

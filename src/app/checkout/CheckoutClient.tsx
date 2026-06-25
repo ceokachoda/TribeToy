@@ -1,16 +1,55 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { ArrowRight, CheckCircle2, ChevronLeft, CreditCard, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronLeft, CreditCard, Truck, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CheckoutClient() {
   const { cart, totalPrice, totalItems } = useCart();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+
+  const [pincode, setPincode] = useState("");
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+
+  useEffect(() => {
+    if (pincode.length === 6) {
+      setIsFetchingLocation(true);
+      fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0].Status === "Success") {
+            const postOffices = data[0].PostOffice;
+            const uniqueCities = Array.from(new Set(postOffices.map((po: any) => po.District || po.Region))) as string[];
+            setCityOptions(uniqueCities);
+            setSelectedCity(uniqueCities[0] || "");
+            setStateName(postOffices[0].State || "");
+          } else {
+            setCityOptions([]);
+            setStateName("");
+          }
+        })
+        .catch(() => {
+          setCityOptions([]);
+          setStateName("");
+        })
+        .finally(() => setIsFetchingLocation(false));
+    } else {
+      setCityOptions([]);
+      setStateName("");
+    }
+  }, [pincode]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,7 +72,28 @@ export default function CheckoutClient() {
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/order-success");
+    setShowOTP(true);
+  };
+
+  const handleVerifyOTP = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp === "271705") {
+      const orderId = "TRB" + Math.random().toString(36).substring(2, 9).toUpperCase();
+      const newOrder = {
+        id: orderId,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        items: cart,
+        total: totalPrice,
+        status: "Processing"
+      };
+
+      const existingOrders = JSON.parse(localStorage.getItem("tribetoy_orders") || "[]");
+      localStorage.setItem("tribetoy_orders", JSON.stringify([newOrder, ...existingOrders]));
+
+      router.push(`/order-success?id=${orderId}`);
+    } else {
+      setOtpError("Invalid OTP. Please try again.");
+    }
   };
 
   return (
@@ -72,12 +132,54 @@ export default function CheckoutClient() {
                   <input required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">City</label>
-                  <input required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Postal Code</label>
+                  <input 
+                    required 
+                    type="text" 
+                    maxLength={6} 
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" 
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Postal Code</label>
-                  <input required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">State</label>
+                  <input 
+                    required 
+                    type="text" 
+                    readOnly 
+                    value={stateName} 
+                    placeholder={isFetchingLocation ? "Fetching..." : "Auto-filled via Pincode"}
+                    className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4]/50 border border-transparent outline-none font-medium text-[#1a1a1a]/70 placeholder:text-[#1a1a1a]/30 cursor-not-allowed" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2 md:col-span-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">City</label>
+                  {cityOptions.length > 0 ? (
+                    <div className="relative">
+                      <select 
+                        required 
+                        value={selectedCity} 
+                        onChange={(e) => setSelectedCity(e.target.value)} 
+                        className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a] appearance-none"
+                      >
+                        {cityOptions.map(city => <option key={city} value={city}>{city}</option>)}
+                      </select>
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <svg className="w-4 h-4 text-[#8a958c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </div>
+                    </div>
+                  ) : (
+                    <input 
+                      required 
+                      type="text" 
+                      value={selectedCity} 
+                      onChange={(e) => setSelectedCity(e.target.value)} 
+                      disabled={isFetchingLocation} 
+                      placeholder={isFetchingLocation ? "Fetching..." : "Enter City"} 
+                      className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" 
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -85,22 +187,55 @@ export default function CheckoutClient() {
             <div className="h-px w-full bg-black/5" />
 
             {/* Payment Method */}
-            <div>
-              <div className="flex items-center gap-3 mb-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3 mb-2">
                 <CreditCard className="text-[#4a5d4e]" />
                 <h3 className="text-xl font-bold text-[#1a1a1a]">Payment Method</h3>
               </div>
               
-              <div className="p-5 rounded-2xl border-2 border-[#4a5d4e] bg-[#eff4f0] flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#4a5d4e] flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-white" />
+              <div 
+                onClick={() => setPaymentMethod("razorpay")}
+                className={`p-5 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all ${
+                  paymentMethod === "razorpay" 
+                    ? "border-[#4a5d4e] bg-[#eff4f0]" 
+                    : "border-black/10 bg-white hover:border-[#4a5d4e]/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                    paymentMethod === "razorpay" ? "bg-[#4a5d4e] border-[#4a5d4e]" : "border-black/20"
+                  }`}>
+                    {paymentMethod === "razorpay" && <div className="w-2 h-2 rounded-full bg-white" />}
                   </div>
-                  <span className="font-bold text-[#1a1a1a]">Cash on Delivery</span>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-[#1a1a1a]">Online Payment (Razorpay)</span>
+                    <span className="text-xs text-[#8a958c] font-medium mt-1">UPI, Credit/Debit Cards, NetBanking</span>
+                  </div>
                 </div>
-                <CheckCircle2 className="text-[#4a5d4e]" />
+                {paymentMethod === "razorpay" && <CheckCircle2 className="text-[#4a5d4e]" />}
               </div>
-              <p className="text-xs text-[#8a958c] font-medium mt-3 ml-2">Razorpay and card payments will be enabled shortly.</p>
+
+              <div 
+                onClick={() => setPaymentMethod("cod")}
+                className={`p-5 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all ${
+                  paymentMethod === "cod" 
+                    ? "border-[#4a5d4e] bg-[#eff4f0]" 
+                    : "border-black/10 bg-white hover:border-[#4a5d4e]/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                    paymentMethod === "cod" ? "bg-[#4a5d4e] border-[#4a5d4e]" : "border-black/20"
+                  }`}>
+                    {paymentMethod === "cod" && <div className="w-2 h-2 rounded-full bg-white" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-[#1a1a1a]">Cash on Delivery</span>
+                    <span className="text-xs text-[#8a958c] font-medium mt-1">Pay when your order arrives</span>
+                  </div>
+                </div>
+                {paymentMethod === "cod" && <CheckCircle2 className="text-[#4a5d4e]" />}
+              </div>
             </div>
             
           </form>
@@ -155,6 +290,75 @@ export default function CheckoutClient() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showOTP && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl flex flex-col"
+            >
+              <div className="w-16 h-16 rounded-full bg-[#eff4f0] flex items-center justify-center mx-auto mb-6">
+                <Lock className="text-[#4a5d4e] w-8 h-8" />
+              </div>
+              
+              <h2 className="text-2xl font-black text-center text-[#1a1a1a] mb-2">Verify Your Order</h2>
+              <p className="text-center text-[#5a6b5e] text-sm mb-8 font-medium">
+                Please enter the 6-digit OTP sent to your phone number. <br/>
+                <span className="text-xs opacity-70">(Mock OTP: 271705)</span>
+              </p>
+
+              <form onSubmit={handleVerifyOTP} className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <input 
+                    required
+                    autoFocus
+                    type="text" 
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => {
+                      setOtp(e.target.value.replace(/[^0-9]/g, ''));
+                      setOtpError("");
+                    }}
+                    placeholder="• • • • • •" 
+                    className={`w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border ${otpError ? 'border-red-500/50' : 'border-transparent'} focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-black text-2xl tracking-[0.5em] text-center text-[#1a1a1a] transition-all`}
+                  />
+                  {otpError && <p className="text-red-500 text-xs font-bold text-center mt-1">{otpError}</p>}
+                </div>
+                
+                <div className="flex gap-3 mt-4">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setShowOTP(false);
+                      setOtp("");
+                      setOtpError("");
+                    }}
+                    className="flex-1 py-4 rounded-full border border-black/10 text-[#1a1a1a] font-bold text-sm uppercase tracking-[0.1em] hover:bg-black/5 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="flex-1 py-4 rounded-full bg-[#4a5d4e] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#3a4d3e] transition-all"
+                  >
+                    Verify
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

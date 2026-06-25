@@ -5,14 +5,44 @@ import { ShoppingBag, Eye, Heart, Sparkles, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-
-import { products } from "@/data/products";
+import { products, Product } from "@/data/products";
+import { useCart } from "@/context/CartContext";
+import { QuickViewModal } from "@/components/ui/QuickViewModal";
+import { useToast } from "@/context/ToastContext";
 
 const featuredProducts = products.slice(0, 4);
 
 export default function FeaturedProducts() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { addToCart } = useCart();
+  const { showToast } = useToast();
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("tribetoy_wishlist");
+    if (saved) {
+      try { setWishlist(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
+
+  const toggleWishlist = (id: string) => {
+    setWishlist(prev => {
+      const isRemoving = prev.includes(id);
+      const next = isRemoving ? prev.filter(p => p !== id) : [...prev, id];
+      localStorage.setItem("tribetoy_wishlist", JSON.stringify(next));
+      
+      const product = products.find(p => p.id === id);
+      if (isRemoving) {
+        showToast(`Removed ${product?.name || 'item'} from wishlist`, "success");
+      } else {
+        showToast(`Added ${product?.name || 'item'} to wishlist`, "wishlist");
+      }
+      
+      return next;
+    });
+  };
 
   // Auto-scroll and scroll tracking for mobile carousel
   useEffect(() => {
@@ -86,10 +116,20 @@ export default function FeaturedProducts() {
         
         {/* Hover Actions Menu */}
         <div className="absolute top-5 right-5 z-20 flex flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-[0.16,1,0.3,1]">
-          <button className="w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg" title="Add to Wishlist">
-            <Heart size={16} />
+          <button 
+            onClick={(e) => { e.preventDefault(); toggleWishlist(product.id); }}
+            className={`w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center transition-colors shadow-lg ${
+              wishlist.includes(product.id) ? "text-red-500 hover:bg-red-50" : "text-foreground hover:bg-primary hover:border-primary hover:text-white"
+            }`} 
+            title={wishlist.includes(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+          >
+            <Heart size={16} className={wishlist.includes(product.id) ? "fill-current" : ""} />
           </button>
-          <button className="w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg" title="Quick View">
+          <button 
+            onClick={(e) => { e.preventDefault(); setQuickViewProduct(product); }}
+            className="w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg" 
+            title="Quick View"
+          >
             <Eye size={16} />
           </button>
         </div>
@@ -137,7 +177,13 @@ export default function FeaturedProducts() {
               </div>
             </div>
 
-            <button className="relative overflow-hidden group/cart w-14 h-14 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 flex items-center justify-center hover:border-primary/50 transition-all duration-500 shadow-sm hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] shrink-0 transform-gpu hover:scale-105">
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                addToCart(product);
+              }}
+              className="relative overflow-hidden group/cart w-14 h-14 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 flex items-center justify-center hover:border-primary/50 transition-all duration-500 shadow-sm hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] shrink-0 transform-gpu hover:scale-105"
+            >
               <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary translate-y-[100%] group-hover/cart:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
               <ShoppingBag size={20} className="text-foreground group-hover/cart:text-white relative z-10 group-hover/cart:-translate-y-0.5 group-hover/cart:scale-110 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
             </button>
@@ -220,6 +266,14 @@ export default function FeaturedProducts() {
           </div>
         </div>
       </div>
+      
+      <QuickViewModal 
+        product={quickViewProduct} 
+        isOpen={!!quickViewProduct} 
+        onClose={() => setQuickViewProduct(null)}
+        isWishlisted={quickViewProduct ? wishlist.includes(quickViewProduct.id) : false}
+        toggleWishlist={() => quickViewProduct && toggleWishlist(quickViewProduct.id)}
+      />
     </section>
   );
 }

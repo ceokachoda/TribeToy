@@ -2,22 +2,25 @@
 
 import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Package, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileText, Package, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function OrderSuccessClient() {
+function OrderSuccessContent() {
   const { clearCart } = useCart();
+  const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
-    // Generate a random order ID
-    const id = "TRB" + Math.random().toString(36).substring(2, 9).toUpperCase();
-    setOrderId(id);
-    
-    // Clear the cart when landing on this page
+    const id = searchParams.get("id");
+    if (id) {
+      setOrderId(id);
+    } else {
+      setOrderId("TRB" + Math.random().toString(36).substring(2, 9).toUpperCase());
+    }
     clearCart();
-  }, [clearCart]);
+  }, [clearCart, searchParams]);
 
   return (
     <div className="container mx-auto px-6 pt-32 pb-32 min-h-screen flex items-center justify-center">
@@ -66,14 +69,31 @@ export default function OrderSuccessClient() {
           </div>
         </div>
 
-        <Link 
-          href="/shop" 
-          className="inline-flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl"
-        >
-          <span>Continue Shopping</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4 w-full relative z-20">
+          <Link 
+            href="/profile?tab=orders" 
+            className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#eff4f0] text-[#4a5d4e] font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#e1e9e3] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+          >
+            <FileText className="w-4 h-4" />
+            <span>View E-Bill & Tracking</span>
+          </Link>
+          <Link 
+            href="/shop" 
+            className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl"
+          >
+            <span>Continue Shopping</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function OrderSuccessClient() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }
