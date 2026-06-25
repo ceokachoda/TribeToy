@@ -4,12 +4,12 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="hidden md:block relative mt-20 pt-20 pb-10 overflow-hidden border-t border-black/5 bg-background">
+    <footer className="hidden lg:block relative mt-20 pt-20 pb-10 overflow-hidden border-t border-black/5 bg-background">
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="flex flex-col gap-6">
             <Link href="/" className="flex items-center gap-3 group glass-panel px-3 py-2 rounded-2xl w-max hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all">
@@ -100,7 +100,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-black/10">
-        <div className="container mx-auto px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="container mx-auto px-6 md:px-12 py-6 flex flex-col lg:flex-row items-center justify-between gap-4">
           <p className="text-foreground/50 text-sm">
             © {new Date().getFullYear()} TribeToy. All rights reserved.
           </p>

@@ -13,9 +13,6 @@ export default function CheckoutClient() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
-  const [showOTP, setShowOTP] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [otpError, setOtpError] = useState("");
 
   const [pincode, setPincode] = useState("");
   const [cityOptions, setCityOptions] = useState<string[]>([]);
@@ -72,28 +69,19 @@ export default function CheckoutClient() {
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowOTP(true);
-  };
+    const orderId = "TRB" + Math.random().toString(36).substring(2, 9).toUpperCase();
+    const newOrder = {
+      id: orderId,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      items: cart,
+      total: totalPrice,
+      status: "Processing"
+    };
 
-  const handleVerifyOTP = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp === "271705") {
-      const orderId = "TRB" + Math.random().toString(36).substring(2, 9).toUpperCase();
-      const newOrder = {
-        id: orderId,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        items: cart,
-        total: totalPrice,
-        status: "Processing"
-      };
+    const existingOrders = JSON.parse(localStorage.getItem("tribetoy_orders") || "[]");
+    localStorage.setItem("tribetoy_orders", JSON.stringify([newOrder, ...existingOrders]));
 
-      const existingOrders = JSON.parse(localStorage.getItem("tribetoy_orders") || "[]");
-      localStorage.setItem("tribetoy_orders", JSON.stringify([newOrder, ...existingOrders]));
-
-      router.push(`/order-success?id=${orderId}`);
-    } else {
-      setOtpError("Invalid OTP. Please try again.");
-    }
+    router.push(`/order-success?id=${orderId}`);
   };
 
   return (
@@ -118,7 +106,7 @@ export default function CheckoutClient() {
                 <Truck className="text-[#4a5d4e]" />
                 <h3 className="text-xl font-bold text-[#1a1a1a]">Delivery Details</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
                   <input required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
@@ -127,7 +115,7 @@ export default function CheckoutClient() {
                   <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Last Name</label>
                   <input required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
                 </div>
-                <div className="flex flex-col gap-2 md:col-span-2">
+                <div className="flex flex-col gap-2 lg:col-span-2">
                   <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Address</label>
                   <input required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
                 </div>
@@ -153,7 +141,7 @@ export default function CheckoutClient() {
                     className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4]/50 border border-transparent outline-none font-medium text-[#1a1a1a]/70 placeholder:text-[#1a1a1a]/30 cursor-not-allowed" 
                   />
                 </div>
-                <div className="flex flex-col gap-2 md:col-span-2">
+                <div className="flex flex-col gap-2 lg:col-span-2">
                   <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">City</label>
                   {cityOptions.length > 0 ? (
                     <div className="relative">
@@ -291,74 +279,6 @@ export default function CheckoutClient() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showOTP && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl flex flex-col"
-            >
-              <div className="w-16 h-16 rounded-full bg-[#eff4f0] flex items-center justify-center mx-auto mb-6">
-                <Lock className="text-[#4a5d4e] w-8 h-8" />
-              </div>
-              
-              <h2 className="text-2xl font-black text-center text-[#1a1a1a] mb-2">Verify Your Order</h2>
-              <p className="text-center text-[#5a6b5e] text-sm mb-8 font-medium">
-                Please enter the 6-digit OTP sent to your phone number. <br/>
-                <span className="text-xs opacity-70">(Mock OTP: 271705)</span>
-              </p>
-
-              <form onSubmit={handleVerifyOTP} className="flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <input 
-                    required
-                    autoFocus
-                    type="text" 
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => {
-                      setOtp(e.target.value.replace(/[^0-9]/g, ''));
-                      setOtpError("");
-                    }}
-                    placeholder="• • • • • •" 
-                    className={`w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border ${otpError ? 'border-red-500/50' : 'border-transparent'} focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-black text-2xl tracking-[0.5em] text-center text-[#1a1a1a] transition-all`}
-                  />
-                  {otpError && <p className="text-red-500 text-xs font-bold text-center mt-1">{otpError}</p>}
-                </div>
-                
-                <div className="flex gap-3 mt-4">
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setShowOTP(false);
-                      setOtp("");
-                      setOtpError("");
-                    }}
-                    className="flex-1 py-4 rounded-full border border-black/10 text-[#1a1a1a] font-bold text-sm uppercase tracking-[0.1em] hover:bg-black/5 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit" 
-                    className="flex-1 py-4 rounded-full bg-[#4a5d4e] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#3a4d3e] transition-all"
-                  >
-                    Verify
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

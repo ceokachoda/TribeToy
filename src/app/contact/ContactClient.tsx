@@ -104,7 +104,7 @@ export default function ContactClient() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
                       <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
                       <input 

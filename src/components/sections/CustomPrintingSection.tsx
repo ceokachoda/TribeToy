@@ -61,7 +61,7 @@ export default function CustomPrintingSection() {
             transition={{ delay: 0.1 }}
             className="text-5xl md:text-7xl font-heading font-black tracking-tight mb-8 leading-[1.1] text-foreground drop-shadow-sm"
           >
-            Turn Imagination Into <br className="hidden md:block" />
+            Turn Imagination Into <br className="hidden lg:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
               Physical Reality.
             </span>
@@ -176,7 +176,7 @@ export default function CustomPrintingSection() {
             <h2 className="text-4xl md:text-5xl font-heading font-black text-foreground">The Custom Process</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((step, i) => (
               <motion.div 
                 key={i}

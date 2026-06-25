@@ -42,7 +42,7 @@ export default function StoriesClient({ blogs }: { blogs: BlogPost[] }) {
       </div>
 
       {activeTab === "blogs" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 animate-in fade-in duration-700">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 animate-in fade-in duration-700">
           {blogs.map((blog) => (
             <Link 
               key={blog.slug} 
@@ -95,8 +95,8 @@ export default function StoriesClient({ blogs }: { blogs: BlogPost[] }) {
         <div className="flex flex-col gap-12 animate-in fade-in duration-700">
           
           {/* Featured Achievement */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center bg-white rounded-[3rem] p-8 md:p-12 border border-foreground/5 shadow-[0_8px_40px_rgba(0,0,0,0.04)]">
-            <div className="md:col-span-5 flex flex-col gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white rounded-[3rem] p-8 md:p-12 border border-foreground/5 shadow-[0_8px_40px_rgba(0,0,0,0.04)]">
+            <div className="lg:col-span-5 flex flex-col gap-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md w-fit">
                 <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Milestone</span>
               </div>
@@ -107,7 +107,7 @@ export default function StoriesClient({ blogs }: { blogs: BlogPost[] }) {
                 TribeToy is proud to partner with prestigious institutions to bring sustainable 3D-printed innovations to major events. From eco-friendly medals for the Inter IIT Sports Meet to custom world map trophies for the IIT Guwahati SPE Student Chapter, we are redefining modern awards.
               </p>
             </div>
-            <div className="md:col-span-7 relative aspect-[4/3] md:aspect-square lg:aspect-[16/10] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-foreground/10 group">
+            <div className="lg:col-span-7 relative aspect-[4/3] md:aspect-square lg:aspect-[16/10] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-foreground/10 group">
               <Image src="/Tribetoy_blogs/Tribetoy_blog_2.png" alt="IIT Guwahati SPE Order" fill className="object-cover group-hover:scale-105 transition-transform duration-[2s]" />
             </div>
           </div>

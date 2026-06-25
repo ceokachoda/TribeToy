@@ -90,7 +90,7 @@ export function QuickViewModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-4xl bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
+            className="relative w-full max-w-4xl bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row max-h-[90vh]"
           >
             <button 
               onClick={onClose}
@@ -100,7 +100,7 @@ export function QuickViewModal({
             </button>
 
             {/* Left side: Image */}
-            <div className="w-full md:w-1/2 h-48 sm:h-64 md:h-auto bg-[#f4f5f4] relative shrink-0">
+            <div className="w-full lg:w-1/2 h-48 sm:h-64 md:h-auto bg-[#f4f5f4] relative shrink-0">
               {product.image ? (
                 <Image 
                   src={product.image} 
@@ -117,7 +117,7 @@ export function QuickViewModal({
             </div>
 
             {/* Right side: Content */}
-            <div className="w-full md:w-1/2 flex flex-col flex-1 min-h-0">
+            <div className="w-full lg:w-1/2 flex flex-col flex-1 min-h-0">
               
               {/* Tabs */}
               <div className="flex border-b border-black/5 px-6 md:px-8 pt-6 md:pt-8 shrink-0 gap-4 md:gap-6">

@@ -51,10 +51,10 @@ export default function ProductClient({ product }: { product: Product }) {
   };
 
   return (
-    <div className="pb-32 md:pb-12 pt-0 md:pt-28 lg:pt-32 bg-white min-h-screen w-full">
+    <div className="pb-32 lg:pb-12 pt-0 lg:pt-28 lg:pt-32 bg-white min-h-screen w-full">
       
       {/* Desktop Breadcrumbs (Hidden on mobile) */}
-      <div className="hidden md:flex max-w-7xl mx-auto px-8 py-6 items-center gap-2 text-sm text-foreground/50 font-bold uppercase tracking-wider">
+      <div className="hidden lg:flex max-w-7xl mx-auto px-8 py-6 items-center gap-2 text-sm text-foreground/50 font-bold uppercase tracking-wider">
         <button onClick={() => router.push('/')} className="hover:text-primary transition-colors">Home</button>
         <span>/</span>
         <button onClick={() => router.push('/shop')} className="hover:text-primary transition-colors">Shop</button>
@@ -63,7 +63,7 @@ export default function ProductClient({ product }: { product: Product }) {
       </div>
 
       {/* App Header (Fixed relative on mobile only) */}
-      <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md z-50 flex items-center justify-between px-4 border-b border-black/5">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md z-50 flex items-center justify-between px-4 border-b border-black/5">
         <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5">
           <ArrowLeft size={24} />
         </button>
@@ -99,10 +99,10 @@ export default function ProductClient({ product }: { product: Product }) {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto md:px-8 flex flex-col md:flex-row gap-0 md:gap-12 lg:gap-16 items-start">
+      <div className="max-w-7xl mx-auto md:px-8 flex flex-col lg:flex-row gap-0 md:gap-12 lg:gap-16 items-start">
         {/* Left Side: Image Carousel */}
-        <div className="w-full md:w-1/2 flex-shrink-0">
-          <div className="relative w-full aspect-square md:rounded-3xl bg-[#f4f5f4] mt-16 md:mt-0 overflow-hidden md:border md:border-black/5 md:shadow-lg">
+        <div className="w-full lg:w-1/2 flex-shrink-0">
+          <div className="relative w-full aspect-square md:rounded-3xl bg-[#f4f5f4] mt-16 md:mt-0 overflow-hidden lg:border md:border-black/5 md:shadow-lg">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentImageIndex}
@@ -147,7 +147,7 @@ export default function ProductClient({ product }: { product: Product }) {
             </div>
 
             {/* Desktop Wishlist & Share overlay */}
-            <div className="hidden md:flex absolute top-6 right-6 flex-col gap-2 z-10">
+            <div className="hidden lg:flex absolute top-6 right-6 flex-col gap-2 z-10">
               <button onClick={toggleWishlist} className="w-12 h-12 bg-white/90 backdrop-blur-md flex items-center justify-center rounded-full hover:bg-white hover:scale-105 transition-all shadow-lg text-foreground/70">
                 <Heart size={20} className={wishlist.includes(product.id.toString()) ? "fill-red-500 text-red-500" : ""} />
               </button>
@@ -172,7 +172,7 @@ export default function ProductClient({ product }: { product: Product }) {
           </div>
           
           {/* Desktop thumbnails (optional, hidden on mobile) */}
-          <div className="hidden md:flex gap-4 mt-6">
+          <div className="hidden lg:flex gap-4 mt-6">
             {images.map((img, i) => (
               <button 
                 key={i} 
@@ -186,7 +186,7 @@ export default function ProductClient({ product }: { product: Product }) {
         </div>
 
         {/* Right Side: Product Info */}
-        <div className="w-full md:w-1/2 p-4 md:p-0 bg-white relative z-20 flex flex-col">
+        <div className="w-full lg:w-1/2 p-4 md:p-0 bg-white relative z-20 flex flex-col">
           <div className="flex justify-between items-start gap-4 mb-2 md:mb-4">
             <span className="text-[10px] md:text-xs text-primary font-black uppercase tracking-[0.2em]">{product.category}</span>
             <div className="flex items-center gap-1 text-amber-400">
@@ -215,7 +215,7 @@ export default function ProductClient({ product }: { product: Product }) {
           </p>
 
           {/* Desktop Add to Cart */}
-          <div className="hidden md:flex gap-4 mb-8">
+          <div className="hidden lg:flex gap-4 mb-8">
             <button 
               onClick={() => addToCart(product)}
               className="flex-1 py-4 md:py-5 bg-primary text-white rounded-2xl font-black tracking-widest uppercase text-sm md:text-base flex items-center justify-center hover:bg-[#4a5d4e] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
@@ -230,23 +230,23 @@ export default function ProductClient({ product }: { product: Product }) {
               <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-[#f4f5f4] flex items-center justify-center text-primary group hover:bg-primary hover:text-white transition-colors">
                 <Truck size={18} className="md:w-6 md:h-6" />
               </div>
-              <span className="text-[9px] md:text-[10px] font-bold uppercase text-foreground/60 tracking-wider">Free<br className="md:hidden"/> Delivery</span>
+              <span className="text-[9px] md:text-[10px] font-bold uppercase text-foreground/60 tracking-wider">Free<br className="lg:hidden"/> Delivery</span>
             </div>
             <div className="flex flex-col items-center justify-center text-center gap-1 md:gap-3">
               <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-[#f4f5f4] flex items-center justify-center text-primary group hover:bg-primary hover:text-white transition-colors">
                 <Undo2 size={18} className="md:w-6 md:h-6" />
               </div>
-              <span className="text-[9px] md:text-[10px] font-bold uppercase text-foreground/60 tracking-wider">7 Days<br className="md:hidden"/> Return</span>
+              <span className="text-[9px] md:text-[10px] font-bold uppercase text-foreground/60 tracking-wider">7 Days<br className="lg:hidden"/> Return</span>
             </div>
             <div className="flex flex-col items-center justify-center text-center gap-1 md:gap-3">
               <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-[#f4f5f4] flex items-center justify-center text-primary group hover:bg-primary hover:text-white transition-colors">
                 <ShieldCheck size={18} className="md:w-6 md:h-6" />
               </div>
-              <span className="text-[9px] md:text-[10px] font-bold uppercase text-foreground/60 tracking-wider">1 Year<br className="md:hidden"/> Warranty</span>
+              <span className="text-[9px] md:text-[10px] font-bold uppercase text-foreground/60 tracking-wider">1 Year<br className="lg:hidden"/> Warranty</span>
             </div>
           </div>
 
-          <div className="h-2 w-full bg-[#f4f5f4] md:hidden" />
+          <div className="h-2 w-full bg-[#f4f5f4] lg:hidden" />
 
           {/* Review Section */}
           <div className="pt-4 md:pt-8 bg-white">
@@ -283,7 +283,7 @@ export default function ProductClient({ product }: { product: Product }) {
       </div>
 
       {/* Fixed Bottom Action Bar (Mobile Only) */}
-      <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-black/10 p-3 pb-safe z-50 flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+      <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-black/10 p-3 pb-safe z-50 flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => addToCart(product)}
           className="w-full py-4 bg-primary text-white rounded-2xl font-black tracking-widest uppercase text-sm flex items-center justify-center hover:bg-[#4a5d4e] shadow-lg transition-colors"

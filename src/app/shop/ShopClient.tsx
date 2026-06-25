@@ -167,7 +167,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
 
         <motion.div 
           layout
-          className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6"
+          className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6"
         >
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, index) => (
@@ -190,7 +190,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
                   )}
                   {product.isPremium && (
                     <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
-                      <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2" /> <span className="hidden md:inline">Pro</span>
+                      <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2" /> <span className="hidden lg:inline">Pro</span>
                     </span>
                   )}
                   {product.isNew && (
@@ -299,7 +299,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
           </motion.h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {[
             {
               name: "Faraah Yasmin Bora",

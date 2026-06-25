@@ -85,7 +85,7 @@ export default function LoginClient() {
 
   return (
     <div className="container mx-auto px-6 flex items-center justify-center min-h-[80vh]">
-      <div className="w-full max-w-5xl bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 overflow-hidden flex flex-col md:flex-row">
+      <div className="w-full max-w-5xl bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 overflow-hidden flex flex-col lg:flex-row">
         
         {/* Left Side: Brand/Image */}
         <div className="w-full md:w-5/12 p-10 md:p-14 flex flex-col justify-between relative overflow-hidden min-h-[400px]">

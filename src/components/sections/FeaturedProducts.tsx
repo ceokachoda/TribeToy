@@ -70,13 +70,13 @@ export default function FeaturedProducts() {
           )}
           {product.isPremium && (
             <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl flex items-center gap-1">
-              <Sparkles className="w-2 h-2 md:w-3 md:h-3 text-white" /> <span className="hidden md:inline">Pro Grade</span><span className="inline md:hidden">Pro</span>
+              <Sparkles className="w-2 h-2 md:w-3 md:h-3 text-white" /> <span className="hidden lg:inline">Pro Grade</span><span className="inline lg:hidden">Pro</span>
             </span>
           )}
         </div>
         
         {/* Hover Actions Menu */}
-        <div className="hidden md:flex absolute top-5 right-5 z-20 flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-[0.16,1,0.3,1]">
+        <div className="hidden lg:flex absolute top-5 right-5 z-20 flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-[0.16,1,0.3,1]">
           <button 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
             className={`w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center transition-colors shadow-lg ${
@@ -133,7 +133,7 @@ export default function FeaturedProducts() {
                   {product.price}
                 </span>
                 {product.originalPrice && (
-                  <span className="hidden md:inline text-xs text-foreground/40 line-through font-bold mb-1">{product.originalPrice}</span>
+                  <span className="hidden lg:inline text-xs text-foreground/40 line-through font-bold mb-1">{product.originalPrice}</span>
                 )}
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function FeaturedProducts() {
       <div className="absolute bottom-0 -left-64 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10 max-w-[1400px]">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6 border-b border-foreground/10 pb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start md:items-end mb-16 gap-6 border-b border-foreground/10 pb-8">
           <div>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -192,7 +192,7 @@ export default function FeaturedProducts() {
         </div>
 
         {/* Unified Responsive Grid Layout */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8 mt-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8 mt-6">
           {featuredProducts.map((product, index) => renderCard(product, index))}
         </div>
       </div>

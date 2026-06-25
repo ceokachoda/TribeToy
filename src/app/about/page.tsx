@@ -101,7 +101,7 @@ export default function AboutPage() {
               The Green Putola Initiative
             </span>
             <h2 className="text-3xl md:text-5xl font-heading font-bold mb-10 leading-tight">
-              A unique initiative at the crossroads of <br className="hidden md:block" />
+              A unique initiative at the crossroads of <br className="hidden lg:block" />
               <span className="text-secondary">traditional culture</span> & <span className="text-accent">technology.</span>
             </h2>
             <div className="space-y-6 text-lg md:text-xl text-foreground/70 leading-relaxed mb-12 text-left md:text-center max-w-4xl mx-auto">
@@ -131,7 +131,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-cols-4 gap-8">
             {whatWeDoFeatures.map((feature, idx) => (
               <motion.div 
                 key={idx}

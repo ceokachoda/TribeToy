@@ -100,7 +100,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
@@ -123,7 +123,7 @@ export default function Navbar() {
         {/* Actions */}
         <div className="flex items-center gap-1 md:gap-4">
           {userName ? (
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <button 
                 className="p-2 text-foreground/80 hover:text-primary transition-colors flex items-center gap-2" 
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -200,18 +200,18 @@ export default function Navbar() {
           ) : (
             <Link 
               href="/login" 
-              className="hidden md:flex px-5 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all hover:scale-105"
+              className="hidden lg:flex px-5 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all hover:scale-105"
             >
               Sign In
             </Link>
           )}
-          <Link href="/profile?tab=wishlist" className="hidden md:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Wishlist">
+          <Link href="/profile?tab=wishlist" className="hidden lg:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Wishlist">
             <Heart size={20} />
             {wishlistCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
             )}
           </Link>
-          <Link href="/cart" className="hidden md:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
+          <Link href="/cart" className="hidden lg:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
             <ShoppingCart size={20} />
             {totalItems > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
@@ -220,7 +220,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Right Side Actions */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex lg:hidden items-center gap-2">
           {/* Dynamic Greeting/Status Pill */}
           {userName ? (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 backdrop-blur-md">
@@ -261,7 +261,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-[60] bg-white flex flex-col md:hidden"
+            className="fixed inset-0 z-[60] bg-white flex flex-col lg:hidden"
           >
             {/* Search Header */}
             <div className="flex items-center gap-3 p-4 border-b border-foreground/5 shadow-sm bg-white z-10">
@@ -426,7 +426,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
       {/* Mobile Bottom Navigation Bar (App-like) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 pb-safe pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 pb-safe pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <Link href="/" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Home size={22} className={pathname === '/' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Home</span>

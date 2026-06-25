@@ -94,9 +94,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <h3 className="text-3xl font-heading font-black text-center text-foreground">Event Highlights</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Main Featured Image */}
-              <div className="md:col-span-8 aspect-[4/3] rounded-[2rem] bg-white border border-foreground/5 flex items-center justify-center relative overflow-hidden group shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(121,152,122,0.2)] transition-all duration-700">
+              <div className="lg:col-span-8 aspect-[4/3] rounded-[2rem] bg-white border border-foreground/5 flex items-center justify-center relative overflow-hidden group shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(121,152,122,0.2)] transition-all duration-700">
                 <Image src="/Tribetoy_blogs.png" alt="TribeToy Highlights" fill className="object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
@@ -105,7 +105,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </div>
               
               {/* Side Stack */}
-              <div className="md:col-span-4 flex flex-col gap-6">
+              <div className="lg:col-span-4 flex flex-col gap-6">
                 <div className="aspect-[4/3] md:aspect-auto md:flex-1 rounded-[2rem] bg-white border border-foreground/5 flex items-center justify-center relative overflow-hidden group shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(121,152,122,0.2)] transition-all duration-700">
                   <Image src="/ghibli_hero_v2.png" alt="Workshop Highlight" fill className="object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1]" />
                 </div>

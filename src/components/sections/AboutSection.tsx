@@ -39,7 +39,7 @@ export default function AboutSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.8, 1], [0, 1, 1, 0]);
 
   return (
-    <section ref={ref} className="hidden md:block relative py-12 md:py-32 overflow-hidden bg-background">
+    <section ref={ref} className="hidden lg:block relative py-12 md:py-32 overflow-hidden bg-background">
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           
@@ -119,7 +119,7 @@ export default function AboutSection() {
         </div>
 
         {/* Mobile Video Section */}
-        <div className="md:hidden mt-12 w-full px-2">
+        <div className="lg:hidden mt-12 w-full px-2">
           <div className="relative w-full h-[300px] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(121,152,122,0.2)] bg-black/5 border border-white/60 p-2 glass-panel">
             <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden">
               <video 

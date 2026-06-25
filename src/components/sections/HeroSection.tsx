@@ -60,11 +60,11 @@ export default function HeroSection() {
 
       {/* Content Container */}
       <div className="container mx-auto px-6 md:px-12 relative z-10 w-full h-full">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-16 h-full">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16 h-full">
           
           {/* Left Side: Typography - Desktop Only */}
           <motion.div 
-            className="hidden md:flex flex-col items-start text-left w-full md:w-[55%]"
+            className="hidden lg:flex flex-col items-start text-left w-full md:w-[55%]"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -178,7 +178,7 @@ export default function HeroSection() {
 
           {/* Mobile Only: Amazon-Style App Layout */}
           <motion.div 
-            className="flex md:hidden flex-col w-full relative z-10 -mx-6 px-6"
+            className="flex lg:hidden flex-col w-full relative z-10 -mx-6 px-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -276,7 +276,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 1 }}
-            className="w-full md:hidden relative overflow-hidden -mx-6 px-6 mt-4 pb-2"
+            className="w-full lg:hidden relative overflow-hidden -mx-6 px-6 mt-4 pb-2"
           >
             <div className="flex gap-3 w-max animate-[marquee_15s_linear_infinite] hover:[animation-play-state:paused]">
               {[...products.slice(0, 5), ...products.slice(0, 5)].map((product, i) => (
@@ -302,7 +302,7 @@ export default function HeroSection() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="flex md:hidden flex-col items-center text-center w-full mt-10 mb-2 px-4"
+            className="flex lg:hidden flex-col items-center text-center w-full mt-10 mb-2 px-4"
           >
             <h2 className="text-3xl font-heading font-black tracking-tighter leading-[1.1] text-foreground drop-shadow-sm">
               Eco-Friendly Toys.<br />
@@ -318,7 +318,7 @@ export default function HeroSection() {
 
           {/* Right Side: Video Container - Desktop Only */}
           <motion.div 
-            className="hidden md:block w-[45%] relative"
+            className="hidden lg:block w-[45%] relative"
             initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
             animate={{ 
               opacity: 1, 
@@ -379,7 +379,7 @@ export default function HeroSection() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2, duration: 1, type: "spring" }}
-        className="hidden md:flex absolute bottom-4 left-1/2 -translate-x-1/2 flex-col items-center z-20 cursor-pointer group"
+        className="hidden lg:flex absolute bottom-4 left-1/2 -translate-x-1/2 flex-col items-center z-20 cursor-pointer group"
         onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
       >
         <span className="text-[9px] font-black tracking-[0.3em] text-foreground/40 uppercase mb-2 group-hover:text-primary transition-colors duration-300">

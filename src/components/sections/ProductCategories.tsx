@@ -69,7 +69,7 @@ export default function ProductCategories() {
       {/* Magnetic Cursor Follower */}
       <motion.div
         style={{ x: springX, y: springY }}
-        className="fixed top-0 left-0 w-24 h-24 pointer-events-none z-50 flex items-center justify-center mix-blend-difference hidden md:flex"
+        className="fixed top-0 left-0 w-24 h-24 pointer-events-none z-50 flex items-center justify-center mix-blend-difference hidden lg:flex"
       >
         <motion.div
           animate={{
@@ -86,7 +86,7 @@ export default function ProductCategories() {
       <div className="container mx-auto px-6 md:px-12 max-w-[1400px]">
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-24 gap-4 md:gap-8">
+        <div className="flex flex-col lg:flex-row md:items-end justify-between mb-8 md:mb-24 gap-4 md:gap-8">
           <div className="max-w-2xl">
             {/* Laser-Traced Categories Button */}
             <motion.div

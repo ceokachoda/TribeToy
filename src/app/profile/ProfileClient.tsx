@@ -145,7 +145,7 @@ function ProfileContent() {
           {activeTab === "profile" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
               <h2 className="text-2xl font-bold text-[#1a1a1a] mb-8">Profile Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Full Name</label>
                   <input type="text" defaultValue="Karan Malakar" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a]" />
@@ -182,7 +182,7 @@ function ProfileContent() {
                 </div>
               ) : (
                 orders.map((order, index) => (
-                  <div key={index} className="bg-white rounded-[2rem] p-6 md:p-8 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col md:flex-row gap-6 justify-between hover:border-[#4a5d4e]/20 transition-all cursor-pointer group" onClick={() => setSelectedOrder(order)}>
+                  <div key={index} className="bg-white rounded-[2rem] p-6 md:p-8 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col lg:flex-row gap-6 justify-between hover:border-[#4a5d4e]/20 transition-all cursor-pointer group" onClick={() => setSelectedOrder(order)}>
                     <div className="flex flex-col gap-4 flex-grow">
                       <div className="flex items-center gap-3">
                         <span className="px-3 py-1 bg-[#eff4f0] text-[#4a5d4e] rounded-lg text-xs font-bold uppercase tracking-wider">{order.status}</span>
@@ -244,7 +244,7 @@ function ProfileContent() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {wishlistItems.map((product) => (
                     <div key={product.id} className="bg-white rounded-[2rem] p-4 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col group relative overflow-hidden">
                       <div className="w-full aspect-square bg-[#f4f5f4] rounded-xl relative overflow-hidden mb-4">
@@ -315,7 +315,7 @@ function ProfileContent() {
                 <div className="bg-[#4a5d4e] text-white p-10 md:py-14 md:pl-14 md:pr-24 relative overflow-hidden flex-shrink-0">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[60px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
                   
-                  <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                  <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start md:items-end gap-6">
                     <div className="md:max-w-[60%]">
                       <h2 className="text-3xl md:text-4xl font-heading font-black mb-2 tracking-tight">Order Details</h2>
                       <p className="text-white/80 font-medium">Thank you for shopping with TribeToy!</p>
@@ -363,8 +363,8 @@ function ProfileContent() {
                     <div className="flex items-center justify-between mb-6 md:mb-8 gap-4">
                       <h3 className="text-base md:text-lg font-bold text-[#1a1a1a] whitespace-nowrap">Invoice Details</h3>
                       <button className="flex items-center gap-1.5 md:gap-2 text-[#4a5d4e] hover:text-[#3a4d3e] font-bold text-[10px] md:text-xs uppercase tracking-wider transition-colors whitespace-nowrap shrink-0">
-                        <Download size={14} className="hidden md:block"/>
-                        <Download size={12} className="md:hidden"/>
+                        <Download size={14} className="hidden lg:block"/>
+                        <Download size={12} className="lg:hidden"/>
                         Download PDF
                       </button>
                     </div>
