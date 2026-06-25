@@ -97,7 +97,7 @@ export default function CheckoutClient() {
   };
 
   return (
-    <div className="container mx-auto px-6 md:px-12 max-w-6xl pt-32 pb-32">
+    <div className="container mx-auto px-6 md:px-12 max-w-6xl pt-20 md:pt-32 pb-32">
       <div className="mb-12 flex items-center gap-4">
         <Link href="/cart" className="w-10 h-10 rounded-full bg-[#f4f5f4] flex items-center justify-center hover:bg-[#e1e9e3] transition-colors">
           <ChevronLeft className="text-[#1a1a1a]" size={20} />

@@ -64,7 +64,7 @@ export default function ProductCategories() {
   const yParallax = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
   return (
-    <section ref={containerRef} className="py-32 bg-background relative z-10 overflow-hidden cursor-default">
+    <section ref={containerRef} className="py-12 md:py-32 bg-background relative z-10 overflow-hidden cursor-default">
 
       {/* Magnetic Cursor Follower */}
       <motion.div
@@ -86,7 +86,7 @@ export default function ProductCategories() {
       <div className="container mx-auto px-6 md:px-12 max-w-[1400px]">
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-24 gap-4 md:gap-8">
           <div className="max-w-2xl">
             {/* Laser-Traced Categories Button */}
             <motion.div

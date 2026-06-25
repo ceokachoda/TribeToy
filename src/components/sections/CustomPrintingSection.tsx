@@ -45,7 +45,7 @@ export default function CustomPrintingSection() {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10 mt-8">
         {/* Header Area */}
-        <div className="text-center max-w-4xl mx-auto mb-24">
+        <div className="text-center max-w-4xl mx-auto mb-12 md:mb-24">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,7 +78,7 @@ export default function CustomPrintingSection() {
         </div>
 
         {/* Hero Image & Content Split */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center mb-32">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center mb-12 md:mb-32">
           
           {/* Image Showcase */}
           <motion.div 

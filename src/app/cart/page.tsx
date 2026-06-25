@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function CartPage() {
   return (
-    <main className="min-h-screen bg-background pt-32 pb-32">
+    <main className="min-h-screen bg-background pt-20 md:pt-32 pb-32">
       <CartClient />
     </main>
   );

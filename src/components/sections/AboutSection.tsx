@@ -39,7 +39,7 @@ export default function AboutSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.8, 1], [0, 1, 1, 0]);
 
   return (
-    <section ref={ref} className="relative py-32 overflow-hidden bg-background">
+    <section ref={ref} className="hidden md:block relative py-12 md:py-32 overflow-hidden bg-background">
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           
@@ -88,9 +88,9 @@ export default function AboutSection() {
           </motion.div>
 
           {/* Right Visual Content (Parallax Cards) */}
-          <motion.div style={{ y, opacity }} className="lg:w-1/2 flex justify-center gap-6 h-[600px] items-center relative w-full mt-12 lg:mt-0">
+          <motion.div style={{ y, opacity }} className="lg:w-1/2 flex justify-center gap-6 h-[400px] md:h-[600px] items-center relative w-full mt-6 md:mt-12 lg:mt-0">
             {/* Left Card (Shifted Up) */}
-            <div className="flex flex-col gap-6 -mt-24 w-1/2 max-w-[280px]">
+            <div className="flex flex-col gap-6 -mt-12 md:-mt-24 w-1/2 max-w-[280px]">
               <div className="w-full h-80 glass-panel rounded-[2rem] relative overflow-hidden group p-6 flex flex-col justify-end shadow-xl">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
                 <div className="absolute inset-0 bg-[url('/ghibli_green_putola.png')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
@@ -102,7 +102,7 @@ export default function AboutSection() {
             </div>
 
             {/* Right Card (Shifted Down) */}
-            <div className="flex flex-col gap-6 mt-24 w-1/2 max-w-[280px]">
+            <div className="flex flex-col gap-6 mt-12 md:mt-24 w-1/2 max-w-[280px]">
               <div className="w-full h-80 glass-panel rounded-[2rem] relative overflow-hidden group p-6 flex flex-col justify-end shadow-xl">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
                 <div className="absolute inset-0 bg-[url('/ghibli_impact.png')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
@@ -116,8 +116,30 @@ export default function AboutSection() {
             {/* Decorative Elements */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-radial from-primary/10 to-transparent blur-[80px] -z-10 pointer-events-none" />
           </motion.div>
-
         </div>
+
+        {/* Mobile Video Section */}
+        <div className="md:hidden mt-12 w-full px-2">
+          <div className="relative w-full h-[300px] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(121,152,122,0.2)] bg-black/5 border border-white/60 p-2 glass-panel">
+            <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden">
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="w-full h-full object-cover object-center scale-[1.02]"
+              >
+                <source src="/3D_printer_printing_glowing_heart.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-1">Innovation</span>
+                <h3 className="text-lg font-black text-white leading-tight">Precision 3D Printing</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   );

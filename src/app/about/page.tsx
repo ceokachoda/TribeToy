@@ -44,7 +44,7 @@ const educationalFeatures = [
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-background pt-24 overflow-hidden">
+    <main className="min-h-screen bg-background pt-16 md:pt-24 overflow-hidden">
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">

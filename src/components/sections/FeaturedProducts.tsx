@@ -5,6 +5,7 @@ import { ShoppingBag, Eye, Heart, Sparkles, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { products, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { QuickViewModal } from "@/components/ui/QuickViewModal";
@@ -13,6 +14,7 @@ import { useToast } from "@/context/ToastContext";
 const featuredProducts = products.slice(0, 4);
 
 export default function FeaturedProducts() {
+  const router = useRouter();
   const { addToCart } = useCart();
   const { showToast } = useToast();
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -43,7 +45,7 @@ export default function FeaturedProducts() {
   };
 
   const renderCard = (product: typeof featuredProducts[0], index: number) => {
-    const baseClasses = "group relative rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-foreground/10 transition-all duration-700 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] backdrop-blur-xl flex flex-col hover:border-primary/50 group-hover:-translate-y-2 transform-gpu";
+    const baseClasses = "group relative rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-foreground/10 transition-all duration-700 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] backdrop-blur-xl flex flex-col hover:border-primary/50 group-hover:-translate-y-2 transform-gpu cursor-pointer";
 
     return (
       <motion.div
@@ -53,21 +55,22 @@ export default function FeaturedProducts() {
         viewport={{ once: true }}
         transition={{ delay: index * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={baseClasses}
+        onClick={() => router.push('/product/' + product.id)}
       >
         {/* Animated Glow behind card */}
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-transparent group-hover:from-primary/20 transition-colors duration-700 pointer-events-none z-0" />
 
         {/* Badges */}
-        <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
+        <div className="absolute top-2 left-2 md:top-5 md:left-5 z-20 flex flex-col gap-1 md:gap-2">
           {product.isNew && (
-            <span className="px-4 py-1.5 bg-primary/90 backdrop-blur-xl text-black text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">New Release</span>
+            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-primary/90 backdrop-blur-xl text-black text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">New Release</span>
           )}
           {product.isSale && (
-            <span className="px-4 py-1.5 bg-accent/90 backdrop-blur-xl text-black text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">Special Offer</span>
+            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-accent/90 backdrop-blur-xl text-black text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">Special Offer</span>
           )}
           {product.isPremium && (
-            <span className="px-4 py-1.5 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl flex items-center gap-1.5">
-              <Sparkles size={10} className="text-white" /> Pro Grade
+            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl flex items-center gap-1">
+              <Sparkles className="w-2 h-2 md:w-3 md:h-3 text-white" /> <span className="hidden md:inline">Pro Grade</span><span className="inline md:hidden">Pro</span>
             </span>
           )}
         </div>
@@ -75,7 +78,7 @@ export default function FeaturedProducts() {
         {/* Hover Actions Menu */}
         <div className="hidden md:flex absolute top-5 right-5 z-20 flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-[0.16,1,0.3,1]">
           <button 
-            onClick={(e) => { e.preventDefault(); toggleWishlist(product.id); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
             className={`w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center transition-colors shadow-lg ${
               wishlist.includes(product.id) ? "text-red-500 hover:bg-red-50" : "text-foreground hover:bg-primary hover:border-primary hover:text-white"
             }`} 
@@ -84,7 +87,7 @@ export default function FeaturedProducts() {
             <Heart size={16} className={wishlist.includes(product.id) ? "fill-current" : ""} />
           </button>
           <button 
-            onClick={(e) => { e.preventDefault(); setQuickViewProduct(product); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/product/' + product.id); }}
             className="w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg" 
             title="Quick View"
           >
@@ -138,6 +141,7 @@ export default function FeaturedProducts() {
             <button 
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 addToCart(product);
               }}
               className="relative overflow-hidden group/cart w-8 h-8 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 flex items-center justify-center hover:border-primary/50 transition-all duration-500 shadow-sm hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] shrink-0 transform-gpu hover:scale-105"
@@ -152,13 +156,13 @@ export default function FeaturedProducts() {
   };
 
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section className="py-12 md:py-24 bg-background relative overflow-hidden">
       {/* Decorative Glow */}
       <div className="absolute top-1/3 -right-64 w-[600px] h-[600px] bg-secondary/5 blur-[150px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 -left-64 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10 max-w-[1400px]">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 border-b border-foreground/10 pb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6 border-b border-foreground/10 pb-8">
           <div>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}

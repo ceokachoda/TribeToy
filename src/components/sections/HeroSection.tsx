@@ -1,10 +1,21 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { products } from "@/data/products";
 
 export default function HeroSection() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -31,7 +42,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-28 pb-8">
+    <section className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-20 md:pt-28 pb-4 md:pb-8">
       
       {/* Refined Decorative Light Background Elements */}
       <motion.div 
@@ -51,9 +62,9 @@ export default function HeroSection() {
       <div className="container mx-auto px-6 md:px-12 relative z-10 w-full h-full">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-16 h-full">
           
-          {/* Left Side: Typography */}
+          {/* Left Side: Typography - Desktop Only */}
           <motion.div 
-            className="flex flex-col items-start text-left w-full md:w-[55%]"
+            className="hidden md:flex flex-col items-start text-left w-full md:w-[55%]"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -62,7 +73,7 @@ export default function HeroSection() {
             {/* Badge - Elegant Pill */}
             <motion.div 
               variants={itemVariants}
-              className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-primary/20 bg-white/70 backdrop-blur-xl mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(121,152,122,0.1)] transition-shadow duration-500 cursor-default group"
+              className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-5 py-2 md:py-2.5 rounded-full border border-primary/20 bg-white/70 backdrop-blur-xl mb-4 md:mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(121,152,122,0.1)] transition-shadow duration-500 cursor-default group"
             >
               <span className="relative flex h-2.5 w-2.5 items-center justify-center">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
@@ -77,7 +88,7 @@ export default function HeroSection() {
             <div className="mb-6 flex flex-col items-start">
               <motion.h1 
                 variants={itemVariants}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] font-heading font-black tracking-tighter leading-[1.05] text-foreground drop-shadow-sm pb-2"
+                className="text-4xl md:text-6xl lg:text-[4rem] font-heading font-black tracking-tighter leading-[1.05] text-foreground drop-shadow-sm pb-1 md:pb-2"
               >
                 Eco-Friendly Toys.<br />
                 Powered by Innovation.<br />
@@ -87,10 +98,9 @@ export default function HeroSection() {
               </motion.h1>
             </div>
 
-            {/* Paragraph - Refined Typography */}
             <motion.p 
               variants={itemVariants}
-              className="max-w-md text-base sm:text-lg text-foreground/60 mb-10 leading-relaxed font-medium tracking-wide"
+              className="max-w-md text-sm md:text-lg text-foreground/60 mb-6 md:mb-10 leading-relaxed font-medium tracking-wide"
             >
               Bringing stories to life through sustainable 3D-printed and hand-painted toys
             </motion.p>
@@ -98,7 +108,7 @@ export default function HeroSection() {
             {/* CTA Buttons - Premium Interaction */}
             <motion.div 
               variants={itemVariants}
-              className="flex flex-col sm:flex-row items-center gap-5 w-full sm:w-auto mt-6"
+              className="flex flex-col sm:flex-row items-center gap-3 md:gap-5 w-full sm:w-auto mt-2 md:mt-6"
             >
               {/* Primary Button */}
               <Link href="/shop" className="group relative w-full sm:w-auto px-9 py-4 rounded-full flex items-center justify-center gap-3">
@@ -142,7 +152,7 @@ export default function HeroSection() {
             {/* Features - Interactive Glass Cards */}
             <motion.div 
               variants={itemVariants}
-              className="mt-14 flex flex-col sm:flex-row gap-5"
+              className="mt-8 md:mt-14 grid grid-cols-2 sm:flex sm:flex-row gap-3 md:gap-5"
             >
               {[
                 { title: "Premium Quality", desc: "Top-grade materials", color: "from-primary", shadow: "group-hover:shadow-[0_8px_20px_rgba(121,152,122,0.15)]" },
@@ -164,12 +174,151 @@ export default function HeroSection() {
                 </div>
               ))}
             </motion.div>
-
           </motion.div>
 
-          {/* Right Side: Video Container - Floating & Premium */}
+          {/* Mobile Only: Amazon-Style App Layout */}
           <motion.div 
-            className="w-full md:w-[45%] relative"
+            className="flex md:hidden flex-col w-full relative z-10 -mx-6 px-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Bento Box Grid */}
+            <div className="grid grid-cols-2 gap-3 mt-2 mb-4">
+              {/* Large Hero Carousel spanning full width */}
+              <div className="col-span-2 relative h-48 rounded-[2rem] overflow-hidden shadow-sm">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(e, { offset, velocity }) => {
+                      const swipe = Math.abs(offset.x) * velocity.x;
+                      if (swipe < -100) {
+                        setCurrentSlide((prev) => (prev + 1) % 3);
+                      } else if (swipe > 100) {
+                        setCurrentSlide((prev) => (prev - 1 + 3) % 3);
+                      }
+                    }}
+                    className="absolute inset-0 cursor-grab active:cursor-grabbing"
+                  >
+                    <Link 
+                      href={[
+                        "/shop?category=Cultural",
+                        "/shop?category=Educational",
+                        "/shop?category=Toys%20%26%20Figurines"
+                      ][currentSlide]} 
+                      className="absolute inset-0 block"
+                    >
+                      {products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide])?.image && (
+                        <Image 
+                          src={products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide])!.image} 
+                          alt="Featured" 
+                          fill 
+                          className="object-cover brightness-95" 
+                          sizes="(max-width: 768px) 100vw" 
+                          priority
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4 flex flex-col">
+                        <span className="text-[10px] text-primary font-black uppercase tracking-widest mb-1">
+                          {["Featured Collection", "Interactive Learning", "Premium Figurines"][currentSlide]}
+                        </span>
+                        <h3 className="text-xl font-black text-white leading-tight">
+                          {["Assamese Heritage Models", "Educational Eco-Toys", "New Arrivals"][currentSlide]}
+                        </h3>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </AnimatePresence>
+                
+                {/* Pagination Dots */}
+                <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
+                  {[0, 1, 2].map((i) => (
+                    <div 
+                      key={i} 
+                      className={`h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-5 bg-primary' : 'w-1.5 bg-white/40 backdrop-blur-md'}`} 
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* Two Square Cards */}
+              <Link href="/customization" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
+                <Image src="/ghibli_hero_v2.png" alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3 flex flex-col">
+                  <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-0.5">Your Design</span>
+                  <h3 className="text-sm font-black text-white leading-tight">Custom 3D Prints</h3>
+                </div>
+              </Link>
+              
+              <Link href="/shop" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform bg-[#f4f5f4] flex flex-col justify-between p-4 block">
+                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                  <Sparkles size={14} className="text-primary" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#8a958c] font-black uppercase tracking-widest mb-0.5">Explore All</span>
+                  <h3 className="text-sm font-black text-[#1a1a1a] leading-tight">New Arrivals</h3>
+                </div>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Mobile Only: Featured Products Marquee */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 1 }}
+            className="w-full md:hidden relative overflow-hidden -mx-6 px-6 mt-4 pb-2"
+          >
+            <div className="flex gap-3 w-max animate-[marquee_15s_linear_infinite] hover:[animation-play-state:paused]">
+              {[...products.slice(0, 5), ...products.slice(0, 5)].map((product, i) => (
+                <Link href={`/product/${product.id}`} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95">
+                  <Image src={product.image} alt={product.name} fill className="object-cover brightness-105" sizes="144px" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3 flex flex-col">
+                    <span className="text-[10px] text-primary font-black uppercase tracking-widest line-clamp-1 mb-0.5">{product.category}</span>
+                    <p className="text-xs font-bold text-white line-clamp-1 leading-tight">{product.name}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            
+            {/* Fade Edges for Marquee */}
+            <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          </motion.div>
+
+          {/* Mobile Only: Brand Mission Statement (Moved below fold) */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="flex md:hidden flex-col items-center text-center w-full mt-10 mb-2 px-4"
+          >
+            <h2 className="text-3xl font-heading font-black tracking-tighter leading-[1.1] text-foreground drop-shadow-sm">
+              Eco-Friendly Toys.<br />
+              Powered by Innovation.<br />
+              <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-[gradient_6s_linear_infinite] drop-shadow-md">
+                Made with Care.
+              </span>
+            </h2>
+            <p className="mt-4 text-sm text-foreground/60 leading-relaxed font-medium tracking-wide max-w-[280px]">
+              Bringing stories to life through sustainable 3D-printed and hand-painted toys.
+            </p>
+          </motion.div>
+
+          {/* Right Side: Video Container - Desktop Only */}
+          <motion.div 
+            className="hidden md:block w-[45%] relative"
             initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
             animate={{ 
               opacity: 1, 
@@ -225,12 +374,12 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* 3D Printer Extruder Scroll Indicator */}
+      {/* 3D Printer Extruder Scroll Indicator - Desktop Only */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2, duration: 1, type: "spring" }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 cursor-pointer group"
+        className="hidden md:flex absolute bottom-4 left-1/2 -translate-x-1/2 flex-col items-center z-20 cursor-pointer group"
         onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
       >
         <span className="text-[9px] font-black tracking-[0.3em] text-foreground/40 uppercase mb-2 group-hover:text-primary transition-colors duration-300">

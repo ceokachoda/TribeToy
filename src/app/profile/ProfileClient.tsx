@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, User, MapPin, CreditCard, ChevronRight, Download, Truck, CheckCircle2, Circle, X, Heart } from "lucide-react";
+import { Package, User, MapPin, CreditCard, ChevronRight, ChevronLeft, Download, Truck, CheckCircle2, Circle, X, Heart } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
@@ -18,15 +18,21 @@ const trackingStages = [
 function ProfileContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const tab = searchParams.get("tab") || "profile";
+  const tab = searchParams.get("tab");
   
-  const [activeTab, setActiveTab] = useState(tab);
+  const [activeTab, setActiveTab] = useState(tab || "profile");
+  const [isMobileMenu, setIsMobileMenu] = useState(!tab);
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   useEffect(() => {
-    setActiveTab(tab);
+    if (tab) {
+      setActiveTab(tab);
+      setIsMobileMenu(false);
+    } else {
+      setIsMobileMenu(true);
+    }
   }, [tab]);
 
   useEffect(() => {
@@ -51,6 +57,7 @@ function ProfileContent() {
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
+    setIsMobileMenu(false);
     router.push(`/profile?tab=${newTab}`, { scroll: false });
   };
 
@@ -60,11 +67,11 @@ function ProfileContent() {
   };
 
   return (
-    <div className="container mx-auto px-6 pt-32 pb-32 min-h-screen">
+    <div className="container mx-auto px-6 pt-20 md:pt-32 pb-32 min-h-screen">
       <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
         
         {/* Sidebar Nav */}
-        <div className="lg:w-1/4 flex flex-col gap-2">
+        <div className={`w-full lg:w-1/4 flex-col gap-2 ${isMobileMenu ? 'flex' : 'hidden lg:flex'}`}>
           <h1 className="text-3xl font-heading font-black text-[#1a1a1a] mb-6">My Account</h1>
           
           <button 
@@ -124,7 +131,17 @@ function ProfileContent() {
         </div>
 
         {/* Content Area */}
-        <div className="lg:w-3/4">
+        <div className={`w-full lg:w-3/4 ${!isMobileMenu ? 'block' : 'hidden lg:block'}`}>
+          <button 
+            onClick={() => {
+              setIsMobileMenu(true);
+              router.push('/profile', { scroll: false });
+            }}
+            className="flex lg:hidden items-center gap-2 text-[#8a958c] font-bold mb-6 hover:text-[#1a1a1a] transition-colors"
+          >
+            <ChevronLeft size={20} /> Back to Menu
+          </button>
+
           {activeTab === "profile" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
               <h2 className="text-2xl font-bold text-[#1a1a1a] mb-8">Profile Details</h2>
@@ -288,24 +305,24 @@ function ProfileContent() {
             >
               <button 
                 onClick={() => setSelectedOrder(null)}
-                className="absolute top-4 right-4 z-50 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#1a1a1a] hover:bg-black/5 hover:scale-110 transition-all border border-black/10 shadow-sm"
+                className="absolute top-4 right-4 md:right-8 z-50 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[#1a1a1a] hover:bg-black/5 hover:scale-110 transition-all border border-black/10 shadow-sm"
               >
                 <X size={20} />
               </button>
 
               <div className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
                 {/* Header Graphic */}
-                <div className="bg-[#4a5d4e] text-white p-10 md:p-14 relative overflow-hidden">
+                <div className="bg-[#4a5d4e] text-white p-10 md:py-14 md:pl-14 md:pr-24 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[60px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
                   
                   <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div>
+                    <div className="md:max-w-[60%]">
                       <h2 className="text-3xl md:text-4xl font-heading font-black mb-2 tracking-tight">Order Details</h2>
                       <p className="text-white/80 font-medium">Thank you for shopping with TribeToy!</p>
                     </div>
-                    <div className="text-left md:text-right">
+                    <div className="text-left md:text-right md:max-w-[40%]">
                       <p className="text-[10px] font-bold tracking-[0.2em] text-white/60 uppercase mb-1">Order Number</p>
-                      <p className="font-mono text-xl md:text-2xl font-bold tracking-tight">{selectedOrder.id}</p>
+                      <p className="font-mono text-xl md:text-2xl font-bold tracking-tight truncate" title={selectedOrder.id.toString()}>{selectedOrder.id}</p>
                     </div>
                   </div>
                 </div>
@@ -341,26 +358,27 @@ function ProfileContent() {
                   </div>
 
                   {/* E-Bill Breakdown */}
-                  <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
-                    <div className="flex items-center justify-between mb-8">
-                      <h3 className="text-lg font-bold text-[#1a1a1a]">Invoice Details</h3>
-                      <button className="flex items-center gap-2 text-[#4a5d4e] hover:text-[#3a4d3e] font-bold text-xs uppercase tracking-wider transition-colors">
-                        <Download size={14} />
+                  <div className="bg-white rounded-2xl md:rounded-3xl p-5 md:p-8 border border-black/5 shadow-sm">
+                    <div className="flex items-center justify-between mb-6 md:mb-8 gap-4">
+                      <h3 className="text-base md:text-lg font-bold text-[#1a1a1a] whitespace-nowrap">Invoice Details</h3>
+                      <button className="flex items-center gap-1.5 md:gap-2 text-[#4a5d4e] hover:text-[#3a4d3e] font-bold text-[10px] md:text-xs uppercase tracking-wider transition-colors whitespace-nowrap shrink-0">
+                        <Download size={14} className="hidden md:block"/>
+                        <Download size={12} className="md:hidden"/>
                         Download PDF
                       </button>
                     </div>
 
                     <div className="flex flex-col gap-4">
                       {selectedOrder.items.map((item: any, i: number) => (
-                        <div key={i} className="flex items-center gap-4 py-4 border-b border-black/5">
-                          <div className="w-16 h-16 bg-[#f4f5f4] rounded-xl relative overflow-hidden flex-shrink-0">
+                        <div key={i} className="flex items-center gap-3 md:gap-4 py-4 border-b border-black/5">
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-[#f4f5f4] rounded-xl relative overflow-hidden flex-shrink-0">
                             {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
                           </div>
-                          <div className="flex-grow">
-                            <h4 className="text-sm font-bold text-[#1a1a1a]">{item.name}</h4>
-                            <p className="text-xs text-[#8a958c]">Qty: {item.quantity}</p>
+                          <div className="flex-grow min-w-0">
+                            <h4 className="text-xs md:text-sm font-bold text-[#1a1a1a] line-clamp-2 md:line-clamp-none leading-snug">{item.name}</h4>
+                            <p className="text-[10px] md:text-xs text-[#8a958c] mt-0.5">Qty: {item.quantity}</p>
                           </div>
-                          <span className="font-bold text-[#1a1a1a] whitespace-nowrap">₹{(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</span>
+                          <span className="text-sm md:text-base font-bold text-[#1a1a1a] whitespace-nowrap shrink-0">₹{(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>

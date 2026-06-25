@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store, Search, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { products } from "@/data/products";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -20,11 +21,23 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
   const pathname = usePathname();
+  const router = useRouter();
   const { totalItems } = useCart();
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return products.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      p.category.toLowerCase().includes(query)
+    ).slice(0, 6);
+  }, [searchQuery]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -205,7 +218,129 @@ export default function Navbar() {
             )}
           </Link>
         </div>
+
+        {/* Mobile Right Side Actions */}
+        <div className="flex md:hidden items-center gap-2">
+          {/* Dynamic Greeting/Status Pill */}
+          {userName ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20 backdrop-blur-md">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary truncate max-w-[80px]">Hi, {userName.split(' ')[0]}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/60 rounded-full border border-foreground/5 backdrop-blur-md shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-foreground/40" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-foreground/60">Guest</span>
+            </div>
+          )}
+
+          {/* Search Button */}
+          <button 
+            onClick={() => setMobileSearchOpen(true)}
+            className="w-8 h-8 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-foreground/5 flex items-center justify-center text-foreground/80 hover:bg-primary/10 hover:text-primary transition-all active:scale-95"
+          >
+            <Search size={14} />
+          </button>
+
+          {/* Menu Button */}
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className="w-8 h-8 rounded-full bg-[#1a1a1a] shadow-[0_2px_10px_rgba(0,0,0,0.1)] flex items-center justify-center text-white hover:bg-primary transition-all active:scale-95"
+            aria-label="Menu"
+          >
+            <Menu size={14} />
+          </button>
+        </div>
+
       </div>
+
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {mobileSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[60] bg-white flex flex-col md:hidden"
+          >
+            {/* Search Header */}
+            <div className="flex items-center gap-3 p-4 border-b border-foreground/5 shadow-sm bg-white z-10">
+              <button 
+                onClick={() => setMobileSearchOpen(false)}
+                className="p-2 -ml-2 text-foreground/60 hover:text-foreground"
+              >
+                <ArrowLeft size={24} />
+              </button>
+              <div className="flex-1 relative">
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  autoFocus
+                  className="w-full bg-foreground/5 rounded-full py-2.5 pl-10 pr-10 text-sm font-medium text-foreground outline-none border border-transparent focus:border-primary/30 focus:bg-white transition-all"
+                />
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40" />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Search Results */}
+            <div className="flex-1 overflow-y-auto bg-[#f4f5f4] p-4">
+              {!searchQuery.trim() ? (
+                <div className="flex flex-col items-center justify-center h-full text-center px-6 opacity-50">
+                  <Search size={48} className="mb-4 text-foreground/20" />
+                  <p className="text-sm font-bold text-foreground/60">Type to search for toys, statues, and more</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  <span className="text-xs font-black uppercase tracking-wider text-foreground/40 px-2 mb-1">Products</span>
+                  {searchResults.map(product => (
+                    <button 
+                      key={product.id}
+                      onClick={() => {
+                        setMobileSearchOpen(false);
+                        router.push(`/shop?search=${encodeURIComponent(product.name)}`);
+                      }}
+                      className="flex items-center gap-4 p-3 bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-foreground/5 text-left active:scale-[0.98] transition-transform"
+                    >
+                      <div className="w-14 h-14 bg-[#f4f5f4] rounded-xl overflow-hidden relative shrink-0">
+                        {product.image ? (
+                          <Image src={product.image} alt={product.name} fill className="object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Store size={16} className="text-foreground/20" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <p className="text-xs font-bold text-primary uppercase tracking-wider mb-0.5">{product.category}</p>
+                        <h4 className="text-sm font-black text-foreground truncate">{product.name}</h4>
+                        <p className="text-xs font-bold text-foreground/60 mt-0.5">{product.price}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
+                    <X size={24} className="text-foreground/30" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">No results found for &quot;{searchQuery}&quot;</p>
+                  <p className="text-xs text-foreground/60 mt-1">Try checking for typos or using different terms.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -214,7 +349,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-50 glass-panel flex flex-col items-center justify-center"
+            className="fixed inset-0 z-50 bg-background/98 backdrop-blur-3xl flex flex-col items-center justify-center shadow-2xl overflow-y-auto pb-24 pt-16"
           >
             <button
               className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors"

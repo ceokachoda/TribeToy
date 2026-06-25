@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Eye, Heart, Sparkles, Filter, ChevronRight } from "lucide-react";
+import { ShoppingBag, Eye, Heart, Sparkles, Filter, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { products, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
@@ -13,11 +13,14 @@ import { useToast } from "@/context/ToastContext";
 
 function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const categoryParam = searchParams.get("category");
+  const searchParam = searchParams.get("search");
   const { addToCart } = useCart();
   const { showToast } = useToast();
   
   const [activeCategory, setActiveCategory] = useState<string>("All Toys");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
@@ -48,8 +51,13 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
   useEffect(() => {
     if (categoryParam) {
       setActiveCategory(categoryParam);
+      setSearchQuery(""); // Clear search if category is selected
     }
-  }, [categoryParam]);
+    if (searchParam) {
+      setSearchQuery(searchParam);
+      setActiveCategory("All Toys"); // Search across all by default
+    }
+  }, [categoryParam, searchParam]);
   
   // Dynamically calculate category counts
   const categories = ["All Toys", "Cultural", "Educational", "Statues", "Toys & Figurines", "Utility & Decor"];
@@ -59,11 +67,19 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
     return initialProducts.filter(p => p.category === cat).length;
   };
 
-  const filteredProducts = activeCategory === "All Toys" 
+  let filteredProducts = activeCategory === "All Toys" 
     ? initialProducts 
     : initialProducts.filter(p => p.category === activeCategory);
 
+  if (searchQuery) {
+    filteredProducts = filteredProducts.filter(p => 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      p.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
   return (
+    <div className="w-full">
     <div className="flex flex-col lg:flex-row gap-12 items-start">
       {/* Desktop Sidebar Navigation */}
       <aside className="hidden lg:block w-full lg:w-1/4 sticky top-32 z-10">
@@ -104,8 +120,13 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
       </aside>
 
       {/* Mobile Category Pill Bar */}
-      <div className="block lg:hidden w-full -mx-6 px-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden mb-4">
-        <div className="flex gap-2 min-w-max">
+      <div className="block lg:hidden relative w-full -mx-6 mb-4">
+        {/* Scroll affordance gradient */}
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        
+        <div className="overflow-x-auto px-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-2 min-w-max pr-6">
           {categories.map((category) => (
             <button
               key={category}
@@ -121,20 +142,25 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
           ))}
         </div>
       </div>
+      </div>
 
       {/* Main Product Grid */}
       <div className="w-full lg:w-3/4">
         {/* Dynamic Category Header */}
         <div className="mb-12 pb-6 border-b border-foreground/10 flex flex-col gap-3">
-          <h1 className="text-5xl md:text-6xl font-heading font-black tracking-tight text-foreground drop-shadow-sm">
-            {activeCategory === "All Toys" ? (
+          <h1 className="text-4xl md:text-6xl font-heading font-black tracking-tight text-foreground drop-shadow-sm">
+            {searchQuery ? (
+              <>Search: <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">&quot;{searchQuery}&quot;</span></>
+            ) : activeCategory === "All Toys" ? (
               <>Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">Collection</span></>
             ) : (
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">{activeCategory}</span>
             )}
           </h1>
           <p className="text-foreground/60 font-medium text-sm md:text-base">
-            Explore {activeCategory === "All Toys" ? "our entire catalog" : `our curated selection of ${activeCategory}`}. 
+            {searchQuery 
+              ? `Showing search results for "${searchQuery}"` 
+              : `Explore ${activeCategory === "All Toys" ? "our entire catalog" : `our curated selection of ${activeCategory}`}. `}
             Showing <span className="text-foreground font-bold">{filteredProducts.length}</span> results.
           </p>
         </div>
@@ -152,40 +178,41 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] group-hover:-translate-y-2 flex flex-col h-full transform-gpu"
+                onClick={() => router.push('/product/' + product.id)}
+                className="group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] group-hover:-translate-y-2 flex flex-col h-full transform-gpu cursor-pointer"
               >
                 {/* Background Glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
 
                 <div className="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex flex-col gap-1 md:gap-2">
                   {product.isSale && (
-                    <span className="px-2 py-0.5 md:px-3 md:py-1 bg-accent/90 backdrop-blur-xl text-black text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">Sale</span>
+                    <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-accent/90 backdrop-blur-xl text-black text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">Sale</span>
                   )}
                   {product.isPremium && (
-                    <span className="px-2 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
-                      <Sparkles size={8} /> <span className="hidden md:inline">Pro</span>
+                    <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
+                      <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2" /> <span className="hidden md:inline">Pro</span>
                     </span>
                   )}
                   {product.isNew && (
-                    <span className="px-2 py-0.5 md:px-3 md:py-1 bg-primary/90 backdrop-blur-xl text-white text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">New</span>
+                    <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-primary/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">New</span>
                   )}
                 </div>
 
                 {/* Hover Actions */}
-                <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-2 md:translate-x-8 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-1 md:gap-2 bg-white/80 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-1 md:p-0 rounded-full md:rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.05)] md:shadow-none border border-black/5 md:border-none md:translate-x-8 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
                   <button 
-                    onClick={(e) => { e.preventDefault(); toggleWishlist(product.id); }}
-                    className={`w-8 h-8 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center transition-colors shadow-lg ${
-                      wishlist.includes(product.id) ? "text-red-500 hover:bg-red-50" : "text-foreground hover:bg-primary hover:border-primary hover:text-white"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
+                    className={`w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center transition-colors md:shadow-lg ${
+                      wishlist.includes(product.id) ? "text-red-500 hover:text-red-600 md:hover:bg-red-50" : "text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white"
                     }`}
                   >
-                    <Heart size={14} className={wishlist.includes(product.id) ? "fill-current" : ""} />
+                    <Heart size={12} className={wishlist.includes(product.id) ? "fill-current" : ""} />
                   </button>
                   <button 
-                    onClick={(e) => { e.preventDefault(); setQuickViewProduct(product); }}
-                    className="w-8 h-8 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors shadow-lg"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/product/' + product.id); }}
+                    className="w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white transition-colors md:shadow-lg"
                   >
-                    <Eye size={14} />
+                    <Eye size={12} />
                   </button>
                 </div>
 
@@ -232,6 +259,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
                     <button 
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         addToCart(product);
                       }}
                       className="relative overflow-hidden group/cart w-9 h-9 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 shadow-sm flex items-center justify-center hover:border-primary/50 hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] transition-all duration-500 shrink-0 transform-gpu hover:scale-105"
@@ -245,6 +273,85 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
             ))}
           </AnimatePresence>
         </motion.div>
+      </div>
+      </div>
+
+      {/* Premium Customer Reviews Section */}
+      <div className="mt-12 mb-8 md:mt-24 md:mb-12 lg:mt-32 lg:mb-20">
+        <div className="flex flex-col items-center justify-center text-center mb-10 md:mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md mb-4"
+          >
+            <Star size={14} className="text-primary fill-primary" />
+            <span className="text-[10px] md:text-xs font-bold tracking-[0.2em] text-primary uppercase">Trusted by Thousands</span>
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl md:text-4xl lg:text-5xl font-heading font-black tracking-tight text-foreground"
+          >
+            What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Tribe</span> Says
+          </motion.h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {[
+            {
+              name: "Faraah Yasmin Bora",
+              rating: 5,
+              text: "Absolutely stunning quality. The intricate details on the 3D models blew me away. Worth every penny for such premium craftsmanship!",
+              date: "June 2026"
+            },
+            {
+              name: "Karan Malakar",
+              rating: 5,
+              text: "The checkout process was seamless, and the tracking timeline was incredibly accurate. But the best part is definitely the product itself—flawless finish.",
+              date: "June 2026"
+            },
+            {
+              name: "Kaustab Borah",
+              rating: 5,
+              text: "I've bought 3D prints from various places, but TribeToy is on another level. The pro-grade materials they use make the figurines feel like high-end collectibles.",
+              date: "May 2026"
+            }
+          ].map((review, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="relative rounded-3xl bg-white border border-foreground/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(121,152,122,0.15)] p-6 md:p-8 flex flex-col group transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[50px] -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors duration-500 pointer-events-none" />
+              
+              <div className="flex items-center gap-1 mb-4">
+                {[...Array(review.rating)].map((_, idx) => (
+                  <Star key={idx} size={14} className="fill-[#fbbf24] text-[#fbbf24]" />
+                ))}
+              </div>
+              
+              <p className="text-foreground/80 font-medium leading-relaxed mb-8 flex-grow relative z-10 text-sm md:text-base">
+                "{review.text}"
+              </p>
+              
+              <div className="flex items-center gap-4 relative z-10 mt-auto pt-6 border-t border-foreground/5">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-tr from-primary/20 to-secondary/20 flex items-center justify-center text-primary font-black text-sm md:text-base border border-primary/20 shrink-0">
+                  {review.name.charAt(0)}
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-foreground text-sm md:text-base">{review.name}</span>
+                  <span className="text-[10px] md:text-xs text-foreground/50 font-bold uppercase tracking-wider">Verified Buyer • {review.date}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <QuickViewModal 

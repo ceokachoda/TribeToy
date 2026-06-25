@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function ShopPage() {
   return (
-    <main className="min-h-screen bg-background pt-32 pb-24">
+    <main className="min-h-screen bg-background pt-20 md:pt-32 pb-24">
       <div className="container mx-auto px-6 md:px-12 max-w-[1600px]">
         {/* Dynamic header moved to ShopClient */}
 
