@@ -2,7 +2,8 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Leaf, GraduationCap, Users, Lightbulb } from "lucide-react";
+import { Leaf, GraduationCap, Users, Lightbulb, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const features = [
   {
@@ -66,30 +67,49 @@ export default function AboutSection() {
               ))}
             </div>
             
-            <button className="mt-8 self-start px-8 py-3 glass hover:bg-white/5 transition-all font-semibold rounded-full text-sm tracking-wider uppercase">
-              Know More About Us
-            </button>
+            <Link href="/about" className="mt-8 group relative w-max px-9 py-4 rounded-full flex items-center justify-center gap-3">
+              {/* Core Background */}
+              <div className="absolute inset-0 bg-secondary rounded-full overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-[gradient_4s_linear_infinite] opacity-80" />
+              </div>
+              
+              {/* Ripple Effect on Hover */}
+              <div className="absolute inset-0 rounded-full border-2 border-primary scale-[0.8] opacity-0 group-hover:scale-[1.3] group-hover:opacity-0 transition-all duration-700 ease-out pointer-events-none" />
+              <div className="absolute inset-0 rounded-full border-2 border-primary scale-[0.8] opacity-0 group-hover:scale-[1.5] group-hover:opacity-0 transition-all duration-1000 delay-100 ease-out pointer-events-none" />
+              
+              {/* Button Content */}
+              <span className="relative z-10 text-white font-black tracking-[0.15em] text-xs sm:text-sm drop-shadow-sm">
+                KNOW MORE ABOUT US
+              </span>
+              <div className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm group-hover:bg-white/40 transition-colors duration-300">
+                <ArrowRight size={14} className="text-white group-hover:translate-x-0.5 transition-transform duration-300" />
+              </div>
+            </Link>
           </motion.div>
 
           {/* Right Visual Content (Parallax Cards) */}
-          <motion.div style={{ y, opacity }} className="lg:w-1/2 relative h-[500px] w-full">
-            <div className="absolute top-10 right-10 w-64 h-80 glass-panel rounded-2xl z-10 p-6 flex flex-col justify-end overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-              {/* Placeholder for Green Putola Image */}
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
-              <div className="relative z-20">
-                <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-primary/30 mb-3 inline-block">Initiative</span>
-                <h3 className="font-heading font-bold text-xl text-foreground">Green Putola</h3>
+          <motion.div style={{ y, opacity }} className="lg:w-1/2 flex justify-center gap-6 h-[600px] items-center relative w-full mt-12 lg:mt-0">
+            {/* Left Card (Shifted Up) */}
+            <div className="flex flex-col gap-6 -mt-24 w-1/2 max-w-[280px]">
+              <div className="w-full h-80 glass-panel rounded-[2rem] relative overflow-hidden group p-6 flex flex-col justify-end shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+                <div className="absolute inset-0 bg-[url('/ghibli_green_putola.png')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
+                <div className="relative z-20">
+                  <span className="px-3 py-1 bg-primary/30 text-white rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 mb-3 inline-block shadow-sm">Initiative</span>
+                  <h3 className="font-heading font-bold text-xl text-white drop-shadow-md">Green Putola</h3>
+                </div>
               </div>
             </div>
 
-            <div className="absolute bottom-10 left-10 w-72 h-64 glass-panel rounded-2xl z-20 p-6 flex flex-col justify-end overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-              {/* Placeholder for Tech/Women Image */}
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1628126235206-5260b9ea6441?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
-              <div className="relative z-20">
-                <span className="px-3 py-1 bg-secondary/20 text-secondary rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-secondary/30 mb-3 inline-block">Community</span>
-                <h3 className="font-heading font-bold text-xl text-foreground">Empowering Women</h3>
+            {/* Right Card (Shifted Down) */}
+            <div className="flex flex-col gap-6 mt-24 w-1/2 max-w-[280px]">
+              <div className="w-full h-80 glass-panel rounded-[2rem] relative overflow-hidden group p-6 flex flex-col justify-end shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+                <div className="absolute inset-0 bg-[url('/ghibli_impact.png')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
+                <div className="relative z-20">
+                  <span className="px-3 py-1 bg-secondary/40 text-white rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-white/20 mb-3 inline-block shadow-sm">Community</span>
+                  <h3 className="font-heading font-bold text-xl text-white drop-shadow-md">Empowering Women</h3>
+                </div>
               </div>
             </div>
             

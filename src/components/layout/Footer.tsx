@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone, Globe, MessageCircle, Camera, Briefcase } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="relative mt-20 pt-20 pb-10 overflow-hidden border-t border-card-border bg-[#050505]">
+    <footer className="relative mt-20 pt-20 pb-10 overflow-hidden border-t border-black/5 bg-background">
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -31,18 +31,24 @@ export default function Footer() {
               We bring imagination to life through premium 3D printing. From custom gifts to rapid prototyping, we build your ideas layer by layer.
             </p>
             <div className="flex gap-4">
-              <Link href="#" className="p-2 glass rounded-full hover:text-primary transition-colors">
-                <Globe size={18} />
-              </Link>
-              <Link href="#" className="p-2 glass rounded-full hover:text-primary transition-colors">
-                <MessageCircle size={18} />
-              </Link>
-              <Link href="#" className="p-2 glass rounded-full hover:text-primary transition-colors">
-                <Camera size={18} />
-              </Link>
-              <Link href="#" className="p-2 glass rounded-full hover:text-primary transition-colors">
-                <Briefcase size={18} />
-              </Link>
+              <a href="https://www.instagram.com/tribe_toy?igsh=MWxkY3phM2M2MXJhMg==" target="_blank" rel="noopener noreferrer" className="p-2 glass rounded-full hover:text-primary transition-colors flex items-center justify-center w-10 h-10 group/insta">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="group-hover/insta:scale-110 transition-transform duration-300"
+                >
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                </svg>
+              </a>
             </div>
           </div>
 
@@ -50,10 +56,10 @@ export default function Footer() {
           <div>
             <h3 className="font-heading font-semibold text-lg mb-6">Shop</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">All Toys</Link></li>
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">Educational</Link></li>
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">Utility Decor</Link></li>
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">Custom 3D Printing</Link></li>
+              <li><Link href="/shop" className="text-foreground/60 hover:text-primary transition-colors text-sm">All Toys</Link></li>
+              <li><Link href="/shop?category=Educational" className="text-foreground/60 hover:text-primary transition-colors text-sm">Educational</Link></li>
+              <li><Link href="/shop?category=Utility & Decor" className="text-foreground/60 hover:text-primary transition-colors text-sm">Utility Decor</Link></li>
+              <li><Link href="/customization" className="text-foreground/60 hover:text-primary transition-colors text-sm">Custom 3D Printing</Link></li>
             </ul>
           </div>
 
@@ -73,16 +79,20 @@ export default function Footer() {
             <h3 className="font-heading font-semibold text-lg mb-6">Contact Us</h3>
             <ul className="flex flex-col gap-4">
               <li className="flex items-start gap-3 text-sm text-foreground/60">
-                <MapPin size={18} className="text-primary shrink-0" />
-                <span>Assam, India</span>
+                <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
+                <span className="leading-relaxed">Technology Incubation Centre (TIC),<br/>IIT Guwahati, Assam, 781039</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-foreground/60">
-                <Phone size={18} className="text-primary shrink-0" />
-                <span>+91 XXXXX XXXXX</span>
+              <li>
+                <a href="tel:+918099962939" className="flex items-center gap-3 text-sm text-foreground/60 hover:text-primary transition-colors group/link">
+                  <Phone size={18} className="text-primary shrink-0 group-hover/link:animate-pulse" />
+                  <span>(+91) 8099962939</span>
+                </a>
               </li>
-              <li className="flex items-center gap-3 text-sm text-foreground/60">
-                <Mail size={18} className="text-primary shrink-0" />
-                <span>hello@tribetoy.com</span>
+              <li>
+                <a href="mailto:tribetoy2025@gmail.com" className="flex items-center gap-3 text-sm text-foreground/60 hover:text-primary transition-colors group/link">
+                  <Mail size={18} className="text-primary shrink-0 group-hover/link:animate-pulse" />
+                  <span>tribetoy2025@gmail.com</span>
+                </a>
               </li>
             </ul>
           </div>

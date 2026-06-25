@@ -12,28 +12,28 @@ const categories = [
     name: "Toys & Figurines",
     description: "Intricately detailed, multi-part articulable characters designed for play and display.",
     image: "/products/toy.jpg",
-    link: "/shop/toys"
+    link: "/shop?category=Toys & Figurines"
   },
   {
     id: "edu",
     name: "Educational",
     description: "Hands-on learning puzzles.",
     image: "/products/educational.jpeg",
-    link: "/shop/educational"
+    link: "/shop?category=Educational"
   },
   {
     id: "utility",
     name: "Utility Decor",
     description: "Functional homeware.",
     image: "/products/utility%20decor.jpeg",
-    link: "/shop/utility"
+    link: "/shop?category=Utility & Decor"
   },
   {
     id: "culture",
     name: "Cultural Heritage",
     description: "Celebrating history in 3D.",
     image: "/products/cultural.jpeg",
-    link: "/shop/cultural"
+    link: "/shop?category=Cultural"
   },
 ];
 
@@ -168,11 +168,11 @@ export default function ProductCategories() {
             transition={{ delay: 0.2 }}
             className="pb-4"
           >
-            <Link href="/shop" className="group flex items-center gap-4 text-xs font-bold tracking-[0.3em] uppercase text-foreground/50 hover:text-primary transition-colors">
-              View Complete Catalog
-              <span className="w-12 h-12 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </span>
+            <Link href="/shop" className="group flex items-center gap-4 transition-all duration-500 mb-2 md:mb-0">
+              <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase text-foreground/70 group-hover:text-foreground transition-colors">View Complete Catalog</span>
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-foreground/20 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-500 transform-gpu group-hover:shadow-[0_0_15px_rgba(121,152,122,0.2)] group-hover:scale-105 shrink-0">
+                <ArrowRight className="text-foreground/70 group-hover:text-primary transition-all duration-500 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5" />
+              </div>
             </Link>
           </motion.div>
         </div>
@@ -189,7 +189,7 @@ export default function ProductCategories() {
               return (
                 <div 
                   key={category.id}
-                  className={`min-w-[85vw] md:min-w-[55vw] snap-center shrink-0 relative h-[450px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] ring-1 ring-inset ring-white/10 transition-all duration-700 ease-[0.16,1,0.3,1] ${
+                  className={`min-w-[85vw] md:min-w-[55vw] snap-center shrink-0 relative h-[450px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-foreground/10 transition-all duration-700 ease-[0.16,1,0.3,1] ${
                     isActive ? "scale-100 opacity-100 blur-0" : "scale-90 opacity-40 blur-[2px]"
                   }`}
                 >
@@ -261,7 +261,7 @@ export default function ProductCategories() {
               {/* Premium Glow Aura */}
               <div className="absolute -inset-1 bg-gradient-to-tr from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
               
-              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-[#0A0A0A] shadow-xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-foreground/5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-foreground/10 group-hover:border-primary/50 transition-colors duration-700">
                 <Image src={categories[1].image} alt={categories[1].name} fill className="object-cover transition-transform duration-[3s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-[1.02]" sizes="(max-width: 1024px) 100vw, 25vw" />
                 
                 {/* Smooth Seamless Gradient */}
@@ -295,7 +295,7 @@ export default function ProductCategories() {
               {/* Premium Glow Aura */}
               <div className="absolute -inset-1 bg-gradient-to-tr from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
 
-              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-[#0A0A0A] shadow-2xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-foreground/5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-foreground/10 group-hover:border-primary/50 transition-colors duration-700">
                 <Image src={categories[2].image} alt={categories[2].name} fill className="object-cover transition-transform duration-[3s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-[1.1]" sizes="(max-width: 1024px) 100vw, 25vw" />
                 
                 {/* Smooth Seamless Gradient */}
@@ -331,7 +331,7 @@ export default function ProductCategories() {
             {/* Massive Premium Glow Aura */}
             <div className="absolute -inset-2 bg-gradient-to-t from-primary/30 via-primary/5 to-transparent rounded-[2.7rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
 
-            <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden bg-[#0A0A0A] shadow-2xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+            <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden bg-foreground/5 shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-foreground/10 group-hover:border-primary/50 transition-colors duration-700">
               <Image
                 src={categories[0].image}
                 alt={categories[0].name}
@@ -380,7 +380,7 @@ export default function ProductCategories() {
               {/* Premium Glow Aura */}
               <div className="absolute -inset-1 bg-gradient-to-tl from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
 
-              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-[#0A0A0A] shadow-2xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-foreground/5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-foreground/10 group-hover:border-primary/50 transition-colors duration-700">
                 <Image src={categories[3].image} alt={categories[3].name} fill className="object-cover transition-transform duration-[3s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-[1.05]" sizes="(max-width: 1024px) 100vw, 25vw" />
                 
                 {/* Smooth Seamless Gradient */}
