@@ -63,47 +63,6 @@ export default function ProductCategories() {
   });
   const yParallax = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Auto-scroll and scroll tracking for mobile carousel
-  useEffect(() => {
-    const container = carouselRef.current;
-    if (!container) return;
-
-    // Use IntersectionObserver for perfect active card tracking
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = Array.from(container.children).indexOf(entry.target);
-            if (index !== -1) setActiveIndex(index);
-          }
-        });
-      },
-      { root: container, threshold: 0.6 }
-    );
-
-    Array.from(container.children).forEach((child) => observer.observe(child));
-
-    // Auto-swipe interval
-    const interval = setInterval(() => {
-      if (window.innerWidth >= 1024) return; // Desktop uses single screen
-      setActiveIndex((current) => {
-        const next = (current + 1) % categories.length;
-        if (container && container.children[next]) {
-          container.children[next].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-        return next;
-      });
-    }, 4000);
-
-    return () => {
-      observer.disconnect();
-      clearInterval(interval);
-    };
-  }, []);
-
   return (
     <section ref={containerRef} className="py-32 bg-background relative z-10 overflow-hidden cursor-default">
 
@@ -177,69 +136,32 @@ export default function ProductCategories() {
           </motion.div>
         </div>
 
-        {/* The Editorial Gallery - Mobile: Immersive Swipe Carousel */}
-        <div className="block lg:hidden relative mt-8">
-          <div 
-            ref={carouselRef}
-            className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 pt-4 -mx-6 px-6 md:-mx-12 md:px-12 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {categories.map((category, index) => {
-              const tags = ['Signature', 'Learn', 'Living', 'Heritage'];
-              const isActive = activeIndex === index;
-              return (
-                <div 
-                  key={category.id}
-                  className={`min-w-[85vw] md:min-w-[55vw] snap-center shrink-0 relative h-[450px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-foreground/10 transition-all duration-700 ease-[0.16,1,0.3,1] ${
-                    isActive ? "scale-100 opacity-100 blur-0" : "scale-90 opacity-40 blur-[2px]"
-                  }`}
-                >
-                  <Image src={category.image} alt={category.name} fill className="object-cover brightness-[1.05]" sizes="(max-width: 1024px) 85vw" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 opacity-90" />
-                  
-                  <Link href={category.link} className="absolute inset-0 z-40">
-                    <span className="sr-only">Explore {category.name}</span>
-                  </Link>
-                  
-                  <div className={`absolute bottom-4 left-4 right-4 p-5 rounded-[1.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl overflow-hidden transition-all duration-700 ${isActive ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
-                    <div className="relative z-10 flex justify-between items-end gap-3">
-                      <div className="flex-1">
-                        <span className="text-primary font-bold tracking-[0.3em] text-[9px] uppercase mb-1.5 block drop-shadow-md">0{index + 1} / {tags[index]}</span>
-                        <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-xl tracking-tight leading-tight mb-1">{category.name}</h3>
-                        <p className="text-white/80 text-xs font-medium drop-shadow-md line-clamp-2 pr-2">{category.description}</p>
-                      </div>
-                      <div className="shrink-0 w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform -rotate-45">
-                        <ArrowRight size={18} />
-                      </div>
-                    </div>
+        {/* The Editorial Gallery - Mobile: Grid Layout */}
+        <div className="grid grid-cols-2 lg:hidden gap-3 md:gap-6 mt-8">
+          {categories.map((category, index) => {
+            const tags = ['Signature', 'Learn', 'Living', 'Heritage'];
+            return (
+              <div 
+                key={category.id}
+                className="relative h-[220px] md:h-[350px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-foreground/10 group"
+              >
+                <Image src={category.image} alt={category.name} fill className="object-cover brightness-[1.05]" sizes="(max-width: 1024px) 50vw" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 opacity-90" />
+                
+                <Link href={category.link} className="absolute inset-0 z-40">
+                  <span className="sr-only">Explore {category.name}</span>
+                </Link>
+                
+                <div className="absolute bottom-3 left-3 right-3 p-3 md:p-5 rounded-xl md:rounded-[1.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
+                  <div className="relative z-10">
+                    <span className="text-primary font-bold tracking-[0.2em] md:tracking-[0.3em] text-[7px] md:text-[9px] uppercase mb-1 block drop-shadow-md">0{index + 1} / {tags[index]}</span>
+                    <h3 className="text-sm md:text-2xl font-heading font-black text-white drop-shadow-xl tracking-tight leading-tight mb-0.5">{category.name}</h3>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Animated Pagination Dots */}
-          <div className="flex justify-center items-center gap-2 mt-2 mb-8">
-            {categories.map((_, i) => (
-              <div 
-                key={i} 
-                className={`h-1.5 rounded-full transition-all duration-500 relative overflow-hidden ${
-                  activeIndex === i ? "w-10 bg-primary/20" : "w-2 bg-foreground/10"
-                }`}
-              >
-                {/* Filling Progress Bar inside active dot */}
-                {activeIndex === i && (
-                  <motion.div
-                    key={`progress-${activeIndex}`}
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 4, ease: "linear" }}
-                    className="absolute inset-y-0 left-0 bg-primary rounded-full"
-                  />
-                )}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
         {/* The Editorial Gallery - Desktop: Single Screen Composition */}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, Menu, X, User, Heart, Package, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -108,9 +108,9 @@ export default function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1 md:gap-4">
           {userName ? (
-            <div className="relative">
+            <div className="relative hidden md:block">
               <button 
                 className="p-2 text-foreground/80 hover:text-primary transition-colors flex items-center gap-2" 
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -185,37 +185,25 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
           ) : (
-            <>
-              <Link 
-                href="/login" 
-                className="hidden sm:flex px-5 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all hover:scale-105"
-              >
-                Sign In
-              </Link>
-              <Link href="/login" className="sm:hidden p-2 text-foreground/80 hover:text-primary transition-colors" aria-label="Login">
-                <User size={20} />
-              </Link>
-            </>
+            <Link 
+              href="/login" 
+              className="hidden md:flex px-5 py-2 rounded-full bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all hover:scale-105"
+            >
+              Sign In
+            </Link>
           )}
-          <Link href="/profile?tab=wishlist" className="p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Wishlist">
+          <Link href="/profile?tab=wishlist" className="hidden md:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Wishlist">
             <Heart size={20} />
             {wishlistCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
             )}
           </Link>
-          <Link href="/cart" className="p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
+          <Link href="/cart" className="hidden md:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
             <ShoppingCart size={20} />
             {totalItems > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
             )}
           </Link>
-          <button
-            className="md:hidden p-2 text-foreground"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open Menu"
-          >
-            <Menu size={24} />
-          </button>
         </div>
       </div>
 
@@ -234,7 +222,7 @@ export default function Navbar() {
             >
               <X size={32} />
             </button>
-            <nav className="flex flex-col items-center gap-8">
+            <nav className="flex flex-col items-center gap-6 w-full">
               {navLinks.map((link, i) => (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -251,10 +239,87 @@ export default function Navbar() {
                   </Link>
                 </motion.div>
               ))}
+
+              <motion.div 
+                initial={{ opacity: 0, scale: 0 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                transition={{ delay: 0.3 }}
+                className="w-12 h-1 bg-black/10 rounded-full my-2" 
+              />
+
+              {userName ? (
+                <>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                    <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors">
+                      My Profile
+                    </Link>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                    <Link href="/profile?tab=wishlist" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors relative">
+                      My Wishlist
+                      {wishlistCount > 0 && <span className="absolute -right-3 top-1 w-2 h-2 bg-red-500 rounded-full shadow-sm" />}
+                    </Link>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+                    <Link href="/profile?tab=orders" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors">
+                      My Orders
+                    </Link>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+                    <button 
+                      onClick={() => {
+                        localStorage.removeItem("tribetoy_logged_in");
+                        localStorage.removeItem("tribetoy_user_name");
+                        setUserName(null);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="text-xl font-heading font-bold text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </motion.div>
+                </>
+              ) : (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-8 py-3 rounded-full bg-[#1a1a1a] text-white text-sm font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all">
+                    Sign In
+                  </Link>
+                </motion.div>
+              )}
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Mobile Bottom Navigation Bar (App-like) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 pb-safe pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+        <Link href="/" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
+          <Home size={22} className={pathname === '/' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
+          <span className="text-[10px] font-bold">Home</span>
+        </Link>
+        <Link href="/shop" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname.startsWith('/shop') ? 'text-primary' : 'text-[#8a958c]'}`}>
+          <Store size={22} className={pathname.startsWith('/shop') ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
+          <span className="text-[10px] font-bold">Shop</span>
+        </Link>
+        <Link href="/cart" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors relative ${pathname === '/cart' ? 'text-primary' : 'text-[#8a958c]'}`}>
+          <ShoppingCart size={22} className={pathname === '/cart' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
+          <span className="text-[10px] font-bold">Cart</span>
+          {totalItems > 0 && (
+            <span className="absolute top-1 right-[25%] w-2 h-2 bg-red-500 rounded-full shadow-sm" />
+          )}
+        </Link>
+        <Link href="/profile?tab=wishlist" className="flex flex-col items-center gap-1 flex-1 py-2 transition-colors relative text-[#8a958c]">
+          <Heart size={22} className="stroke-2" />
+          <span className="text-[10px] font-bold">Wishlist</span>
+          {wishlistCount > 0 && (
+            <span className="absolute top-1 right-[25%] w-2 h-2 bg-red-500 rounded-full shadow-sm" />
+          )}
+        </Link>
+        <Link href={userName ? "/profile" : "/login"} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname.startsWith('/profile') ? 'text-primary' : 'text-[#8a958c]'}`}>
+          <User size={22} className={pathname.startsWith('/profile') ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
+          <span className="text-[10px] font-bold">Profile</span>
+        </Link>
+      </div>
+
     </header>
   );
 }
