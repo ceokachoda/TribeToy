@@ -67,10 +67,9 @@ export default function Footer() {
           <div>
             <h3 className="font-heading font-semibold text-lg mb-6">Company</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">About Us</Link></li>
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">Green Putola</Link></li>
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">Blog</Link></li>
-              <li><Link href="#" className="text-foreground/60 hover:text-primary transition-colors text-sm">Contact</Link></li>
+              <li><Link href="/about" className="text-foreground/60 hover:text-primary transition-colors text-sm">About Us</Link></li>
+              <li><Link href="/blog" className="text-foreground/60 hover:text-primary transition-colors text-sm">Blog</Link></li>
+              <li><Link href="/contact" className="text-foreground/60 hover:text-primary transition-colors text-sm">Contact</Link></li>
             </ul>
           </div>
 
@@ -105,9 +104,11 @@ export default function Footer() {
           <p className="text-foreground/50 text-sm">
             © {new Date().getFullYear()} TribeToy. All rights reserved.
           </p>
-          <div className="flex gap-6 text-xs text-foreground/40">
-            <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link>
+          <div className="flex flex-wrap gap-4 md:gap-6 text-xs text-foreground/40 mt-4 md:mt-0">
+            <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms and Conditions</Link>
+            <Link href="/disclaimer" className="hover:text-primary transition-colors">Disclaimer</Link>
+            <Link href="/return-policy" className="hover:text-primary transition-colors">Return Policy</Link>
           </div>
         </div>
       </div>

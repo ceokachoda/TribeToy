@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Eye, Heart, Sparkles, Filter, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Product } from "@/data/products";
+import { useCart } from "@/context/CartContext";
 
 function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const { addToCart } = useCart();
   
   const [activeCategory, setActiveCategory] = useState<string>("All Toys");
   
@@ -190,7 +192,13 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
                       </div>
                     </div>
 
-                    <button className="relative overflow-hidden group/cart w-9 h-9 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 shadow-sm flex items-center justify-center hover:border-primary/50 hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] transition-all duration-500 shrink-0 transform-gpu hover:scale-105">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        addToCart(product);
+                      }}
+                      className="relative overflow-hidden group/cart w-9 h-9 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 shadow-sm flex items-center justify-center hover:border-primary/50 hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] transition-all duration-500 shrink-0 transform-gpu hover:scale-105"
+                    >
                       <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary md:translate-y-[100%] group-hover/cart:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
                       <ShoppingBag className="text-foreground group-hover/cart:text-white relative z-10 md:group-hover/cart:-translate-y-0.5 group-hover/cart:scale-110 transition-all duration-500 w-4 h-4 md:w-5 md:h-5" />
                     </button>

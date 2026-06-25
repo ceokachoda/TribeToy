@@ -6,13 +6,14 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ShoppingCart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "All Toys", href: "/shop" },
   { name: "Customization", href: "/customization" },
-  { name: "Blog", href: "/blog" },
+  { name: "Stories", href: "/blog" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -20,6 +21,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,10 +84,16 @@ export default function Navbar() {
           <button className="p-2 text-foreground/80 hover:text-primary transition-colors" aria-label="User Account">
             <User size={20} />
           </button>
-          <button className="p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
+          <Link href="/cart" className="p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
             <ShoppingCart size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-          </button>
+            {totalItems > 0 ? (
+              <span className="absolute top-0 right-0 w-[18px] h-[18px] bg-[#4a5d4e] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                {totalItems}
+              </span>
+            ) : (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#8a958c] rounded-full opacity-50" />
+            )}
+          </Link>
           <button
             className="md:hidden p-2 text-foreground"
             onClick={() => setMobileMenuOpen(true)}
