@@ -63,6 +63,47 @@ export default function ProductCategories() {
   });
   const yParallax = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Auto-scroll and scroll tracking for mobile carousel
+  useEffect(() => {
+    const container = carouselRef.current;
+    if (!container) return;
+
+    // Use IntersectionObserver for perfect active card tracking
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Array.from(container.children).indexOf(entry.target);
+            if (index !== -1) setActiveIndex(index);
+          }
+        });
+      },
+      { root: container, threshold: 0.6 }
+    );
+
+    Array.from(container.children).forEach((child) => observer.observe(child));
+
+    // Auto-swipe interval
+    const interval = setInterval(() => {
+      if (window.innerWidth >= 1024) return; // Desktop uses single screen
+      setActiveIndex((current) => {
+        const next = (current + 1) % categories.length;
+        if (container && container.children[next]) {
+          container.children[next].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+        return next;
+      });
+    }, 4000);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <section ref={containerRef} className="py-32 bg-background relative z-10 overflow-hidden cursor-default">
 
@@ -136,8 +177,73 @@ export default function ProductCategories() {
           </motion.div>
         </div>
 
-        {/* The Editorial Gallery - Single Screen Composition */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-0 items-center justify-center mt-12 lg:h-[650px] relative">
+        {/* The Editorial Gallery - Mobile: Immersive Swipe Carousel */}
+        <div className="block lg:hidden relative mt-8">
+          <div 
+            ref={carouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 pt-4 -mx-6 px-6 md:-mx-12 md:px-12 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {categories.map((category, index) => {
+              const tags = ['Signature', 'Learn', 'Living', 'Heritage'];
+              const isActive = activeIndex === index;
+              return (
+                <div 
+                  key={category.id}
+                  className={`min-w-[85vw] md:min-w-[55vw] snap-center shrink-0 relative h-[450px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] ring-1 ring-inset ring-white/10 transition-all duration-700 ease-[0.16,1,0.3,1] ${
+                    isActive ? "scale-100 opacity-100 blur-0" : "scale-90 opacity-40 blur-[2px]"
+                  }`}
+                >
+                  <Image src={category.image} alt={category.name} fill className="object-cover brightness-[1.05]" sizes="(max-width: 1024px) 85vw" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 opacity-90" />
+                  
+                  <Link href={category.link} className="absolute inset-0 z-40">
+                    <span className="sr-only">Explore {category.name}</span>
+                  </Link>
+                  
+                  <div className={`absolute bottom-4 left-4 right-4 p-5 rounded-[1.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl overflow-hidden transition-all duration-700 ${isActive ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
+                    <div className="relative z-10 flex justify-between items-end gap-3">
+                      <div className="flex-1">
+                        <span className="text-primary font-bold tracking-[0.3em] text-[9px] uppercase mb-1.5 block drop-shadow-md">0{index + 1} / {tags[index]}</span>
+                        <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-xl tracking-tight leading-tight mb-1">{category.name}</h3>
+                        <p className="text-white/80 text-xs font-medium drop-shadow-md line-clamp-2 pr-2">{category.description}</p>
+                      </div>
+                      <div className="shrink-0 w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform -rotate-45">
+                        <ArrowRight size={18} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Animated Pagination Dots */}
+          <div className="flex justify-center items-center gap-2 mt-2 mb-8">
+            {categories.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1.5 rounded-full transition-all duration-500 relative overflow-hidden ${
+                  activeIndex === i ? "w-10 bg-primary/20" : "w-2 bg-foreground/10"
+                }`}
+              >
+                {/* Filling Progress Bar inside active dot */}
+                {activeIndex === i && (
+                  <motion.div
+                    key={`progress-${activeIndex}`}
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 4, ease: "linear" }}
+                    className="absolute inset-y-0 left-0 bg-primary rounded-full"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* The Editorial Gallery - Desktop: Single Screen Composition */}
+        <div className="hidden lg:flex flex-row gap-0 items-center justify-center mt-12 h-[650px] relative">
 
           {/* Left Column: Educational & Utility */}
           <div className="w-full lg:w-3/12 flex flex-col gap-6 lg:pt-12 z-20">
@@ -150,16 +256,29 @@ export default function ProductCategories() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative h-[250px] rounded-[2rem] overflow-hidden group shadow-xl bg-black/5 border border-white/10 hover:border-primary/30 transition-colors duration-700"
+              className="relative h-[250px] group z-20 hover:z-30"
             >
-              <Image src={categories[1].image} alt={categories[1].name} fill className="object-cover transition-all duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-105" sizes="(max-width: 1024px) 100vw, 25vw" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-700" />
-              <Link href={categories[1].link} className="absolute inset-0 z-40">
-                <span className="sr-only">Explore {categories[1].name}</span>
-              </Link>
-              <div className="absolute inset-0 p-6 flex flex-col justify-end transform translate-y-4 group-hover:translate-y-0 transition-transform duration-[1s] ease-[0.16,1,0.3,1] pointer-events-none">
-                <span className="text-white/60 group-hover:text-primary transition-colors duration-500 font-bold tracking-[0.3em] text-[8px] uppercase mb-2">02 / Learn</span>
-                <h3 className="text-2xl font-heading font-black text-white">{categories[1].name}</h3>
+              {/* Premium Glow Aura */}
+              <div className="absolute -inset-1 bg-gradient-to-tr from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
+              
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-[#0A0A0A] shadow-xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+                <Image src={categories[1].image} alt={categories[1].name} fill className="object-cover transition-transform duration-[3s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-[1.02]" sizes="(max-width: 1024px) 100vw, 25vw" />
+                
+                {/* Smooth Seamless Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/5 opacity-60 group-hover:opacity-80 transition-opacity duration-1000" />
+                
+                <Link href={categories[1].link} className="absolute inset-0 z-40">
+                  <span className="sr-only">Explore {categories[1].name}</span>
+                </Link>
+                
+                {/* Frosted Glass Text Panel */}
+                <div className="absolute bottom-4 left-4 right-4 p-5 rounded-[1.5rem] bg-white/5 backdrop-blur-md border border-white/10 transform translate-y-2 group-hover:translate-y-0 opacity-90 group-hover:opacity-100 transition-all duration-[0.8s] ease-[0.16,1,0.3,1] pointer-events-none overflow-hidden shadow-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                  <div className="relative z-10">
+                    <span className="text-primary font-bold tracking-[0.3em] text-[8px] uppercase mb-1 block drop-shadow-md">02 / Learn</span>
+                    <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-lg tracking-tight">{categories[1].name}</h3>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -171,16 +290,29 @@ export default function ProductCategories() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="relative h-[300px] lg:-mr-12 lg:-mt-4 rounded-[2rem] overflow-hidden group shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_40px_-15px_rgba(121,152,122,0.3)] bg-black/5 border border-white/10 hover:border-primary/30 transition-all duration-700 z-30"
+              className="relative h-[300px] lg:-mr-12 lg:-mt-4 group z-30 hover:z-40"
             >
-              <Image src={categories[2].image} alt={categories[2].name} fill className="object-cover transition-all duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-110" sizes="(max-width: 1024px) 100vw, 25vw" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-700" />
-              <Link href={categories[2].link} className="absolute inset-0 z-40">
-                <span className="sr-only">Explore {categories[2].name}</span>
-              </Link>
-              <div className="absolute inset-0 p-6 flex flex-col justify-end transform translate-y-4 group-hover:translate-y-0 transition-transform duration-[1s] ease-[0.16,1,0.3,1] pointer-events-none">
-                <span className="text-white/60 group-hover:text-primary transition-colors duration-500 font-bold tracking-[0.3em] text-[8px] uppercase mb-2">03 / Living</span>
-                <h3 className="text-2xl font-heading font-black text-white">{categories[2].name}</h3>
+              {/* Premium Glow Aura */}
+              <div className="absolute -inset-1 bg-gradient-to-tr from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
+
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-[#0A0A0A] shadow-2xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+                <Image src={categories[2].image} alt={categories[2].name} fill className="object-cover transition-transform duration-[3s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-[1.1]" sizes="(max-width: 1024px) 100vw, 25vw" />
+                
+                {/* Smooth Seamless Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/5 opacity-60 group-hover:opacity-80 transition-opacity duration-1000" />
+                
+                <Link href={categories[2].link} className="absolute inset-0 z-40">
+                  <span className="sr-only">Explore {categories[2].name}</span>
+                </Link>
+                
+                {/* Frosted Glass Text Panel */}
+                <div className="absolute bottom-4 left-4 right-4 p-5 rounded-[1.5rem] bg-white/5 backdrop-blur-md border border-white/10 transform translate-y-2 group-hover:translate-y-0 opacity-90 group-hover:opacity-100 transition-all duration-[0.8s] ease-[0.16,1,0.3,1] pointer-events-none overflow-hidden shadow-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                  <div className="relative z-10">
+                    <span className="text-primary font-bold tracking-[0.3em] text-[8px] uppercase mb-1 block drop-shadow-md">03 / Living</span>
+                    <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-lg tracking-tight">{categories[2].name}</h3>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -194,32 +326,39 @@ export default function ProductCategories() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full lg:w-6/12 relative h-[400px] lg:h-[650px] rounded-[2.5rem] overflow-hidden group z-10 shadow-2xl bg-black/5 border border-white/10 hover:border-primary/40 transition-colors duration-700"
+            className="w-full lg:w-6/12 relative h-[400px] lg:h-[650px] group z-10 hover:z-20"
           >
-            <Image
-              src={categories[0].image}
-              alt={categories[0].name}
-              fill
-              className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-105 saturate-[1.1] contrast-[1.05]"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30 opacity-90 group-hover:opacity-80 transition-opacity duration-700" />
-            <Link href={categories[0].link} className="absolute inset-0 z-40">
-              <span className="sr-only">Explore {categories[0].name}</span>
-            </Link>
+            {/* Massive Premium Glow Aura */}
+            <div className="absolute -inset-2 bg-gradient-to-t from-primary/30 via-primary/5 to-transparent rounded-[2.7rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
 
-            {/* Glass Box at Bottom */}
-            <div className="absolute bottom-6 left-6 right-6 lg:bottom-10 lg:left-10 lg:right-10 bg-white/10 backdrop-blur-2xl border border-white/20 p-6 lg:p-8 rounded-[1.5rem] overflow-hidden group-hover:-translate-y-2 transition-transform duration-[1s] ease-[0.16,1,0.3,1]">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
-              <div className="relative z-10 flex justify-between items-end">
-                <div>
-                  <span className="text-primary font-bold tracking-[0.3em] text-[10px] uppercase mb-3 block">01 / Signature</span>
-                  <h3 className="text-3xl lg:text-5xl font-heading font-black text-white mb-2 tracking-tight drop-shadow-lg">{categories[0].name}</h3>
-                  <p className="text-white/90 font-medium text-sm lg:text-base max-w-sm hidden sm:block drop-shadow-md">{categories[0].description}</p>
-                </div>
-                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white text-black flex items-center justify-center transform -rotate-45 group-hover:rotate-0 group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all duration-500 shrink-0 shadow-lg">
-                  <ArrowRight size={20} />
+            <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden bg-[#0A0A0A] shadow-2xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+              <Image
+                src={categories[0].image}
+                alt={categories[0].name}
+                fill
+                className="object-cover transition-transform duration-[4s] ease-[0.16,1,0.3,1] group-hover:scale-105 saturate-[1.1] contrast-[1.05]"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+              
+              {/* Smooth Seamless Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/5 opacity-70 group-hover:opacity-90 transition-opacity duration-1000" />
+              
+              <Link href={categories[0].link} className="absolute inset-0 z-40">
+                <span className="sr-only">Explore {categories[0].name}</span>
+              </Link>
+
+              {/* Glass Box at Bottom */}
+              <div className="absolute bottom-6 left-6 right-6 lg:bottom-10 lg:left-10 lg:right-10 bg-white/5 backdrop-blur-xl border border-white/10 p-6 lg:p-10 rounded-[2rem] shadow-2xl overflow-hidden transform translate-y-4 group-hover:translate-y-0 transition-all duration-[1s] ease-[0.16,1,0.3,1] pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                <div className="relative z-10 flex justify-between items-end">
+                  <div>
+                    <span className="text-primary font-bold tracking-[0.3em] text-[10px] md:text-xs uppercase mb-3 block drop-shadow-md">01 / Signature</span>
+                    <h3 className="text-3xl lg:text-5xl font-heading font-black text-white mb-3 tracking-tight drop-shadow-2xl">{categories[0].name}</h3>
+                    <p className="text-white/90 font-medium text-sm lg:text-base max-w-sm hidden sm:block drop-shadow-md">{categories[0].description}</p>
+                  </div>
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transform -rotate-45 group-hover:rotate-0 group-hover:bg-primary group-hover:border-primary group-hover:scale-110 transition-all duration-700 shrink-0 shadow-xl">
+                    <ArrowRight size={24} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -236,16 +375,29 @@ export default function ProductCategories() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="relative h-[300px] lg:h-[400px] lg:-ml-12 rounded-[2rem] overflow-hidden group shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_40px_-15px_rgba(121,152,122,0.3)] bg-black/5 border border-white/10 hover:border-primary/30 transition-all duration-700"
+              className="relative h-[300px] lg:h-[400px] lg:-ml-12 group z-20 hover:z-30"
             >
-              <Image src={categories[3].image} alt={categories[3].name} fill className="object-cover transition-all duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-110" sizes="(max-width: 1024px) 100vw, 25vw" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-700" />
-              <Link href={categories[3].link} className="absolute inset-0 z-40">
-                <span className="sr-only">Explore {categories[3].name}</span>
-              </Link>
-              <div className="absolute inset-0 p-6 flex flex-col justify-end transform translate-y-4 group-hover:translate-y-0 transition-transform duration-[1s] ease-[0.16,1,0.3,1] pointer-events-none">
-                <span className="text-white/60 group-hover:text-primary transition-colors duration-500 font-bold tracking-[0.3em] text-[8px] uppercase mb-2">04 / Heritage</span>
-                <h3 className="text-2xl font-heading font-black text-white">{categories[3].name}</h3>
+              {/* Premium Glow Aura */}
+              <div className="absolute -inset-1 bg-gradient-to-tl from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
+
+              <div className="absolute inset-0 rounded-[2rem] overflow-hidden bg-[#0A0A0A] shadow-2xl ring-1 ring-inset ring-white/10 group-hover:ring-primary/40 transition-colors duration-700">
+                <Image src={categories[3].image} alt={categories[3].name} fill className="object-cover transition-transform duration-[3s] ease-[0.16,1,0.3,1] group-hover:scale-110 brightness-[1.05]" sizes="(max-width: 1024px) 100vw, 25vw" />
+                
+                {/* Smooth Seamless Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/5 opacity-60 group-hover:opacity-80 transition-opacity duration-1000" />
+                
+                <Link href={categories[3].link} className="absolute inset-0 z-40">
+                  <span className="sr-only">Explore {categories[3].name}</span>
+                </Link>
+                
+                {/* Frosted Glass Text Panel */}
+                <div className="absolute bottom-4 left-4 right-4 p-5 rounded-[1.5rem] bg-white/5 backdrop-blur-md border border-white/10 transform translate-y-2 group-hover:translate-y-0 opacity-90 group-hover:opacity-100 transition-all duration-[0.8s] ease-[0.16,1,0.3,1] pointer-events-none overflow-hidden shadow-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                  <div className="relative z-10">
+                    <span className="text-primary font-bold tracking-[0.3em] text-[8px] uppercase mb-1 block drop-shadow-md">04 / Heritage</span>
+                    <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-lg tracking-tight">{categories[3].name}</h3>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
