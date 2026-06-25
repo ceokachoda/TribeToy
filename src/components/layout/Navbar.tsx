@@ -35,18 +35,20 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-12 h-12 rounded-xl bg-white shadow-lg overflow-hidden transform transition-transform group-hover:scale-105">
+        <Link href="/" className="flex items-center gap-2 group glass-panel pl-2 pr-4 py-1.5 rounded-full hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all -ml-2">
+          <div className="relative w-10 h-10 rounded-full bg-white shadow-sm overflow-hidden transform transition-transform group-hover:scale-105 flex items-center justify-center">
             <Image 
-              src="/logo.png" 
+              src="/logo-new.jpg" 
               alt="TribeToy Logo" 
               fill 
-              className="object-contain p-1"
+              className="object-cover scale-[1.15]"
             />
           </div>
-          <span className="font-heading font-bold text-xl tracking-wide hidden sm:block">
-            TribeToy
-          </span>
+          <div className="relative overflow-hidden px-1">
+            <span className="font-heading font-extrabold text-2xl tracking-tight hidden sm:block text-foreground relative z-10 transition-colors group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:via-primary group-hover:to-secondary group-hover:bg-[length:200%_auto] group-hover:animate-[gradient_3s_linear_infinite]">
+              Tribe<span className="text-primary group-hover:text-transparent">Toy</span>
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}

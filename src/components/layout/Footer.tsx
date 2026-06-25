@@ -12,21 +12,23 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="flex flex-col gap-6">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-xl bg-white overflow-hidden p-1">
+            <Link href="/" className="flex items-center gap-3 group glass-panel px-3 py-2 rounded-2xl w-max hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all">
+              <div className="relative w-12 h-12 rounded-lg bg-white shadow-sm overflow-hidden transform transition-transform group-hover:scale-105 ring-1 ring-black/5 flex items-center justify-center">
                 <Image 
-                  src="/logo.png" 
+                  src="/logo-new.jpg" 
                   alt="TribeToy Logo" 
                   fill 
-                  className="object-contain"
+                  className="object-cover scale-[1.15]"
                 />
               </div>
-              <span className="font-heading font-bold text-xl tracking-wide">
-                TribeToy
-              </span>
+              <div className="relative overflow-hidden px-1 pr-3">
+                <span className="font-heading font-extrabold text-2xl tracking-tight text-foreground relative z-10 transition-colors group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:via-primary group-hover:to-secondary group-hover:bg-[length:200%_auto] group-hover:animate-[gradient_3s_linear_infinite]">
+                  Tribe<span className="text-primary group-hover:text-transparent">Toy</span>
+                </span>
+              </div>
             </Link>
-            <p className="text-foreground/60 text-sm leading-relaxed">
-              Bringing stories to life through sustainable 3D-printed and hand-painted toys. Empowering communities through technology.
+            <p className="text-foreground/70 leading-relaxed max-w-sm">
+              We bring imagination to life through premium 3D printing. From custom gifts to rapid prototyping, we build your ideas layer by layer.
             </p>
             <div className="flex gap-4">
               <Link href="#" className="p-2 glass rounded-full hover:text-primary transition-colors">
@@ -85,10 +87,12 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+      </div>
 
-        {/* Bottom */}
-        <div className="pt-8 border-t border-card-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-foreground/40">
+      {/* Bottom Bar */}
+      <div className="border-t border-black/10">
+        <div className="container mx-auto px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-foreground/50 text-sm">
             © {new Date().getFullYear()} TribeToy. All rights reserved.
           </p>
           <div className="flex gap-6 text-xs text-foreground/40">

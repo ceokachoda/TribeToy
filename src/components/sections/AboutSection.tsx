@@ -79,7 +79,7 @@ export default function AboutSection() {
               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
               <div className="relative z-20">
                 <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-primary/30 mb-3 inline-block">Initiative</span>
-                <h3 className="font-heading font-bold text-xl text-white">Green Putola</h3>
+                <h3 className="font-heading font-bold text-xl text-foreground">Green Putola</h3>
               </div>
             </div>
 
@@ -89,7 +89,7 @@ export default function AboutSection() {
               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1628126235206-5260b9ea6441?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700" />
               <div className="relative z-20">
                 <span className="px-3 py-1 bg-secondary/20 text-secondary rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border border-secondary/30 mb-3 inline-block">Community</span>
-                <h3 className="font-heading font-bold text-xl text-white">Empowering Women</h3>
+                <h3 className="font-heading font-bold text-xl text-foreground">Empowering Women</h3>
               </div>
             </div>
             
