@@ -8,10 +8,10 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      <AboutSection />
       <ProductCategories />
       <FeaturedProducts />
       <CustomPrintingSection />
+      <AboutSection />
     </>
   );
 }

@@ -35,8 +35,11 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group glass-panel pl-2 pr-4 py-1.5 rounded-full hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all -ml-2">
-          <div className="relative w-10 h-10 rounded-full bg-white shadow-sm overflow-hidden transform transition-transform group-hover:scale-105 flex items-center justify-center">
+        <Link href="/" className="relative flex items-center gap-2 group glass-panel pl-2 pr-4 py-1.5 rounded-full transition-all duration-500 -ml-2 shadow-[0_0_20px_rgba(121,152,122,0.15)] hover:shadow-[0_0_40px_rgba(121,152,122,0.4)] border border-white/60 hover:border-primary/40 overflow-hidden">
+          {/* Animated inner glow effect */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 blur-lg opacity-70 group-hover:opacity-100 animate-[gradient_4s_linear_infinite] bg-[length:200%_auto] transition-opacity duration-500" />
+          
+          <div className="relative z-10 w-10 h-10 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)] overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] flex items-center justify-center ring-2 ring-transparent group-hover:ring-primary/20 group-hover:shadow-[0_0_15px_rgba(121,152,122,0.3)]">
             <Image 
               src="/logo-new.jpg" 
               alt="TribeToy Logo" 
@@ -44,8 +47,8 @@ export default function Navbar() {
               className="object-cover scale-[1.15]"
             />
           </div>
-          <div className="relative overflow-hidden px-1">
-            <span className="font-heading font-extrabold text-2xl tracking-tight hidden sm:block text-foreground relative z-10 transition-colors group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:via-primary group-hover:to-secondary group-hover:bg-[length:200%_auto] group-hover:animate-[gradient_3s_linear_infinite]">
+          <div className="relative z-10 overflow-visible px-1">
+            <span className="font-heading font-extrabold text-2xl tracking-tight hidden sm:block text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all duration-500 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:via-primary group-hover:to-secondary group-hover:bg-[length:200%_auto] group-hover:animate-[gradient_3s_linear_infinite] group-hover:drop-shadow-[0_0_15px_rgba(121,152,122,0.4)]">
               Tribe<span className="text-primary group-hover:text-transparent">Toy</span>
             </span>
           </div>
