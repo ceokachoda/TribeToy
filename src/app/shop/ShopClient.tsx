@@ -37,7 +37,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
       const next = isRemoving ? prev.filter(p => p !== id) : [...prev, id];
       localStorage.setItem("tribetoy_wishlist", JSON.stringify(next));
       
-      const product = products.find(p => p.id === id);
+      const product = products.find(p => String(p.id) === String(id));
       if (isRemoving) {
         showToast(`Removed ${product?.name || 'item'} from wishlist`, "success");
       } else {
@@ -201,12 +201,12 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
                 {/* Hover Actions */}
                 <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-1 md:gap-2 bg-white/80 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-1 md:p-0 rounded-full md:rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.05)] md:shadow-none border border-black/5 md:border-none md:translate-x-8 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
                   <button 
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(String(product.id)); }}
                     className={`w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center transition-colors md:shadow-lg ${
-                      wishlist.includes(product.id) ? "text-red-500 hover:text-red-600 md:hover:bg-red-50" : "text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white"
+                      wishlist.includes(String(product.id)) ? "text-red-500 hover:text-red-600 md:hover:bg-red-50" : "text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white"
                     }`}
                   >
-                    <Heart size={12} className={wishlist.includes(product.id) ? "fill-current" : ""} />
+                    <Heart size={12} className={wishlist.includes(String(product.id)) ? "fill-current" : ""} />
                   </button>
                   <button 
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/product/' + product.id); }}
@@ -358,8 +358,8 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
         product={quickViewProduct} 
         isOpen={!!quickViewProduct} 
         onClose={() => setQuickViewProduct(null)}
-        isWishlisted={quickViewProduct ? wishlist.includes(quickViewProduct.id) : false}
-        toggleWishlist={() => quickViewProduct && toggleWishlist(quickViewProduct.id)}
+        isWishlisted={quickViewProduct ? wishlist.includes(String(quickViewProduct.id)) : false}
+        toggleWishlist={() => quickViewProduct && toggleWishlist(String(quickViewProduct.id))}
       />
     </div>
   );

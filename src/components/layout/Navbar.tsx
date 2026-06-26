@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { products } from "@/data/products";
+import { createClient } from "@/utils/supabase/client";
+import { useToast } from "@/context/ToastContext";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -29,6 +31,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems } = useCart();
+  const { showToast } = useToast();
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -40,13 +43,16 @@ export default function Navbar() {
   }, [searchQuery]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (localStorage.getItem("tribetoy_logged_in") === "true") {
-        setUserName(localStorage.getItem("tribetoy_user_name") || "Guest");
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "User");
       } else {
         setUserName(null);
       }
-    }
+    };
+    checkUser();
   }, [pathname]);
 
   useEffect(() => {
@@ -182,11 +188,13 @@ export default function Navbar() {
                     <div className="h-px w-full bg-black/5 mb-2" />
 
                     <button 
-                      onClick={() => {
-                        localStorage.removeItem("tribetoy_logged_in");
-                        localStorage.removeItem("tribetoy_user_name");
+                      onClick={async () => {
+                        const supabase = createClient();
+                        await supabase.auth.signOut();
                         setUserName(null);
                         setUserMenuOpen(false);
+                        showToast("Signed out successfully", "success");
+                        router.refresh();
                       }}
                       className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all group"
                     >
@@ -402,11 +410,13 @@ export default function Navbar() {
                   </motion.div>
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
                     <button 
-                      onClick={() => {
-                        localStorage.removeItem("tribetoy_logged_in");
-                        localStorage.removeItem("tribetoy_user_name");
+                      onClick={async () => {
+                        const supabase = createClient();
+                        await supabase.auth.signOut();
                         setUserName(null);
                         setMobileMenuOpen(false);
+                        showToast("Signed out successfully", "success");
+                        router.refresh();
                       }}
                       className="text-xl font-heading font-bold text-red-500 hover:text-red-600 transition-colors"
                     >

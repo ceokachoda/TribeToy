@@ -16,7 +16,7 @@ export default function HeroSection() {
     }, 4000);
     return () => clearInterval(timer);
   }, []);
-  const containerVariants = {
+  const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -24,7 +24,7 @@ export default function HeroSection() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { opacity: 0, y: 40 },
     visible: {
       opacity: 1,
@@ -34,7 +34,7 @@ export default function HeroSection() {
   };
 
    
-  const revealVariants = {
+  const revealVariants: any = {
     hidden: { y: "100%" },
     visible: {
       y: 0,

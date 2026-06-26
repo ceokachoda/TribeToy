@@ -6,53 +6,120 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
+import { useToast } from "@/context/ToastContext";
 
 export default function LoginClient() {
   const [isLogin, setIsLogin] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
+  const urlError = searchParams.get("error");
+  const showWelcomeFlag = searchParams.get("welcome") === "true";
+
+  useEffect(() => {
+    if (urlError) {
+      if (urlError === "auth_callback_failed") {
+        setError("Authentication failed. Please try again.");
+      } else {
+        setError(urlError);
+      }
+    }
+  }, [urlError]);
 
   useEffect(() => {
     // If they are already logged in, redirect them
-    if (localStorage.getItem("tribetoy_logged_in") === "true") {
-      router.push(redirectTo);
-    }
-  }, [router, redirectTo]);
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        if (showWelcomeFlag) {
+          setName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "User");
+          showToast("Signed in successfully", "success");
+          setShowWelcome(true);
+          setTimeout(() => {
+            router.push(redirectTo);
+          }, 3500);
+        } else {
+          router.push(redirectTo);
+        }
+      }
+    };
+    checkUser();
+  }, [router, redirectTo, showWelcomeFlag, showToast]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLogin && name) {
+    setError(null);
+    setLoading(true);
+    
+    const supabase = createClient();
+
+    if (!isLogin) {
+      // Signup
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+      
       // Trigger beautiful welcome animation for signup
       setShowWelcome(true);
-      localStorage.setItem("tribetoy_logged_in", "true");
-      localStorage.setItem("tribetoy_user_name", name);
-      
       setTimeout(() => {
         router.push(redirectTo);
       }, 3500); // Wait for animation to finish
     } else {
-      // Simple login
-      localStorage.setItem("tribetoy_logged_in", "true");
-      router.push(redirectTo);
+      // Login
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      showToast("Signed in successfully", "success");
+      setName(data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || "User");
+      setShowWelcome(true);
+      setTimeout(() => {
+        router.push(redirectTo);
+      }, 3500);
     }
   };
 
   const handleGuest = () => {
-    localStorage.setItem("tribetoy_logged_in", "true");
     router.push(redirectTo);
   };
 
-  const handleGoogleLogin = () => {
-    setName("Google User");
-    setShowWelcome(true);
-    localStorage.setItem("tribetoy_logged_in", "true");
-    localStorage.setItem("tribetoy_user_name", "Google User");
-    setTimeout(() => {
-      router.push(redirectTo);
-    }, 3500);
+  const handleGoogleLogin = async () => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+      },
+    });
   };
 
   if (showWelcome) {
@@ -123,6 +190,11 @@ export default function LoginClient() {
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {error && (
+              <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm font-medium border border-red-100">
+                {error}
+              </div>
+            )}
             <AnimatePresence mode="wait">
               {!isLogin && (
                 <motion.div 
@@ -154,6 +226,8 @@ export default function LoginClient() {
                 <input 
                   required
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="jane@example.com" 
                   className="w-full pl-14 pr-6 py-4 rounded-full bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] placeholder:text-[#8a958c]/60"
                 />
@@ -167,6 +241,8 @@ export default function LoginClient() {
                 <input 
                   required
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
                   className="w-full pl-14 pr-6 py-4 rounded-full bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] placeholder:text-[#8a958c]/60"
                 />
@@ -175,7 +251,8 @@ export default function LoginClient() {
 
             <button 
               type="submit" 
-              className="mt-4 w-full flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              disabled={loading}
+              className="mt-4 w-full flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:hover:scale-100"
             >
               <span>{isLogin ? "Sign In" : "Create Account"}</span>
               <ArrowRight className="w-4 h-4" />

@@ -36,7 +36,7 @@ export default function FeaturedProducts() {
       const next = isRemoving ? prev.filter(p => p !== id) : [...prev, id];
       localStorage.setItem("tribetoy_wishlist", JSON.stringify(next));
       
-      const product = products.find(p => p.id === id);
+      const product = products.find(p => String(p.id) === String(id));
       if (isRemoving) {
         showToast(`Removed ${product?.name || 'item'} from wishlist`, "success");
       } else {
@@ -81,13 +81,13 @@ export default function FeaturedProducts() {
         {/* Hover Actions Menu */}
         <div className="hidden lg:flex absolute top-5 right-5 z-20 flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-[0.16,1,0.3,1]">
           <button 
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(String(product.id)); }}
             className={`w-10 h-10 bg-white/90 backdrop-blur-xl border border-foreground/10 rounded-full flex items-center justify-center transition-colors shadow-lg ${
-              wishlist.includes(product.id) ? "text-red-500 hover:bg-red-50" : "text-foreground hover:bg-primary hover:border-primary hover:text-white"
+              wishlist.includes(String(product.id)) ? "text-red-500 hover:bg-red-50" : "text-foreground hover:bg-primary hover:border-primary hover:text-white"
             }`} 
-            title={wishlist.includes(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+            title={wishlist.includes(String(product.id)) ? "Remove from Wishlist" : "Add to Wishlist"}
           >
-            <Heart size={16} className={wishlist.includes(product.id) ? "fill-current" : ""} />
+            <Heart size={16} className={wishlist.includes(String(product.id)) ? "fill-current" : ""} />
           </button>
           <button 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/product/' + product.id); }}
@@ -204,8 +204,8 @@ export default function FeaturedProducts() {
         product={quickViewProduct} 
         isOpen={!!quickViewProduct} 
         onClose={() => setQuickViewProduct(null)}
-        isWishlisted={quickViewProduct ? wishlist.includes(quickViewProduct.id) : false}
-        toggleWishlist={() => quickViewProduct && toggleWishlist(quickViewProduct.id)}
+        isWishlisted={quickViewProduct ? wishlist.includes(String(quickViewProduct.id)) : false}
+        toggleWishlist={() => quickViewProduct && toggleWishlist(String(quickViewProduct.id))}
       />
     </section>
   );
