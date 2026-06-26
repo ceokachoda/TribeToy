@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { Providers } from "@/components/Providers";
 import PwaRegister from "@/components/layout/PwaRegister";
 import { Viewport } from "next";
+import { ConditionalLayoutWrapper } from "@/components/layout/ConditionalLayoutWrapper";
 
 export const viewport: Viewport = {
   themeColor: "#79987A",
@@ -31,11 +30,9 @@ export default function RootLayout({
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/30 pb-20 lg:pb-0">
         <PwaRegister />
         <Providers>
-          <Navbar />
-          <main className="flex-1 flex flex-col">
+          <ConditionalLayoutWrapper>
             {children}
-          </main>
-          <Footer />
+          </ConditionalLayoutWrapper>
         </Providers>
       </body>
     </html>

@@ -35,16 +35,28 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith("/profile") ||
-      request.nextUrl.pathname.startsWith("/checkout") ||
-      request.nextUrl.pathname.startsWith("/admin"))
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  const isProfileRoute = request.nextUrl.pathname.startsWith("/profile");
+  const isCheckoutRoute = request.nextUrl.pathname.startsWith("/checkout");
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+
+  if (!user && (isProfileRoute || isCheckoutRoute || isAdminRoute)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  if (user && isAdminRoute) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!userData || userData.role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/"; // Redirect non-admins to home
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

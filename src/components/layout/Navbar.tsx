@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store, Search, ArrowLeft } from "lucide-react";
+import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store, Search, ArrowLeft, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -32,6 +32,7 @@ export default function Navbar() {
   const router = useRouter();
   const { totalItems } = useCart();
   const { showToast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const searchResults = useMemo(() => {
     // We will use a state for this instead
@@ -73,8 +74,21 @@ export default function Navbar() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUserName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "User");
+        
+        const { data: userData } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+          
+        if (userData?.role === "admin") {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
       } else {
         setUserName(null);
+        setIsAdmin(false);
       }
     };
     checkUser();
@@ -185,6 +199,16 @@ export default function Navbar() {
                     </div>
                     
                     <div className="flex flex-col gap-1 mb-2">
+                      {isAdmin && (
+                        <Link 
+                          href="/admin" 
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl font-bold transition-all group"
+                        >
+                          <Shield size={16} className="text-emerald-500 group-hover:text-emerald-600 transition-colors" />
+                          <span className="group-hover:translate-x-1 transition-transform">Admin Dashboard</span>
+                        </Link>
+                      )}
                       <Link 
                         href="/profile" 
                         onClick={() => setUserMenuOpen(false)}
@@ -418,6 +442,14 @@ export default function Navbar() {
 
               {userName ? (
                 <>
+                  {isAdmin && (
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-2">
+                        <Shield size={24} />
+                        Admin Dashboard
+                      </Link>
+                    </motion.div>
+                  )}
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                     <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors">
                       My Profile
