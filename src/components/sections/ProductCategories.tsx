@@ -12,7 +12,7 @@ const categories = [
     name: "Toys & Figurines",
     description: "Intricately detailed, multi-part articulable characters designed for play and display.",
     image: "/products/toy.jpg",
-    link: "/shop?category=Toys & Figurines"
+    link: "/shop?category=Toys%20%26%20Figurines"
   },
   {
     id: "edu",
@@ -26,7 +26,7 @@ const categories = [
     name: "Utility Decor",
     description: "Functional homeware.",
     image: "/products/utility%20decor.jpeg",
-    link: "/shop?category=Utility & Decor"
+    link: "/shop?category=Utility%20%26%20Decor"
   },
   {
     id: "culture",
@@ -190,16 +190,19 @@ export default function ProductCategories() {
                 {/* Smooth Seamless Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/5 opacity-60 group-hover:opacity-80 transition-opacity duration-1000" />
                 
-                <Link href={categories[1].link} className="absolute inset-0 z-40">
-                  <span className="sr-only">Explore {categories[1].name}</span>
-                </Link>
+                <div className="absolute inset-0 z-40 cursor-not-allowed">
+                  <span className="sr-only">{categories[1].name} (Coming Soon)</span>
+                </div>
                 
                 {/* Frosted Glass Text Panel */}
                 <div className="absolute bottom-4 left-4 right-4 p-5 rounded-[1.5rem] bg-white/5 backdrop-blur-md border border-white/10 transform translate-y-2 group-hover:translate-y-0 opacity-90 group-hover:opacity-100 transition-all duration-[0.8s] ease-[0.16,1,0.3,1] pointer-events-none overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
                   <div className="relative z-10">
                     <span className="text-primary font-bold tracking-[0.3em] text-[8px] uppercase mb-1 block drop-shadow-md">02 / Learn</span>
-                    <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-lg tracking-tight">{categories[1].name}</h3>
+                    <h3 className="text-xl md:text-2xl font-heading font-black text-white drop-shadow-lg tracking-tight flex items-center gap-2">
+                      {categories[1].name}
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/20 text-white font-bold uppercase tracking-wider backdrop-blur-md border border-white/30">Soon</span>
+                    </h3>
                   </div>
                 </div>
               </div>

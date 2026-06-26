@@ -170,7 +170,7 @@ export default function LoginClient() {
             className="w-full max-w-5xl bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-black/5 overflow-hidden flex flex-col lg:flex-row"
           >
             {/* Left Side: Brand/Image */}
-            <div className="w-full md:w-5/12 p-10 md:p-14 flex flex-col justify-between relative overflow-hidden min-h-[400px]">
+            <div className="w-full lg:w-5/12 p-10 md:p-14 flex flex-col justify-between relative overflow-hidden min-h-[400px]">
               <div className="absolute inset-0 z-0">
                 <Image src="/ghibli_hero_v2.png" alt="TribeToy Background" fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/40 to-[#1a1a1a]/80" />
@@ -193,7 +193,7 @@ export default function LoginClient() {
             </div>
 
             {/* Right Side: Form */}
-            <div className="w-full md:w-7/12 p-10 md:p-16 lg:p-20 flex flex-col justify-center">
+            <div className="w-full lg:w-7/12 p-10 md:p-16 lg:p-20 flex flex-col justify-center">
               <div className="flex justify-between items-center mb-10">
                 <h3 className="text-2xl font-black text-[#1a1a1a]">{isLogin ? "Sign In" : "Create Account"}</h3>
                 <button 

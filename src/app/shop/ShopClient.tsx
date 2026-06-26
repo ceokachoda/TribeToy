@@ -267,9 +267,9 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
           </h1>
           <p className="text-foreground/60 font-medium text-sm md:text-base">
             {searchQuery 
-              ? `Showing search results for "${searchQuery}"` 
+              ? `Showing search results for "${searchQuery}". ` 
               : `Explore ${activeCategory === "All Toys" ? "our entire catalog" : `our curated selection of ${activeCategory}`}. `}
-            Showing <span className="text-foreground font-bold">{filteredProducts.length}</span> results.
+            Showing <span className="text-foreground font-bold">{filteredProducts.length}</span> {filteredProducts.length === 1 ? "result" : "results"}.
           </p>
         </div>
 

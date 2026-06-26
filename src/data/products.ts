@@ -15,7 +15,7 @@ export type Product = {
 export const products: Product[] = [
   {
     "id": 1,
-    "name": "3D Printed Assamese Fantasy Figurine The Regal Dragon",
+    "name": "3D Printed Batman Action Figure",
     "category": "Toys & Figurines",
     "price": "₹399.00",
     "image": "/products/batman.jpg",
@@ -25,8 +25,8 @@ export const products: Product[] = [
   },
   {
     "id": 2,
-    "name": "3D Printed Assamese Souvenir Dhol Pepa Japi Xorai Ensemble",
-    "category": "Cultural",
+    "name": "3D Printed Goku Super Saiyan Figure",
+    "category": "Toys & Figurines",
     "price": "₹499.00",
     "image": "/products/goku.jpg",
     "isNew": false,
@@ -34,7 +34,7 @@ export const products: Product[] = [
   },
   {
     "id": 3,
-    "name": "3D Printed BerryBear Eco Friendly Biopolymer Teddy",
+    "name": "3D Printed Kuromi Figure",
     "category": "Toys & Figurines",
     "price": "₹599.00",
     "image": "/products/kuromi.png",
@@ -43,8 +43,8 @@ export const products: Product[] = [
   },
   {
     "id": 4,
-    "name": "3D Printed Cartoon Figurine Sponge Bob On The Beach",
-    "category": "Toys & Figurines",
+    "name": "3D Printed Owl Night Lamp",
+    "category": "Utility & Decor",
     "price": "₹349.00",
     "image": "/products/owl.jpeg",
     "isNew": true,

@@ -56,8 +56,8 @@ export default function Footer() {
             <h3 className="font-heading font-semibold text-lg mb-6">Shop</h3>
             <ul className="flex flex-col gap-3">
               <li><Link href="/shop" prefetch={true} className="text-foreground/60 hover:text-primary transition-colors text-sm">All Toys</Link></li>
-              <li><Link href="/shop?category=Educational" className="text-foreground/60 hover:text-primary transition-colors text-sm">Educational</Link></li>
-              <li><Link href="/shop?category=Utility & Decor" className="text-foreground/60 hover:text-primary transition-colors text-sm">Utility Decor</Link></li>
+              <li><div className="flex items-center gap-2"><span className="text-foreground/40 text-sm cursor-not-allowed">Educational</span> <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase">Soon</span></div></li>
+              <li><Link href="/shop?category=Utility%20%26%20Decor" className="text-foreground/60 hover:text-primary transition-colors text-sm">Utility Decor</Link></li>
               <li><Link href="/customization" className="text-foreground/60 hover:text-primary transition-colors text-sm">Custom 3D Printing</Link></li>
             </ul>
           </div>

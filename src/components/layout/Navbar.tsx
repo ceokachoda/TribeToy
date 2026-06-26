@@ -308,13 +308,7 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Search Button */}
-          <button 
-            onClick={() => setMobileSearchOpen(true)}
-            className="w-8 h-8 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-foreground/5 flex items-center justify-center text-foreground/80 hover:bg-primary/10 hover:text-primary transition-all active:scale-95"
-          >
-            <Search size={14} />
-          </button>
+
 
           {/* Wishlist Button (Mobile) */}
           <Link 
@@ -339,94 +333,6 @@ export default function Navbar() {
 
       </div>
     </header>
-
-      {/* Mobile Search Overlay */}
-      <AnimatePresence>
-        {mobileSearchOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 h-[100dvh] z-[60] bg-white flex flex-col lg:hidden"
-          >
-            {/* Search Header */}
-            <div className="flex items-center gap-3 p-4 border-b border-foreground/5 shadow-sm bg-white z-10">
-              <button 
-                onClick={() => setMobileSearchOpen(false)}
-                className="p-2 -ml-2 text-foreground/60 hover:text-foreground"
-              >
-                <ArrowLeft size={24} />
-              </button>
-              <div className="flex-1 relative">
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  autoFocus
-                  className="w-full bg-foreground/5 rounded-full py-2.5 pl-10 pr-10 text-sm font-medium text-foreground outline-none border border-transparent focus:border-primary/30 focus:bg-white transition-all"
-                />
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40" />
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Search Results */}
-            <div className="flex-1 overflow-y-auto bg-[#f4f5f4] p-4">
-              {!searchQuery.trim() ? (
-                <div className="flex flex-col items-center justify-center h-full text-center px-6 opacity-50">
-                  <Search size={48} className="mb-4 text-foreground/20" />
-                  <p className="text-sm font-bold text-foreground/60">Type to search for toys, statues, and more</p>
-                </div>
-              ) : dynamicSearchResults.length > 0 ? (
-                <div className="flex flex-col gap-3">
-                  <span className="text-xs font-black uppercase tracking-wider text-foreground/40 px-2 mb-1">Products</span>
-                  {dynamicSearchResults.map(product => (
-                    <button 
-                      key={product.id}
-                      onClick={() => {
-                        setMobileSearchOpen(false);
-                        router.push(`/shop?search=${encodeURIComponent(product.name)}`);
-                      }}
-                      className="flex items-center gap-4 p-3 bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-foreground/5 text-left active:scale-[0.98] transition-transform"
-                    >
-                      <div className="w-14 h-14 bg-[#f4f5f4] rounded-xl overflow-hidden relative shrink-0">
-                        {product.image ? (
-                          <Image src={product.image} alt={product.name} fill className="object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Store size={16} className="text-foreground/20" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 overflow-hidden">
-                        <p className="text-xs font-bold text-primary uppercase tracking-wider mb-0.5">{product.category}</p>
-                        <h4 className="text-sm font-black text-foreground truncate">{product.name}</h4>
-                        <p className="text-xs font-bold text-foreground/60 mt-0.5">{product.price}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-                    <X size={24} className="text-foreground/30" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground">No results found for &quot;{searchQuery}&quot;</p>
-                  <p className="text-xs text-foreground/60 mt-1">Try checking for typos or using different terms.</p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Mobile Menu */}
       <div
@@ -599,17 +505,31 @@ export default function Navbar() {
                   "Statues",
                   "Toys & Figurines",
                   "Utility & Decor"
-                ].map((category) => (
-                  <Link
-                    key={category}
-                    href={`/shop?category=${encodeURIComponent(category)}`}
-                    onClick={() => setMobileCategoriesOpen(false)}
-                    className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-transform group"
-                  >
-                    <span className="font-bold text-slate-700">{category}</span>
-                    <ArrowLeft size={16} className="rotate-180 text-slate-300 group-hover:text-primary transition-colors" />
-                  </Link>
-                ))}
+                ].map((category) => {
+                  const isEmpty = category === "Educational" || category === "Statues";
+                  if (isEmpty) {
+                    return (
+                      <div
+                        key={category}
+                        className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm opacity-60 cursor-not-allowed"
+                      >
+                        <span className="font-bold text-slate-500">{category}</span>
+                        <span className="text-[9px] px-2 py-1 rounded-full bg-slate-200 text-slate-500 font-bold uppercase">Soon</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <Link
+                      key={category}
+                      href={`/shop?category=${encodeURIComponent(category)}`}
+                      onClick={() => setMobileCategoriesOpen(false)}
+                      className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-transform group"
+                    >
+                      <span className="font-bold text-slate-700">{category}</span>
+                      <ArrowLeft size={16} className="rotate-180 text-slate-300 group-hover:text-primary transition-colors" />
+                    </Link>
+                  );
+                })}
               </div>
             </motion.div>
           </motion.div>

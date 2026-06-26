@@ -31,9 +31,9 @@ export default function ProductClient({ product }: { product: Product }) {
 
   // Mock reviews
   const [reviews, setReviews] = useState([
-    { id: 1, name: "Rahul S.", rating: 5, text: "Amazing quality! Looks perfect on my desk. Highly recommended.", date: "Oct 12, 2023" },
-    { id: 2, name: "Sneha P.", rating: 4, text: "Very detailed. Delivery took a bit long but the product is definitely worth the wait.", date: "Sep 28, 2023" },
-    { id: 3, name: "Arjun M.", rating: 5, text: "Exceeded my expectations. The 3D printing is flawless.", date: "Aug 15, 2023" }
+    { id: 1, name: "Rahul S.", rating: 5, text: "Amazing quality! Looks perfect on my desk. Highly recommended.", date: "Oct 12, 2026" },
+    { id: 2, name: "Sneha P.", rating: 4, text: "Very detailed. Delivery took a bit long but the product is definitely worth the wait.", date: "Sep 28, 2026" },
+    { id: 3, name: "Arjun M.", rating: 5, text: "Exceeded my expectations. The 3D printing is flawless.", date: "Aug 15, 2026" }
   ]);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -244,11 +244,11 @@ export default function ProductClient({ product }: { product: Product }) {
           </div>
           
           <p className="text-sm md:text-base text-foreground/70 leading-relaxed mb-6 md:mb-8 max-w-prose">
-            {product.description || `Premium 3D printed ${product.name} crafted with eco-friendly PLA bioplastic. Highly detailed finish perfect for collectors and enthusiasts. Durable, sustainable, and proudly made in India. Experience the intersection of technology and art with this masterpiece.`}
+            {product.description || `${product.name} crafted with eco-friendly PLA bioplastic. Highly detailed finish perfect for collectors and enthusiasts. Durable, sustainable, and proudly made in India. Experience the intersection of technology and art with this masterpiece.`}
           </p>
 
           {/* Desktop Add to Cart */}
-          <div className="hidden lg:flex gap-4 mb-8">
+          <div className="flex gap-4 mb-8">
             <button 
               onClick={() => addToCart(product)}
               className="flex-1 py-4 md:py-5 bg-primary text-white rounded-2xl font-black tracking-widest uppercase text-sm md:text-base flex items-center justify-center hover:bg-[#4a5d4e] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
@@ -369,7 +369,7 @@ export default function ProductClient({ product }: { product: Product }) {
       )}
 
       {/* Fixed Bottom Action Bar (Mobile Only) */}
-      <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-black/10 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+      <div className="fixed lg:hidden bottom-[72px] left-0 right-0 bg-white border-t border-black/10 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] z-[60] flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => addToCart(product)}
           className="w-full py-4 bg-primary text-white rounded-2xl font-black tracking-widest uppercase text-sm flex items-center justify-center hover:bg-[#4a5d4e] shadow-lg transition-colors"

@@ -9,6 +9,16 @@ import { Product } from "@/data/products";
 
 export default function HeroSection({ products, heroImages, storefrontConfig }: { products: Product[], heroImages?: any, storefrontConfig?: any }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const configuredCarouselIds = storefrontConfig?.carousel?.filter((id: string) => id) || [];
   const configuredMarqueeIds = storefrontConfig?.marquee?.filter((id: string) => id) || [];
@@ -399,15 +409,17 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
               <div className="relative w-full h-[350px] md:h-[480px] rounded-[1.8rem] sm:rounded-[2.2rem] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] bg-black/5 border border-white/30">
                 <div className="absolute inset-0 z-10 bg-gradient-to-tr from-black/30 via-transparent to-white/20 pointer-events-none" />
                 
-                <video 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline
-                  className="w-full h-full object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
-                >
-                  <source src="/3D_printer_printing_glowing_heart.mp4" type="video/mp4" />
-                </video>
+                {isMounted && !isMobile && (
+                  <video 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline
+                    className="w-full h-full object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
+                  >
+                    <source src="/3D_printer_printing_glowing_heart.mp4" type="video/mp4" />
+                  </video>
+                )}
                 
                 {/* Subtle inner shadow for depth */}
                 <div className="absolute inset-0 rounded-[1.8rem] sm:rounded-[2.2rem] shadow-[inset_0_0_30px_rgba(0,0,0,0.4)] pointer-events-none z-20" />

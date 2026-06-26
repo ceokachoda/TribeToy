@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Leaf, GraduationCap, Users, Lightbulb, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -30,6 +30,17 @@ const features = [
 
 export default function AboutSection() {
   const ref = useRef<HTMLElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
@@ -119,26 +130,28 @@ export default function AboutSection() {
         </div>
 
         {/* Mobile Video Section */}
-        <div className="lg:hidden mt-12 w-full px-2">
-          <div className="relative w-full h-[300px] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(121,152,122,0.2)] bg-black/5 border border-white/60 p-2 glass-panel">
-            <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden">
-              <video 
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                className="w-full h-full object-cover object-center scale-[1.02]"
-              >
-                <source src="/3D_printer_printing_glowing_heart.mp4" type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-1">Innovation</span>
-                <h3 className="text-lg font-black text-white leading-tight">Precision 3D Printing</h3>
+        {isMounted && isMobile && (
+          <div className="lg:hidden mt-12 w-full px-2">
+            <div className="relative w-full h-[300px] rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(121,152,122,0.2)] bg-black/5 border border-white/60 p-2 glass-panel">
+              <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden">
+                <video 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  className="w-full h-full object-cover object-center scale-[1.02]"
+                >
+                  <source src="/3D_printer_printing_glowing_heart.mp4" type="video/mp4" />
+                </video>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-1">Innovation</span>
+                  <h3 className="text-lg font-black text-white leading-tight">Precision 3D Printing</h3>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
       </div>
     </section>

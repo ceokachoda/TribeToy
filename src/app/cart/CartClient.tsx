@@ -109,7 +109,7 @@ export default function CartClient() {
         <h1 className="text-4xl md:text-5xl font-heading font-black tracking-tight text-[#1a1a1a] mb-4">
           Your Cart
         </h1>
-        <p className="text-[#5a6b5e] font-medium">You have <span className="font-bold text-[#1a1a1a]">{totalItems} items</span> in your cart.</p>
+        <p className="text-[#5a6b5e] font-medium">You have <span className="font-bold text-[#1a1a1a]">{totalItems} {totalItems === 1 ? "item" : "items"}</span> in your cart.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -163,7 +163,7 @@ export default function CartClient() {
             
             <div className="mt-6 flex flex-col gap-3 text-xs text-center text-[#8a958c] font-medium">
               <p>Secure checkout powered by Stripe & Razorpay</p>
-              <p>10-day easy returns on non-custom items.</p>
+              <p>7-day easy returns on non-custom items.</p>
             </div>
           </div>
         </div>
