@@ -130,7 +130,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="relative flex items-center gap-2 group transition-all duration-500">
+        <Link href="/" prefetch={true} className="relative flex items-center gap-2 group transition-all duration-500">
           <div className="relative z-10 w-10 h-10 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)] overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] flex items-center justify-center ring-2 ring-transparent group-hover:ring-primary/20 group-hover:shadow-[0_0_15px_rgba(121,152,122,0.3)]">
             <Image 
               src="/logo-new.jpg" 
@@ -154,6 +154,7 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
+                prefetch={link.href === '/' || link.href === '/shop'}
                 className={`text-sm font-medium transition-colors relative group ${
                   isActive ? "text-primary font-bold" : "text-foreground/80 hover:text-primary"
                 }`}
@@ -270,7 +271,7 @@ export default function Navbar() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
             )}
           </Link>
-          <Link href="/cart" className="hidden lg:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
+          <Link href="/cart" prefetch={true} className="hidden lg:block p-2 text-foreground/80 hover:text-primary transition-colors relative" aria-label="Cart">
             <ShoppingCart size={20} />
             {totalItems > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
@@ -590,7 +591,7 @@ export default function Navbar() {
 
       {/* Mobile Bottom Navigation Bar (App-like) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-        <Link href="/" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
+        <Link href="/" prefetch={true} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Home size={22} className={pathname === '/' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Home</span>
         </Link>
@@ -598,11 +599,11 @@ export default function Navbar() {
           <Filter size={22} className="stroke-2" />
           <span className="text-[10px] font-bold">Categories</span>
         </button>
-        <Link href="/shop" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname.startsWith('/shop') ? 'text-primary' : 'text-[#8a958c]'}`}>
+        <Link href="/shop" prefetch={true} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname.startsWith('/shop') ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Store size={22} className={pathname.startsWith('/shop') ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Shop</span>
         </Link>
-        <Link href="/cart" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors relative ${pathname === '/cart' ? 'text-primary' : 'text-[#8a958c]'}`}>
+        <Link href="/cart" prefetch={true} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors relative ${pathname === '/cart' ? 'text-primary' : 'text-[#8a958c]'}`}>
           <ShoppingCart size={22} className={pathname === '/cart' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Cart</span>
           {totalItems > 0 && (

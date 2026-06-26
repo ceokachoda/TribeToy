@@ -2,7 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import StoriesClient from "./StoriesClient";
-import { createClient } from "@/utils/supabase/server";
+import { createStaticClient } from "@/utils/supabase/static";
+
+export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Stories & Impact - TribeToy",
@@ -10,7 +13,7 @@ export const metadata = {
 };
 
 export default async function BlogPage() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: dbBlogs, error } = await supabase.from('blogs').select('slug, title, excerpt, content, cover_image_url, created_at, author_name, tags').order('created_at', { ascending: false });
 
   const mappedBlogs = (dbBlogs || []).map((b: any) => ({

@@ -4,6 +4,7 @@ import { Providers } from "@/components/Providers";
 import PwaRegister from "@/components/layout/PwaRegister";
 import { Viewport } from "next";
 import { ConditionalLayoutWrapper } from "@/components/layout/ConditionalLayoutWrapper";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 
 export const viewport: Viewport = {
   themeColor: "#79987A",
@@ -28,12 +29,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/30 pb-20 lg:pb-0">
-        <PwaRegister />
-        <Providers>
-          <ConditionalLayoutWrapper>
-            {children}
-          </ConditionalLayoutWrapper>
-        </Providers>
+        <SmoothScroll>
+          <PwaRegister />
+          <Providers>
+            <ConditionalLayoutWrapper>
+              {children}
+            </ConditionalLayoutWrapper>
+          </Providers>
+        </SmoothScroll>
       </body>
     </html>
   );

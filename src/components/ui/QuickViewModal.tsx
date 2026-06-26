@@ -92,6 +92,7 @@ export function QuickViewModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="relative w-full max-w-4xl bg-white rounded-[2rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row max-h-[90vh]"
+            style={{ willChange: "transform, opacity" }}
           >
             <button 
               onClick={onClose}

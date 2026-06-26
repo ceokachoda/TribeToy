@@ -127,7 +127,7 @@ export default function ProductCategories() {
             transition={{ delay: 0.2 }}
             className="pb-4"
           >
-            <Link href="/shop" className="group flex items-center gap-4 transition-all duration-500 mb-2 md:mb-0">
+            <Link href="/shop" prefetch={true} className="group flex items-center gap-4 transition-all duration-500 mb-2 md:mb-0">
               <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase text-foreground/70 group-hover:text-foreground transition-colors">View Complete Catalog</span>
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-foreground/20 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-500 transform-gpu group-hover:shadow-[0_0_15px_rgba(121,152,122,0.2)] group-hover:scale-105 shrink-0">
                 <ArrowRight className="text-foreground/70 group-hover:text-primary transition-all duration-500 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5" />
@@ -179,6 +179,7 @@ export default function ProductCategories() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="relative h-[250px] group z-20 hover:z-30"
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Premium Glow Aura */}
               <div className="absolute -inset-1 bg-gradient-to-tr from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
@@ -213,6 +214,7 @@ export default function ProductCategories() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="relative h-[300px] lg:-mr-12 lg:-mt-4 group z-30 hover:z-40"
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Premium Glow Aura */}
               <div className="absolute -inset-1 bg-gradient-to-tr from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
@@ -249,6 +251,7 @@ export default function ProductCategories() {
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="w-full lg:w-6/12 relative h-[400px] lg:h-[650px] group z-10 hover:z-20"
+            style={{ willChange: "transform, opacity" }}
           >
             {/* Massive Premium Glow Aura */}
             <div className="absolute -inset-2 bg-gradient-to-t from-primary/30 via-primary/5 to-transparent rounded-[2.7rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
@@ -298,6 +301,7 @@ export default function ProductCategories() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="relative h-[300px] lg:h-[400px] lg:-ml-12 group z-20 hover:z-30"
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Premium Glow Aura */}
               <div className="absolute -inset-1 bg-gradient-to-tl from-primary/40 to-transparent rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />

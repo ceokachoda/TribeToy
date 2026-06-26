@@ -5,11 +5,116 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Eye, Heart, Sparkles, Filter, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useMemo, memo } from "react";
 import { products, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { QuickViewModal } from "@/components/ui/QuickViewModal";
 import { useToast } from "@/context/ToastContext";
+
+const ProductCard = memo(({ product, wishlist, toggleWishlist, addToCart, router }: { product: Product, wishlist: string[], toggleWishlist: (id: string) => void, addToCart: (product: Product) => void, router: any }) => {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      onClick={() => router.push('/product/' + product.id)}
+      className="group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] group-hover:-translate-y-2 flex flex-col h-full transform-gpu cursor-pointer"
+      style={{ willChange: "transform, opacity" }}
+    >
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
+
+      <div className="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex flex-col gap-1 md:gap-2">
+        {product.isSale && (
+          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-accent/90 backdrop-blur-xl text-black text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">Sale</span>
+        )}
+        {product.isPremium && (
+          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
+            <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2" /> <span className="hidden lg:inline">Pro</span>
+          </span>
+        )}
+        {product.isNew && (
+          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-primary/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">New</span>
+        )}
+      </div>
+
+      {/* Hover Actions */}
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-1 md:gap-2 bg-white/80 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-1 md:p-0 rounded-full md:rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.05)] md:shadow-none border border-black/5 md:border-none md:translate-x-8 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+        <button 
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(String(product.id)); }}
+          className={`w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center transition-colors md:shadow-lg ${
+            wishlist.includes(String(product.id)) ? "text-red-500 hover:text-red-600 md:hover:bg-red-50" : "text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white"
+          }`}
+        >
+          <Heart size={12} className={wishlist.includes(String(product.id)) ? "fill-current" : ""} />
+        </button>
+        <button 
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/product/' + product.id); }}
+          className="w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white transition-colors md:shadow-lg"
+        >
+          <Eye size={12} />
+        </button>
+      </div>
+
+      {/* Product Image Wrapper */}
+      <div className="relative h-40 md:h-64 w-full bg-foreground/5 overflow-hidden flex items-center justify-center border-b border-foreground/5">
+        <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.03)] z-10 pointer-events-none" />
+        
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          // Premium Placeholder
+          <div className="absolute inset-0 bg-gradient-to-tr from-foreground/5 to-foreground/10 flex flex-col items-center justify-center gap-2 md:gap-4 transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-105">
+            <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.05)]">
+              <ShoppingBag className="text-foreground/30 w-5 h-5 md:w-6 md:h-6" />
+            </div>
+            <span className="text-[8px] md:text-[10px] text-foreground/40 uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold text-center px-2">Image Pending</span>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-4 md:p-6 flex flex-col flex-grow relative z-20 bg-white">
+        <span className="text-[8px] md:text-[9px] text-primary font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 line-clamp-1">{product.category}</span>
+        <h3 className="text-sm md:text-lg font-heading font-bold text-foreground leading-tight md:leading-snug mb-auto line-clamp-2">{product.name}</h3>
+        
+        <div className="flex items-end justify-between mt-4 md:mt-6 pt-4 border-t border-foreground/5 relative">
+          <div className="flex flex-col">
+            <div className="flex flex-wrap items-center gap-1 md:gap-2">
+              <span className="text-base md:text-xl font-black text-foreground tracking-tighter">
+                {product.price}
+              </span>
+              {product.originalPrice && (
+                <span className="text-[10px] md:text-xs text-foreground/40 line-through font-bold mb-0.5">{product.originalPrice}</span>
+              )}
+            </div>
+          </div>
+
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart(product);
+            }}
+            className="relative overflow-hidden group/cart w-9 h-9 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 shadow-sm flex items-center justify-center hover:border-primary/50 hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] transition-all duration-500 shrink-0 transform-gpu hover:scale-105"
+          >
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary md:translate-y-[100%] group-hover/cart:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+            <ShoppingBag className="text-foreground group-hover/cart:text-white relative z-10 md:group-hover/cart:-translate-y-0.5 group-hover/cart:scale-110 transition-all duration-500 w-4 h-4 md:w-5 md:h-5" />
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+ProductCard.displayName = "ProductCard";
 
 function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
   const searchParams = useSearchParams();
@@ -67,16 +172,19 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
     return initialProducts.filter(p => p.category === cat).length;
   };
 
-  let filteredProducts = activeCategory === "All Toys" 
-    ? initialProducts 
-    : initialProducts.filter(p => p.category === activeCategory);
+  const filteredProducts = useMemo(() => {
+    let result = activeCategory === "All Toys" 
+      ? initialProducts 
+      : initialProducts.filter(p => p.category === activeCategory);
 
-  if (searchQuery) {
-    filteredProducts = filteredProducts.filter(p => 
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      p.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }
+    if (searchQuery) {
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        p.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    return result;
+  }, [initialProducts, activeCategory, searchQuery]);
 
   return (
     <div className="w-full">
@@ -171,105 +279,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
         >
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, index) => (
-                <motion.div
-                key={product.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                onClick={() => router.push('/product/' + product.id)}
-                className="group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] group-hover:-translate-y-2 flex flex-col h-full transform-gpu cursor-pointer"
-              >
-                {/* Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
-
-                <div className="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex flex-col gap-1 md:gap-2">
-                  {product.isSale && (
-                    <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-accent/90 backdrop-blur-xl text-black text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">Sale</span>
-                  )}
-                  {product.isPremium && (
-                    <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
-                      <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2" /> <span className="hidden lg:inline">Pro</span>
-                    </span>
-                  )}
-                  {product.isNew && (
-                    <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-primary/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">New</span>
-                  )}
-                </div>
-
-                {/* Hover Actions */}
-                <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-1 md:gap-2 bg-white/80 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-1 md:p-0 rounded-full md:rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.05)] md:shadow-none border border-black/5 md:border-none md:translate-x-8 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                  <button 
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(String(product.id)); }}
-                    className={`w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center transition-colors md:shadow-lg ${
-                      wishlist.includes(String(product.id)) ? "text-red-500 hover:text-red-600 md:hover:bg-red-50" : "text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white"
-                    }`}
-                  >
-                    <Heart size={12} className={wishlist.includes(String(product.id)) ? "fill-current" : ""} />
-                  </button>
-                  <button 
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/product/' + product.id); }}
-                    className="w-6 h-6 md:w-8 md:h-8 md:bg-white/90 md:backdrop-blur-xl md:border md:border-foreground/10 rounded-full flex items-center justify-center text-foreground/80 hover:bg-primary md:hover:border-primary hover:text-white transition-colors md:shadow-lg"
-                  >
-                    <Eye size={12} />
-                  </button>
-                </div>
-
-                {/* Product Image Wrapper */}
-                <div className="relative h-40 md:h-64 w-full bg-foreground/5 overflow-hidden flex items-center justify-center border-b border-foreground/5">
-                  <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.03)] z-10 pointer-events-none" />
-                  
-                  {product.image ? (
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  ) : (
-                    // Premium Placeholder
-                    <div className="absolute inset-0 bg-gradient-to-tr from-foreground/5 to-foreground/10 flex flex-col items-center justify-center gap-2 md:gap-4 transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-105">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.05)]">
-                        <ShoppingBag className="text-foreground/30 w-5 h-5 md:w-6 md:h-6" />
-                      </div>
-                      <span className="text-[8px] md:text-[10px] text-foreground/40 uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold text-center px-2">Image Pending</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="p-4 md:p-6 flex flex-col flex-grow relative z-20 bg-white">
-                  <span className="text-[8px] md:text-[9px] text-primary font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 line-clamp-1">{product.category}</span>
-                  <h3 className="text-sm md:text-lg font-heading font-bold text-foreground leading-tight md:leading-snug mb-auto line-clamp-2">{product.name}</h3>
-                  
-                  <div className="flex items-end justify-between mt-4 md:mt-6 pt-4 border-t border-foreground/5 relative">
-                    <div className="flex flex-col">
-                      <div className="flex flex-wrap items-center gap-1 md:gap-2">
-                        <span className="text-base md:text-xl font-black text-foreground tracking-tighter">
-                          {product.price}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-[10px] md:text-xs text-foreground/40 line-through font-bold mb-0.5">{product.originalPrice}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                      className="relative overflow-hidden group/cart w-9 h-9 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-white to-foreground/5 border border-foreground/10 shadow-sm flex items-center justify-center hover:border-primary/50 hover:shadow-[0_0_20px_rgba(121,152,122,0.4)] transition-all duration-500 shrink-0 transform-gpu hover:scale-105"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary md:translate-y-[100%] group-hover/cart:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
-                      <ShoppingBag className="text-foreground group-hover/cart:text-white relative z-10 md:group-hover/cart:-translate-y-0.5 group-hover/cart:scale-110 transition-all duration-500 w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+                <ProductCard key={product.id} product={product as any} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart as any} router={router} />
             ))}
           </AnimatePresence>
         </motion.div>

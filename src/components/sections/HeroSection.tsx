@@ -106,6 +106,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
             variants={containerVariants}
             initial="hidden"
             animate="visible"
+            style={{ willChange: "opacity" }}
           >
             
             {/* Badge - Elegant Pill */}
@@ -250,14 +251,15 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
                       className="absolute inset-0 block"
                     >
                       {slides[currentSlide % safeSlideCount]?.image && (
-                        <Image 
-                          src={slides[currentSlide % safeSlideCount].image!} 
-                          alt={slides[currentSlide % safeSlideCount].title} 
-                          fill 
-                          className="object-cover brightness-95" 
-                          sizes="(max-width: 768px) 100vw" 
-                          priority
-                        />
+                          <Image 
+                            src={slides[currentSlide % safeSlideCount].image!} 
+                            alt={slides[currentSlide % safeSlideCount].title} 
+                            fill 
+                            className="object-cover brightness-95" 
+                            sizes="(max-width: 768px) 100vw" 
+                            priority
+                            fetchPriority="high"
+                          />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4 flex flex-col">
@@ -285,7 +287,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
               
               {/* Two Square Cards */}
               <Link href="/customization" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
-                <Image src={heroImages?.custom_prints || "/ghibli_hero_v2.png"} alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" />
+                <Image src={heroImages?.custom_prints || "/ghibli_hero_v2.png"} alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" priority fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex flex-col">
                   <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-0.5">Your Design</span>
@@ -294,7 +296,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
               </Link>
               
               <Link href="/shop" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
-                <Image src={heroImages?.new_arrivals || "/ghibli_new_arrivals_v2.png"} alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" />
+                <Image src={heroImages?.new_arrivals || "/ghibli_new_arrivals_v2.png"} alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" priority fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
                 <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-sm z-10">
@@ -382,6 +384,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
                 ease: "easeInOut" 
               }
             }}
+            style={{ willChange: "transform, opacity" }}
           >
             {/* Outer Glass Frame */}
             <div className="relative p-3 sm:p-5 rounded-[2.5rem] sm:rounded-[3rem] glass-panel border border-white/60 shadow-[0_20px_50px_rgba(121,152,122,0.15)] hover:shadow-[0_30px_60px_rgba(121,152,122,0.3)] transition-shadow duration-700 group overflow-hidden">

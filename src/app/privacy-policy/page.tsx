@@ -6,6 +6,8 @@ export const metadata = {
   description: "Privacy Policy for TribeToy",
 };
 
+export const dynamic = 'force-static';
+
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen bg-background pt-32 pb-32">

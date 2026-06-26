@@ -7,9 +7,33 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const { data: { session } } = await supabase.auth.getSession();
 
-    const { amount } = await req.json();
+    const { items } = await req.json();
 
-    if (!amount || amount <= 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "Invalid items" }, { status: 400 });
+    }
+
+    // Fetch prices from DB to secure checkout
+    const itemIds = items.map((item: any) => item.id);
+    const { data: dbProducts, error: dbError } = await supabase
+      .from('products')
+      .select('id, price')
+      .in('id', itemIds);
+
+    if (dbError || !dbProducts) {
+      return NextResponse.json({ error: "Failed to fetch product details" }, { status: 500 });
+    }
+
+    let calculatedAmount = 0;
+    for (const item of items) {
+      const dbProduct = dbProducts.find((p) => String(p.id) === String(item.id));
+      if (!dbProduct) {
+        return NextResponse.json({ error: `Product not found: ${item.id}` }, { status: 400 });
+      }
+      calculatedAmount += parseFloat(dbProduct.price) * item.quantity;
+    }
+
+    if (calculatedAmount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
@@ -19,7 +43,7 @@ export async function POST(req: Request) {
     });
 
     const options = {
-      amount: Math.round(amount * 100), // amount in the smallest currency unit (paise)
+      amount: Math.round(calculatedAmount * 100), // amount in the smallest currency unit (paise)
       currency: "INR",
       receipt: `rcpt_${Date.now()}`,
     };

@@ -2,11 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Share2 } from "lucide-react";
-import { createClient } from "@/utils/supabase/server";
+import { createStaticClient } from "@/utils/supabase/static";
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: blog } = await supabase.from('blogs').select('title, excerpt').eq('slug', slug).single();
   
   if (!blog) return { title: "Not Found" };
@@ -19,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: dbBlog, error } = await supabase.from('blogs').select('title, excerpt, content, cover_image_url, created_at, author_name, tags').eq('slug', slug).single();
 
   if (!dbBlog) {

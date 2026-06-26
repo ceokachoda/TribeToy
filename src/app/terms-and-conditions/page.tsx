@@ -6,6 +6,8 @@ export const metadata = {
   description: "Terms and Conditions for TribeToy",
 };
 
+export const dynamic = 'force-static';
+
 export default function TermsConditionsPage() {
   return (
     <main className="min-h-screen bg-background pt-32 pb-32">

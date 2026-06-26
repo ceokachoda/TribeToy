@@ -2,10 +2,13 @@ import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
 import ProductCategories from "@/components/sections/ProductCategories";
-import { createClient } from "@/utils/supabase/server";
+import { createStaticClient } from "@/utils/supabase/static";
+
+export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 export default async function Home() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const [productsResponse, settingsResponse, storefrontResponse] = await Promise.all([
     supabase.from('products').select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium, is_hero').order('created_at', { ascending: false }),
     supabase.from('site_settings').select('value').eq('key', 'hero_images').single(),

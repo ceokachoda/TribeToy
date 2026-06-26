@@ -172,6 +172,7 @@ export function LabelDocument({
                 ) : null}
               </View>
               <View style={styles.qrWrap}>
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image style={styles.qr} src={qrDataUrl} />
                 <Text style={styles.qrCaption}>{orderNo}</Text>
               </View>

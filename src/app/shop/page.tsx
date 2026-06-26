@@ -1,5 +1,9 @@
 import ShopClient from "./ShopClient";
-import { createClient } from "@/utils/supabase/server";
+import { createStaticClient } from "@/utils/supabase/static";
+
+export const dynamic = 'force-static';
+export const revalidate = 3600;
+import { Suspense } from "react";
 
 export const metadata = {
   title: "Shop All Toys - TribeToy",
@@ -7,7 +11,7 @@ export const metadata = {
 };
 
 export default async function ShopPage() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data: dbProducts, error } = await supabase.from('products').select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium').order('created_at', { ascending: false });
 
   // Map db records to the Product type expected by ShopClient
@@ -28,7 +32,9 @@ export default async function ShopPage() {
       <div className="container mx-auto px-6 md:px-12 max-w-[1600px]">
         {/* Dynamic header moved to ShopClient */}
 
-        <ShopClient initialProducts={mappedProducts} />
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading shop...</div>}>
+          <ShopClient initialProducts={mappedProducts} />
+        </Suspense>
       </div>
     </main>
   );

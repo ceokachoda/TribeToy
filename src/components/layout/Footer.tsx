@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="flex flex-col gap-6">
-            <Link href="/" className="flex items-center gap-3 group glass-panel px-3 py-2 rounded-2xl w-max hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all">
+            <Link href="/" prefetch={true} className="flex items-center gap-3 group glass-panel px-3 py-2 rounded-2xl w-max hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all">
               <div className="relative w-12 h-12 rounded-lg bg-white shadow-sm overflow-hidden transform transition-transform group-hover:scale-105 ring-1 ring-black/5 flex items-center justify-center">
                 <Image 
                   src="/logo-new.jpg" 
@@ -55,7 +55,7 @@ export default function Footer() {
           <div className="hidden md:block">
             <h3 className="font-heading font-semibold text-lg mb-6">Shop</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link href="/shop" className="text-foreground/60 hover:text-primary transition-colors text-sm">All Toys</Link></li>
+              <li><Link href="/shop" prefetch={true} className="text-foreground/60 hover:text-primary transition-colors text-sm">All Toys</Link></li>
               <li><Link href="/shop?category=Educational" className="text-foreground/60 hover:text-primary transition-colors text-sm">Educational</Link></li>
               <li><Link href="/shop?category=Utility & Decor" className="text-foreground/60 hover:text-primary transition-colors text-sm">Utility Decor</Link></li>
               <li><Link href="/customization" className="text-foreground/60 hover:text-primary transition-colors text-sm">Custom 3D Printing</Link></li>

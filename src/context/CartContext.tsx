@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from "react";
 import { Product } from "@/data/products";
 import { useToast } from "@/context/ToastContext";
 import { createClient } from "@/utils/supabase/client";
@@ -27,7 +27,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const { showToast } = useToast();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   // Load user session
   useEffect(() => {
@@ -52,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   // Fetch cart from DB or LocalStorage
   useEffect(() => {
@@ -130,7 +130,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
 
     loadCart();
-  }, [userId, isLoaded]);
+  }, [userId, isLoaded, supabase]);
 
   // Sync to local storage if logged out
   useEffect(() => {
@@ -139,7 +139,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [cart, isLoaded, userId]);
 
-  const addToCart = async (product: Product) => {
+  const addToCart = useCallback(async (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -149,84 +149,146 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    showToast(`Added ${product.name} to cart`, "cart");
 
     if (userId) {
-      const { data: existing } = await supabase
-        .from('cart_items')
-        .select('id, quantity')
-        .eq('user_id', userId)
-        .eq('product_id', product.id)
-        .maybeSingle();
+      try {
+        const { data: existing, error: fetchError } = await supabase
+          .from('cart_items')
+          .select('id, quantity')
+          .eq('user_id', userId)
+          .eq('product_id', product.id)
+          .maybeSingle();
 
-      if (existing) {
-        await supabase
-          .from('cart_items')
-          .update({ quantity: existing.quantity + 1 })
-          .eq('id', existing.id);
-      } else {
-        await supabase
-          .from('cart_items')
-          .insert({
-            user_id: userId,
-            product_id: product.id,
-            quantity: 1
-          });
+        if (fetchError) throw fetchError;
+
+        if (existing) {
+          const { error } = await supabase
+            .from('cart_items')
+            .update({ quantity: existing.quantity + 1 })
+            .eq('id', existing.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('cart_items')
+            .insert({
+              user_id: userId,
+              product_id: product.id,
+              quantity: 1
+            });
+          if (error) throw error;
+        }
+      } catch (error) {
+        console.error("Cart sync error", error);
+        setCart((prev) => {
+          const existing = prev.find((item) => item.id === product.id);
+          if (existing && existing.quantity > 1) {
+            return prev.map((item) =>
+              item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
+            );
+          }
+          return prev.filter((item) => item.id !== product.id);
+        });
+        showToast("Failed to sync cart", "error");
       }
     }
-    showToast(`Added ${product.name} to cart`, "cart");
-  };
+  }, [userId, supabase, showToast]);
 
-  const removeFromCart = async (id: number | string) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = useCallback(async (id: number | string) => {
+    let removedItem: CartItem | undefined;
+    setCart((prev) => {
+      removedItem = prev.find((item) => item.id === id);
+      return prev.filter((item) => item.id !== id);
+    });
 
     if (userId) {
-      await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', userId)
-        .eq('product_id', id);
+      try {
+        const { error } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', userId)
+          .eq('product_id', id);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Cart sync error", error);
+        if (removedItem) {
+          setCart((prev) => [...prev, removedItem!]);
+        }
+        showToast("Failed to remove item", "error");
+      }
     }
-  };
+  }, [userId, supabase, showToast]);
 
-  const updateQuantity = async (id: number | string, quantity: number) => {
+  const updateQuantity = useCallback(async (id: number | string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
     }
     
-    setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
+    let oldQuantity = 0;
+    setCart((prev) => {
+      const item = prev.find(i => i.id === id);
+      if (item) oldQuantity = item.quantity;
+      return prev.map((item) => (item.id === id ? { ...item, quantity } : item));
+    });
 
     if (userId) {
-      await supabase
-        .from('cart_items')
-        .update({ quantity })
-        .eq('user_id', userId)
-        .eq('product_id', id);
+      try {
+        const { error } = await supabase
+          .from('cart_items')
+          .update({ quantity })
+          .eq('user_id', userId)
+          .eq('product_id', id);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Cart sync error", error);
+        if (oldQuantity > 0) {
+          setCart((prev) => prev.map((item) => (item.id === id ? { ...item, quantity: oldQuantity } : item)));
+        }
+        showToast("Failed to update quantity", "error");
+      }
     }
-  };
+  }, [userId, supabase, showToast, removeFromCart]);
 
   const clearCart = useCallback(async () => {
+    const previousCart = [...cart];
     setCart([]);
     if (userId) {
-      await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', userId);
+      try {
+        const { error } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', userId);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Cart sync error", error);
+        setCart(previousCart);
+        showToast("Failed to clear cart", "error");
+      }
     }
-  }, [userId]);
+  }, [userId, supabase, showToast, cart]);
 
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   
-  const totalPrice = cart.reduce((acc, item) => {
+  const totalPrice = useMemo(() => cart.reduce((acc, item) => {
     const priceStr = item.price.replace(/[^0-9.]/g, '');
     const priceVal = parseFloat(priceStr) || 0;
     return acc + (priceVal * item.quantity);
-  }, 0);
+  }, 0), [cart]);
+
+  const contextValue = useMemo(() => ({
+    cart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    totalItems,
+    totalPrice,
+    isLoading: !isLoaded
+  }), [cart, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, isLoaded]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, isLoading: !isLoaded }}>
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

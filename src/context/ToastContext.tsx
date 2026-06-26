@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Heart, ShoppingBag, X } from "lucide-react";
 
@@ -34,8 +34,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const contextValue = useMemo(() => ({ showToast }), [showToast]);
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <div className="fixed bottom-24 lg:bottom-6 left-4 right-4 lg:left-auto lg:right-6 z-[200] flex flex-col items-center lg:items-end gap-3 pointer-events-none">
         <AnimatePresence>
@@ -45,6 +47,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              style={{ willChange: "transform, opacity" }}
               className="pointer-events-auto flex items-center gap-4 bg-white/95 backdrop-blur-xl px-5 py-4 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] border border-black/5 min-w-[300px]"
             >
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#f4f5f4] flex items-center justify-center text-[#4a5d4e] shadow-sm">

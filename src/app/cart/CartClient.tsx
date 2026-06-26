@@ -7,7 +7,67 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { useState } from "react";
+import { useState, memo } from "react";
+
+const CartItemRow = memo(({ item, updateQuantity, removeFromCart }: { item: any, updateQuantity: any, removeFromCart: any }) => {
+  return (
+    <motion.div 
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      className="bg-white rounded-3xl p-4 md:p-6 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row gap-6 items-center sm:items-stretch"
+    >
+      {/* Image */}
+      <div className="w-32 h-32 rounded-2xl bg-[#f4f5f4] flex-shrink-0 relative overflow-hidden border border-black/5">
+        {item.image ? (
+          <Image src={item.image} alt={item.name} fill className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ShoppingBag className="text-black/10 w-8 h-8" />
+          </div>
+        )}
+      </div>
+
+      {/* Details */}
+      <div className="flex flex-col flex-grow w-full text-center sm:text-left justify-between py-1">
+        <div>
+          <span className="text-[9px] font-bold tracking-[0.2em] text-[#4a5d4e] uppercase mb-2 block">{item.category}</span>
+          <h3 className="text-lg font-bold text-[#1a1a1a] leading-tight mb-2 line-clamp-2">{item.name}</h3>
+          <p className="text-lg font-black text-[#1a1a1a]">{item.price}</p>
+        </div>
+        
+        <div className="flex items-center justify-between mt-6 sm:mt-0 pt-4 sm:pt-0 border-t border-black/5 sm:border-0 w-full">
+          {/* Quantity Selector */}
+          <div className="flex items-center gap-4 bg-[#f4f5f4] rounded-full px-2 py-1 border border-black/5">
+            <button 
+              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              className="w-8 h-8 rounded-full hover:bg-white flex items-center justify-center text-[#5a6b5e] hover:text-[#1a1a1a] hover:shadow-sm transition-all"
+            >
+              <Minus size={14} />
+            </button>
+            <span className="w-4 text-center font-bold text-sm text-[#1a1a1a]">{item.quantity}</span>
+            <button 
+              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              className="w-8 h-8 rounded-full hover:bg-white flex items-center justify-center text-[#5a6b5e] hover:text-[#1a1a1a] hover:shadow-sm transition-all"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+
+          {/* Delete */}
+          <button 
+            onClick={() => removeFromCart(item.id)}
+            className="p-3 text-[#8a958c] hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+CartItemRow.displayName = "CartItemRow";
 
 export default function CartClient() {
   const { cart, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
@@ -57,61 +117,7 @@ export default function CartClient() {
         <div className="lg:col-span-8 flex flex-col gap-6">
           <AnimatePresence mode="popLayout">
             {cart.map((item) => (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                key={item.id} 
-                className="bg-white rounded-3xl p-4 md:p-6 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row gap-6 items-center sm:items-stretch"
-              >
-                {/* Image */}
-                <div className="w-32 h-32 rounded-2xl bg-[#f4f5f4] flex-shrink-0 relative overflow-hidden border border-black/5">
-                  {item.image ? (
-                    <Image src={item.image} alt={item.name} fill className="object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <ShoppingBag className="text-black/10 w-8 h-8" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Details */}
-                <div className="flex flex-col flex-grow w-full text-center sm:text-left justify-between py-1">
-                  <div>
-                    <span className="text-[9px] font-bold tracking-[0.2em] text-[#4a5d4e] uppercase mb-2 block">{item.category}</span>
-                    <h3 className="text-lg font-bold text-[#1a1a1a] leading-tight mb-2 line-clamp-2">{item.name}</h3>
-                    <p className="text-lg font-black text-[#1a1a1a]">{item.price}</p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-6 sm:mt-0 pt-4 sm:pt-0 border-t border-black/5 sm:border-0 w-full">
-                    {/* Quantity Selector */}
-                    <div className="flex items-center gap-4 bg-[#f4f5f4] rounded-full px-2 py-1 border border-black/5">
-                      <button 
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 rounded-full hover:bg-white flex items-center justify-center text-[#5a6b5e] hover:text-[#1a1a1a] hover:shadow-sm transition-all"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="w-4 text-center font-bold text-sm text-[#1a1a1a]">{item.quantity}</span>
-                      <button 
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-full hover:bg-white flex items-center justify-center text-[#5a6b5e] hover:text-[#1a1a1a] hover:shadow-sm transition-all"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-
-                    {/* Delete */}
-                    <button 
-                      onClick={() => removeFromCart(item.id)}
-                      className="p-3 text-[#8a958c] hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+              <CartItemRow key={item.id} item={item} updateQuantity={updateQuantity} removeFromCart={removeFromCart} />
             ))}
           </AnimatePresence>
         </div>

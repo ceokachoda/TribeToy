@@ -14,6 +14,37 @@ export async function POST(req: Request) {
       items
     } = await req.json();
 
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "Invalid items" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    
+    // Fetch prices from DB to secure checkout
+    const itemIds = items.map((item: any) => item.id);
+    const { data: dbProducts, error: dbError } = await supabase
+      .from('products')
+      .select('id, price')
+      .in('id', itemIds);
+
+    if (dbError || !dbProducts) {
+      return NextResponse.json({ error: "Failed to fetch product details" }, { status: 500 });
+    }
+
+    let calculatedAmount = 0;
+    const secureItems = items.map((item: any) => {
+      const dbProduct = dbProducts.find((p) => String(p.id) === String(item.id));
+      if (!dbProduct) throw new Error(`Product not found: ${item.id}`);
+      
+      const price = parseFloat(dbProduct.price);
+      calculatedAmount += price * item.quantity;
+      
+      return {
+        ...item,
+        securePrice: price
+      };
+    });
+
     const secret = process.env.RAZORPAY_KEY_SECRET;
     if (!secret) throw new Error("Razorpay secret not configured");
 
@@ -26,7 +57,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid payment signature" }, { status: 400 });
     }
 
-    const supabase = await createClient();
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
 
@@ -40,7 +70,7 @@ export async function POST(req: Request) {
         razorpay_order_id,
         razorpay_payment_id,
         status: 'paid',
-        total_amount: amount,
+        total_amount: calculatedAmount,
         shipping_address
       })
       .select()
@@ -52,11 +82,11 @@ export async function POST(req: Request) {
 
     // Insert order items
     if (items && items.length > 0) {
-      const orderItems = items.map((item: any) => ({
+      const orderItems = secureItems.map((item: any) => ({
         order_id: order.id,
         product_id: item.id,
         quantity: item.quantity,
-        price_at_purchase: parseFloat(item.price.replace(/[^0-9.]/g, ''))
+        price_at_purchase: item.securePrice
       }));
 
       await adminSupabase.from("order_items").insert(orderItems);

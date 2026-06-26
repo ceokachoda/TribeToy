@@ -2,7 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import("@/components/layout/Footer"), {
+  ssr: true, // We want it to be part of the initial HTML but it defers hydration/JS loading slightly if below fold
+});
 
 export function ConditionalLayoutWrapper({
   children,

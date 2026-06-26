@@ -397,7 +397,7 @@ export default function CheckoutClient() {
               <button 
                 type="submit"
                 form="checkout-form"
-                disabled={isProcessing}
+                disabled={isProcessing || isFetchingLocation || !selectedCity || !stateName}
                 className={`w-full flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl ${isProcessing ? 'opacity-70 cursor-not-allowed hover:scale-100' : ''}`}
               >
                 <span>{isProcessing ? 'Processing...' : 'Place Order'}</span>

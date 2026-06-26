@@ -81,6 +81,12 @@ export default function LoginClient() {
         return;
       }
       
+      if (!data.session) {
+        setError("Please check your email to verify your account.");
+        setLoading(false);
+        return;
+      }
+      
       // Trigger beautiful welcome animation for signup
       setShowWelcome(true);
       setTimeout(() => {
