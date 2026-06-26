@@ -47,7 +47,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
   };
 
   const renderCard = (product: typeof featuredProducts[0], index: number) => {
-    const baseClasses = "ios-optimize-card group relative rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-foreground/10 transition-all duration-700 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] flex flex-col hover:border-primary/50 group-hover:-translate-y-2 transform-gpu cursor-pointer";
+    const baseClasses = "group relative rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-foreground/10 transition-all duration-700 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] flex flex-col hover:border-primary/50 group-hover:-translate-y-2 transform-gpu cursor-pointer";
 
     return (
       <motion.div

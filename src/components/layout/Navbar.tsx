@@ -430,20 +430,24 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`ios-mobile-menu fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl overflow-y-auto overscroll-none pb-24 pt-16 transition-all duration-300 transform-gpu ${
+        className={`fixed inset-0 z-[100] bg-white flex flex-col shadow-2xl overflow-y-auto transition-all duration-300 transform-gpu ${
           mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-8 pointer-events-none"
         }`}
       >
-        <button
-          className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors z-50"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <X size={32} />
-        </button>
-        <nav className="flex flex-col items-center gap-6 w-full">
+        <div className="flex justify-end p-6 shrink-0">
+          <button
+            className="p-2 text-foreground hover:bg-black/5 rounded-full transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X size={32} />
+          </button>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center justify-center pb-24">
+          <nav className="flex flex-col items-center gap-6 w-full">
           {navLinks.map((link, i) => (
             <div
-              className={`ios-mobile-menu-item transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: `${i * 50}ms` }}
               key={link.name}
             >
@@ -538,6 +542,7 @@ export default function Navbar() {
           <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">
             Powered by WeDrip OS
           </span>
+        </div>
         </div>
       </div>
       {/* Mobile Categories Modal */}
