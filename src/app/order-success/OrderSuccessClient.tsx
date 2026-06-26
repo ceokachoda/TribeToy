@@ -6,20 +6,31 @@ import { ArrowRight, CheckCircle2, FileText, Package, Sparkles } from "lucide-re
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 function OrderSuccessContent() {
   const { clearCart } = useCart();
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState("");
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const id = searchParams.get("id");
-    if (id) {
-      setOrderId(id);
-    } else {
-      setOrderId("TRB" + Math.random().toString(36).substring(2, 9).toUpperCase());
-    }
-    clearCart();
+    const fetchOrder = async () => {
+      const id = searchParams.get("id");
+      if (id) {
+        setOrderId(id);
+        const supabase = createClient();
+        const { data } = await supabase.from('orders').select('*').eq('id', id).maybeSingle();
+        if (data) {
+          setOrderDetails(data);
+        }
+      }
+      setLoading(false);
+      clearCart();
+    };
+
+    fetchOrder();
   }, [clearCart, searchParams]);
 
   return (
@@ -57,16 +68,22 @@ function OrderSuccessContent() {
           Thank you for your order. We've received it and our 3D printers are warming up right now.
         </p>
 
-        <div className="w-full bg-[#f4f5f4] rounded-2xl p-6 mb-10 flex flex-col sm:flex-row items-center justify-center gap-6 border border-black/5">
+        <div className="w-full bg-[#f4f5f4] rounded-2xl p-6 mb-10 flex flex-col items-center justify-center gap-6 border border-black/5">
           <div className="flex items-center gap-3 text-[#1a1a1a]">
             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
               <Package size={18} className="text-[#8a958c]" />
             </div>
             <div className="text-left">
-              <p className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase">Order Number</p>
-              <p className="font-bold font-mono text-lg">{orderId || "TRB..."}</p>
+              <p className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase">Order ID</p>
+              <p className="font-bold font-mono text-lg line-clamp-1 break-all max-w-[200px] sm:max-w-none">{orderId || "Pending"}</p>
             </div>
           </div>
+          {orderDetails && (
+            <div className="w-full border-t border-black/10 pt-4 flex justify-between items-center px-4">
+              <span className="text-sm font-bold text-[#5a6b5e]">Total Amount:</span>
+              <span className="text-lg font-black text-[#1a1a1a]">₹{orderDetails.total_amount}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full relative z-20">
@@ -75,7 +92,7 @@ function OrderSuccessContent() {
             className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#eff4f0] text-[#4a5d4e] font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#e1e9e3] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
           >
             <FileText className="w-4 h-4" />
-            <span>View E-Bill & Tracking</span>
+            <span>View E-Bill</span>
           </Link>
           <Link 
             href="/shop" 
