@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import { createClient } from "@/utils/supabase/client";
 
 export default function CheckoutClient() {
   const { cart, totalPrice, totalItems } = useCart();
@@ -20,6 +21,18 @@ export default function CheckoutClient() {
   const [selectedCity, setSelectedCity] = useState("");
   const [stateName, setStateName] = useState("");
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    const fetchUserPhone = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.user_metadata?.phone) {
+        setPhone(session.user.user_metadata.phone);
+      }
+    };
+    fetchUserPhone();
+  }, []);
 
   useEffect(() => {
     if (pincode.length === 6) {
@@ -72,11 +85,21 @@ export default function CheckoutClient() {
     const shipping_address = {
       firstName: formData.get("firstName"),
       lastName: formData.get("lastName"),
+      phone: formData.get("phone"),
       address: formData.get("address"),
       pincode,
       state: stateName,
       city: selectedCity
     };
+
+    // If the user didn't have a phone number, update it in their profile
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user && !session.user.user_metadata?.phone && shipping_address.phone) {
+      await supabase.auth.updateUser({
+        data: { phone: shipping_address.phone }
+      });
+    }
 
     const payload = {
       amount: totalPrice,
@@ -205,6 +228,18 @@ export default function CheckoutClient() {
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Last Name</label>
                     <input name="lastName" required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
+                  </div>
+                  <div className="flex flex-col gap-2 lg:col-span-2">
+                    <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Phone Number</label>
+                    <input 
+                      name="phone" 
+                      required 
+                      type="tel" 
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+91 XXXXX XXXXX"
+                      className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" 
+                    />
                   </div>
                   <div className="flex flex-col gap-2 lg:col-span-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Address</label>

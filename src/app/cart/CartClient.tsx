@@ -2,23 +2,30 @@
 
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ArrowRight, ShoppingBag, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { useState } from "react";
 
 export default function CartClient() {
   const { cart, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
   const router = useRouter();
 
-  const handleCheckout = () => {
-    // Mock authentication check
-    const isLoggedIn = localStorage.getItem("tribetoy_logged_in") === "true";
-    if (isLoggedIn) {
+  const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+
+  const handleCheckout = async () => {
+    setIsProcessingCheckout(true);
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
       router.push("/checkout");
     } else {
       router.push("/login?redirect=/checkout");
     }
+    // We do not reset isProcessingCheckout if redirecting, to prevent double clicks during navigation
   };
 
   if (cart.length === 0) {
@@ -132,10 +139,20 @@ export default function CartClient() {
 
             <button 
               onClick={handleCheckout}
-              className="w-full flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl"
+              disabled={isProcessingCheckout}
+              className="w-full flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-[#1a1a1a] text-white font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed"
             >
-              <span>Proceed to Checkout</span>
-              <ArrowRight className="w-4 h-4" />
+              {isProcessingCheckout ? (
+                <>
+                  <span>Checking...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </>
+              ) : (
+                <>
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
             
             <div className="mt-6 flex flex-col gap-3 text-xs text-center text-[#8a958c] font-medium">

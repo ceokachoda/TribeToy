@@ -38,8 +38,9 @@ function ProfileContent() {
   // Profile Form State
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("+91 98765 43210");
+  const [phone, setPhone] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+
 
   // Phone OTP Modal State
   const [showPhoneModal, setShowPhoneModal] = useState(false);
@@ -59,9 +60,28 @@ function ProfileContent() {
     showToast("Profile details updated successfully!", "success");
   };
 
+  const handleSavePhoneDirect = async () => {
+    setIsVerifyingOtp(true);
+    const supabase = createClient();
+    await supabase.auth.updateUser({
+      data: { phone: newPhone }
+    });
+    setIsVerifyingOtp(false);
+    setPhone(newPhone);
+    setShowPhoneModal(false);
+    setNewPhone("");
+    showToast("Phone number saved successfully!", "success");
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPhone) return;
+
+    if (!phone) {
+      await handleSavePhoneDirect();
+      return;
+    }
+
     setIsSendingOtp(true);
     // Simulate sending OTP
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -76,6 +96,12 @@ function ProfileContent() {
     setIsVerifyingOtp(true);
     // Simulate verifying OTP
     await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const supabase = createClient();
+    await supabase.auth.updateUser({
+      data: { phone: newPhone }
+    });
+
     setIsVerifyingOtp(false);
     setPhone(newPhone);
     setShowPhoneModal(false);
@@ -84,6 +110,28 @@ function ProfileContent() {
     setOtpCode("");
     showToast("Phone number updated successfully!", "success");
   };
+
+  const generatePDF = async () => {
+    const element = document.getElementById("invoice-container");
+    const header = document.getElementById("invoice-header");
+    if (!element || !header) return;
+    const html2pdf = (await import('html2pdf.js')).default;
+    
+    header.classList.remove("hidden");
+    
+    const opt = {
+      margin: 0.5,
+      filename: `TribeToy_Invoice_${selectedOrder?.id}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    
+    await html2pdf().set(opt).from(element).save();
+    
+    header.classList.add("hidden");
+  };
+
 
   const getStatusColors = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -113,6 +161,7 @@ function ProfileContent() {
       if (session?.user) {
         setFullName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "User");
         setEmail(session.user.email || "");
+        setPhone(session.user.user_metadata?.phone || "");
         
         // Fetch real orders from database
         const { data: orderData } = await supabase
@@ -321,16 +370,16 @@ function ProfileContent() {
                       </div>
                       <input 
                         type="tel" 
-                        value={phone} 
+                        value={phone || "No phone number added"} 
                         readOnly
-                        className="w-full pl-11 pr-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent outline-none font-medium text-[#1a1a1a] cursor-default" 
+                        className={`w-full pl-11 pr-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent outline-none font-medium ${!phone ? 'text-[#8a958c]' : 'text-[#1a1a1a]'} cursor-default`} 
                       />
                     </div>
                     <button 
                       onClick={() => setShowPhoneModal(true)}
                       className="px-6 rounded-2xl bg-[#eff4f0] text-[#4a5d4e] font-bold text-xs uppercase tracking-wider hover:bg-[#e1e9e3] transition-colors shrink-0"
                     >
-                      Change
+                      {phone ? "Change" : "Add"}
                     </button>
                   </div>
                 </div>
@@ -539,19 +588,32 @@ function ProfileContent() {
                   </div>
 
                   {/* E-Bill Breakdown */}
-                  <div className="bg-white rounded-2xl md:rounded-3xl p-5 md:p-8 border border-black/5 shadow-sm">
-                    <div className="flex items-center justify-between mb-6 md:mb-8 gap-4">
+                  <div id="invoice-container" className="bg-white rounded-2xl md:rounded-3xl p-5 md:p-8 border border-[rgba(0,0,0,0.05)] shadow-sm">
+                    <div className="flex items-center justify-between mb-6 md:mb-8 gap-4" data-html2canvas-ignore>
                       <h3 className="text-base md:text-lg font-bold text-[#1a1a1a] whitespace-nowrap">Invoice Details</h3>
-                      <button className="flex items-center gap-1.5 md:gap-2 text-[#4a5d4e] hover:text-[#3a4d3e] font-bold text-[10px] md:text-xs uppercase tracking-wider transition-colors whitespace-nowrap shrink-0">
+                      <button onClick={generatePDF} className="flex items-center gap-1.5 md:gap-2 text-[#4a5d4e] hover:text-[#3a4d3e] font-bold text-[10px] md:text-xs uppercase tracking-wider transition-colors whitespace-nowrap shrink-0">
                         <Download size={14} className="hidden lg:block"/>
                         <Download size={12} className="lg:hidden"/>
                         Download PDF
                       </button>
                     </div>
 
+                    <div className="hidden" id="invoice-header">
+                      <div className="flex justify-between items-end mb-8 border-b border-[rgba(0,0,0,0.1)] pb-4">
+                        <div>
+                          <h1 className="text-3xl font-black text-[#1a1a1a]">TribeToy Invoice</h1>
+                          <p className="text-sm text-[#8a958c] mt-1">Order #{selectedOrder?.id}</p>
+                        </div>
+                        <div className="text-right text-sm text-[#5a6b5e]">
+                          <p>{selectedOrder?.date}</p>
+                          <p className="mt-1">{fullName}</p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="flex flex-col gap-4">
                       {selectedOrder.items.map((item: any, i: number) => (
-                        <div key={i} className="flex items-center gap-3 md:gap-4 py-4 border-b border-black/5">
+                        <div key={i} className="flex items-center gap-3 md:gap-4 py-4 border-b border-[rgba(0,0,0,0.05)]">
                           <div className="w-14 h-14 md:w-16 md:h-16 bg-[#f4f5f4] rounded-xl relative overflow-hidden flex-shrink-0">
                             {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
                           </div>
@@ -578,7 +640,7 @@ function ProfileContent() {
                         <span className="font-bold text-[#1a1a1a]">Cash on Delivery</span>
                       </div>
 
-                      <div className="w-full h-px bg-black/10 my-2" />
+                      <div className="w-full h-px bg-[rgba(0,0,0,0.1)] my-2" />
                       <div className="flex justify-between items-center text-xl">
                         <span className="font-black text-[#1a1a1a]">Total Paid</span>
                         <span className="font-black text-[#1a1a1a]">₹{selectedOrder.total.toFixed(2)}</span>
@@ -722,7 +784,7 @@ function ProfileContent() {
               
               {otpStep === 1 ? (
                 <>
-                  <p className="text-[#5a6b5e] text-sm mb-6">Enter your new phone number. We'll send a 6-digit OTP to verify it.</p>
+                  <p className="text-[#5a6b5e] text-sm mb-6">{!phone ? "Enter your phone number." : "Enter your new phone number. We'll send a 6-digit OTP to verify it."}</p>
                   <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
                     <input 
                       type="tel" 
@@ -733,7 +795,7 @@ function ProfileContent() {
                       className="w-full px-5 py-3 rounded-xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] text-center text-lg"
                     />
                     <button type="submit" disabled={isSendingOtp || !newPhone} className="w-full py-4 rounded-xl bg-[#4a5d4e] text-white font-bold text-sm uppercase hover:bg-[#3a4d3e] transition-colors shadow-lg shadow-[#4a5d4e]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-                      {isSendingOtp ? <Loader2 size={18} className="animate-spin" /> : "Send OTP"}
+                      {isSendingOtp || isVerifyingOtp ? <Loader2 size={18} className="animate-spin" /> : (!phone ? "Save Phone Number" : "Send OTP")}
                     </button>
                   </form>
                 </>

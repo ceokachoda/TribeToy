@@ -4,7 +4,7 @@ import { Product } from "@/data/products";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Heart, Share2, Star, ShoppingBag, ArrowLeft, Truck, ShieldCheck, Undo2 } from "lucide-react";
+import { ChevronLeft, Heart, Share2, Star, ShoppingBag, ArrowLeft, Truck, ShieldCheck, Undo2, X, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
@@ -25,11 +25,37 @@ export default function ProductClient({ product }: { product: Product }) {
   ];
 
   // Mock reviews
-  const reviews = [
+  const [reviews, setReviews] = useState([
     { id: 1, name: "Rahul S.", rating: 5, text: "Amazing quality! Looks perfect on my desk. Highly recommended.", date: "Oct 12, 2023" },
     { id: 2, name: "Sneha P.", rating: 4, text: "Very detailed. Delivery took a bit long but the product is definitely worth the wait.", date: "Sep 28, 2023" },
     { id: 3, name: "Arjun M.", rating: 5, text: "Exceeded my expectations. The 3D printing is flawless.", date: "Aug 15, 2023" }
-  ];
+  ]);
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [newReview, setNewReview] = useState({ name: "", text: "", rating: 5 });
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReview.name || !newReview.text) return;
+    setIsSubmittingReview(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    const submittedReview = {
+      id: Date.now(),
+      name: newReview.name,
+      rating: newReview.rating,
+      text: newReview.text,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+    
+    setReviews([submittedReview, ...reviews]);
+    setShowReviewModal(false);
+    setNewReview({ name: "", text: "", rating: 5 });
+    setIsSubmittingReview(false);
+    showToast("Review submitted successfully!", "success");
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem("tribetoy_wishlist");
@@ -191,7 +217,9 @@ export default function ProductClient({ product }: { product: Product }) {
             <span className="text-[10px] md:text-xs text-primary font-black uppercase tracking-[0.2em]">{product.category}</span>
             <div className="flex items-center gap-1 text-amber-400">
               <Star size={12} className="fill-current md:w-4 md:h-4" />
-              <span className="text-xs md:text-sm font-bold text-foreground">4.8</span>
+              <span className="text-xs md:text-sm font-bold text-foreground">
+                {(reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length || 0).toFixed(1)}
+              </span>
               <span className="text-xs md:text-sm text-foreground/50">({reviews.length})</span>
             </div>
           </div>
@@ -252,7 +280,7 @@ export default function ProductClient({ product }: { product: Product }) {
           <div className="pt-4 md:pt-8 bg-white">
             <h2 className="text-lg md:text-2xl font-heading font-black mb-4 md:mb-8 flex items-center justify-between">
               Customer Reviews
-              <span className="text-xs md:text-sm text-primary font-bold cursor-pointer hover:underline bg-primary/10 px-4 py-2 rounded-full">Write a Review</span>
+              <span onClick={() => setShowReviewModal(true)} className="text-xs md:text-sm text-primary font-bold cursor-pointer hover:underline bg-primary/10 px-4 py-2 rounded-full transition-colors">Write a Review</span>
             </h2>
             
             <div className="flex flex-col gap-6 md:gap-8">
@@ -291,6 +319,72 @@ export default function ProductClient({ product }: { product: Product }) {
           Add to Cart
         </button>
       </div>
+
+      {/* Review Modal */}
+      <AnimatePresence>
+        {showReviewModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowReviewModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-2xl z-10 flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-black text-[#1a1a1a]">Write a Review</h3>
+                <button onClick={() => setShowReviewModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+                  <X size={20} className="text-[#8a958c]" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleSubmitReview} className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#1a1a1a] uppercase tracking-wider">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button 
+                        key={star} 
+                        type="button" 
+                        onClick={() => setNewReview({ ...newReview, rating: star })}
+                        className="focus:outline-none transition-transform hover:scale-110"
+                      >
+                        <Star size={28} className={star <= newReview.rating ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#1a1a1a] uppercase tracking-wider">Your Name</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={newReview.name}
+                    onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
+                    placeholder="John Doe"
+                    className="w-full px-4 py-3 rounded-xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-sm"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#1a1a1a] uppercase tracking-wider">Review</label>
+                  <textarea 
+                    required
+                    value={newReview.text}
+                    onChange={(e) => setNewReview({ ...newReview, text: e.target.value })}
+                    placeholder="Tell us what you think about this product..."
+                    className="w-full px-4 py-3 rounded-xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-sm min-h-[100px] resize-none"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={isSubmittingReview || !newReview.name || !newReview.text} 
+                  className="mt-2 w-full py-4 rounded-xl bg-[#4a5d4e] text-white font-bold text-sm uppercase tracking-wider hover:bg-[#3a4d3e] transition-colors shadow-lg shadow-[#4a5d4e]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isSubmittingReview ? <Loader2 size={18} className="animate-spin" /> : "Submit Review"}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
