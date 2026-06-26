@@ -1,7 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { FiChevronLeft, FiChevronRight, FiSearch, FiUser } from "react-icons/fi";
-import { RevealField, maskEmail } from "@/components/admin/RevealField";
+import { RevealField } from "@/components/admin/RevealField";
+import { maskEmail } from "@/utils/admin/mask";
 
 export const dynamic = "force-dynamic";
 

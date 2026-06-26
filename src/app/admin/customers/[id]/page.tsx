@@ -2,7 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FiArrowLeft, FiUser, FiMail, FiMapPin, FiCalendar } from "react-icons/fi";
-import { RevealField, maskEmail, maskAddress } from "@/components/admin/RevealField";
+import { RevealField } from "@/components/admin/RevealField";
+import { maskEmail, maskAddress } from "@/utils/admin/mask";
 
 export default async function CustomerDetailsPage({
   params,
