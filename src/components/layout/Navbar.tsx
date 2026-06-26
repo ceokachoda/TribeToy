@@ -143,22 +143,34 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/" prefetch={true} className="relative flex items-center gap-2 group transition-all duration-500">
-          <div className="relative z-10 w-10 h-10 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)] overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] flex items-center justify-center ring-2 ring-transparent group-hover:ring-primary/20 group-hover:shadow-[0_0_15px_rgba(121,152,122,0.3)]">
-            <Image 
-              src="/logo-new.jpg" 
-              alt="TribeToy Logo" 
-              fill 
-              className="object-cover scale-[1.15]"
-            />
-          </div>
-          <div className="relative z-10 overflow-visible px-1">
-            <span className="font-heading font-extrabold text-2xl tracking-tight hidden sm:block text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all duration-500 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:via-primary group-hover:to-secondary group-hover:bg-[length:200%_auto] group-hover:animate-[gradient_3s_linear_infinite] group-hover:drop-shadow-[0_0_15px_rgba(121,152,122,0.4)]">
-              Tribe<span className="text-primary group-hover:text-transparent">Toy</span>
-            </span>
-          </div>
-        </Link>
+        {/* Left Section: Back Button & Logo */}
+        <div className="flex items-center gap-2 md:gap-4">
+          {pathname !== '/' && (
+            <button 
+              onClick={() => router.back()}
+              className="lg:hidden w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-white/60 backdrop-blur-md border border-black/5 hover:bg-black/5 text-foreground hover:text-primary transition-colors shadow-sm -ml-2 md:ml-0"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          {/* Logo */}
+          <Link href="/" prefetch={true} className="relative flex items-center gap-2 group transition-all duration-500">
+            <div className="relative z-10 w-10 h-10 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)] overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] flex items-center justify-center ring-2 ring-transparent group-hover:ring-primary/20 group-hover:shadow-[0_0_15px_rgba(121,152,122,0.3)]">
+              <Image 
+                src="/logo-new.jpg" 
+                alt="TribeToy Logo" 
+                fill 
+                className="object-cover scale-[1.15]"
+              />
+            </div>
+            <div className="relative z-10 overflow-visible px-1">
+              <span className="font-heading font-extrabold text-2xl tracking-tight hidden sm:block text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all duration-500 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-secondary group-hover:via-primary group-hover:to-secondary group-hover:bg-[length:200%_auto] group-hover:animate-[gradient_3s_linear_infinite] group-hover:drop-shadow-[0_0_15px_rgba(121,152,122,0.4)]">
+                Tribe<span className="text-primary group-hover:text-transparent">Toy</span>
+              </span>
+            </div>
+          </Link>
+        </div>
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8">

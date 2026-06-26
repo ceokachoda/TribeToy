@@ -90,7 +90,7 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
       </div>
 
       {/* App Header (Fixed relative on mobile only) */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md z-50 flex items-center justify-between px-4 border-b border-black/5">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-[72px] bg-white/95 backdrop-blur-lg z-[60] flex items-center justify-between px-4 border-b border-black/5">
         <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5">
           <ArrowLeft size={24} />
         </button>
