@@ -479,7 +479,7 @@ export default function Navbar() {
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-t-3xl h-[70vh] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] relative"
+              className="bg-white rounded-t-3xl h-auto max-h-[80dvh] min-h-[50dvh] w-full flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] relative mt-auto z-[80]"
             >
               {/* Drag Handle & Header */}
               <div className="flex flex-col items-center pt-3 pb-4 border-b border-black/5 shrink-0">
