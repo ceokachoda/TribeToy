@@ -283,7 +283,7 @@ export default function ProductClient({ product }: { product: Product }) {
       </div>
 
       {/* Fixed Bottom Action Bar (Mobile Only) */}
-      <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-black/10 p-3 pb-safe z-50 flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+      <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-black/10 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => addToCart(product)}
           className="w-full py-4 bg-primary text-white rounded-2xl font-black tracking-widest uppercase text-sm flex items-center justify-center hover:bg-[#4a5d4e] shadow-lg transition-colors"

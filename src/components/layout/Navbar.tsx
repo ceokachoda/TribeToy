@@ -107,6 +107,7 @@ export default function Navbar() {
   }, []);
 
   return (
+    <>
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled ? "glass py-4" : "bg-transparent py-6"
@@ -460,8 +461,9 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+    </header>
       {/* Mobile Bottom Navigation Bar (App-like) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 pb-safe pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <Link href="/" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Home size={22} className={pathname === '/' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Home</span>
@@ -489,7 +491,6 @@ export default function Navbar() {
           <span className="text-[10px] font-bold">Profile</span>
         </Link>
       </div>
-
-    </header>
+    </>
   );
 }

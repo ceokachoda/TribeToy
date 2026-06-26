@@ -35,7 +35,8 @@ function ProfileContent() {
   const [refundPolicyAgreed, setRefundPolicyAgreed] = useState(false);
 
   // Profile Form State
-  const [fullName, setFullName] = useState("Karan Malakar");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("+91 98765 43210");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
@@ -49,8 +50,10 @@ function ProfileContent() {
 
   const handleSaveProfile = async () => {
     setIsSavingProfile(true);
-    // Simulate network request
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const supabase = createClient();
+    await supabase.auth.updateUser({
+      data: { full_name: fullName }
+    });
     setIsSavingProfile(false);
     showToast("Profile details updated successfully!", "success");
   };
@@ -82,12 +85,12 @@ function ProfileContent() {
   };
 
   const getStatusColors = (status: string) => {
-    switch (status) {
-      case 'Cancelled': return 'bg-red-50 text-red-600 border border-red-200';
-      case 'Processing': return 'bg-amber-50 text-amber-600 border border-amber-200';
-      case 'Shipped': return 'bg-purple-50 text-purple-600 border border-purple-200';
-      case 'Delivered': return 'bg-green-50 text-green-600 border border-green-200';
-      case 'Refund Requested': return 'bg-orange-50 text-orange-600 border border-orange-200';
+    switch (status?.toLowerCase()) {
+      case 'cancelled': return 'bg-red-50 text-red-600 border border-red-200';
+      case 'processing': return 'bg-amber-50 text-amber-600 border border-amber-200';
+      case 'shipped': return 'bg-purple-50 text-purple-600 border border-purple-200';
+      case 'delivered': return 'bg-green-50 text-green-600 border border-green-200';
+      case 'refund requested': return 'bg-orange-50 text-orange-600 border border-orange-200';
       default: return 'bg-[#eff4f0] text-[#4a5d4e] border border-transparent';
     }
   };
@@ -102,13 +105,53 @@ function ProfileContent() {
   }, [tab]);
 
   useEffect(() => {
-    // Load orders from localStorage
-    const savedOrders = localStorage.getItem("tribetoy_orders");
-    if (savedOrders) {
-      try {
-        setOrders(JSON.parse(savedOrders));
-      } catch (e) {}
-    }
+    const fetchUserData = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        setFullName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "User");
+        setEmail(session.user.email || "");
+        
+        // Fetch real orders from database
+        const { data: orderData } = await supabase
+          .from('orders')
+          .select(`
+            *,
+            order_items (
+              quantity,
+              price_at_purchase,
+              products (
+                id,
+                name,
+                image_url
+              )
+            )
+          `)
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false });
+          
+        if (orderData) {
+          // Format orders to match UI expectations
+          const formattedOrders = orderData.map((o: any) => ({
+            id: o.id,
+            status: o.status ? o.status.charAt(0).toUpperCase() + o.status.slice(1) : 'Processing',
+            date: new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            total: o.total_amount,
+            items: o.order_items?.map((item: any) => ({
+              id: item.products?.id,
+              name: item.products?.name,
+              price: item.price_at_purchase,
+              quantity: item.quantity,
+              image: item.products?.image_url || ""
+            })) || []
+          }));
+          setOrders(formattedOrders);
+        }
+      }
+    };
+    
+    fetchUserData();
 
     // Load wishlist from localStorage
     const savedWishlist = localStorage.getItem("tribetoy_wishlist");
@@ -258,20 +301,16 @@ function ProfileContent() {
                     />
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 relative">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Email</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                      <Lock size={16} className="text-[#8a958c]/50" />
-                    </div>
+                <div className="flex flex-col gap-2 md:col-span-2">
+                    <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Email Address</label>
                     <input 
                       type="email" 
-                      defaultValue="karan@example.com" 
+                      value={email} 
                       readOnly
-                      className="w-full pl-11 pr-5 py-3 rounded-2xl bg-black/5 border border-transparent outline-none font-medium text-[#1a1a1a]/50 cursor-not-allowed" 
+                      className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4]/50 border border-transparent outline-none font-medium text-[#1a1a1a]/50 cursor-not-allowed" 
                     />
+                    <p className="text-[10px] text-[#8a958c] ml-1 mt-1 font-medium">Email address cannot be changed.</p>
                   </div>
-                </div>
                 <div className="flex flex-col gap-2 relative">
                   <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Phone Number</label>
                   <div className="flex gap-3">

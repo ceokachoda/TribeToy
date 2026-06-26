@@ -124,7 +124,7 @@ export default function LoginClient() {
 
   if (showWelcome) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#f4f5f4] flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 z-[100] bg-[#f4f5f4] flex flex-col items-center justify-center overflow-hidden">
         {/* Animated Background Orbs */}
         <motion.div 
           initial={{ scale: 0, opacity: 0 }}
