@@ -430,7 +430,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl overflow-y-auto overscroll-none pb-24 pt-16 transition-all duration-300 transform-gpu ${
+        className={`ios-mobile-menu fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl overflow-y-auto overscroll-none pb-24 pt-16 transition-all duration-300 transform-gpu ${
           mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-8 pointer-events-none"
         }`}
       >
@@ -443,7 +443,7 @@ export default function Navbar() {
         <nav className="flex flex-col items-center gap-6 w-full">
           {navLinks.map((link, i) => (
             <div
-              className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`ios-mobile-menu-item transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: `${i * 50}ms` }}
               key={link.name}
             >

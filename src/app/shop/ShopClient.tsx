@@ -20,7 +20,7 @@ const ProductCard = memo(({ product, wishlist, toggleWishlist, addToCart, router
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       onClick={() => router.push('/product/' + product.id)}
-      className="group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] group-hover:-translate-y-2 flex flex-col h-full transform-gpu cursor-pointer"
+      className="ios-optimize-card group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] group-hover:-translate-y-2 flex flex-col h-full transform-gpu cursor-pointer"
       style={{ willChange: "transform, opacity" }}
     >
       {/* Background Glow */}
