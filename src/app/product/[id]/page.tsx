@@ -26,6 +26,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
+  const { data: relatedProductsData } = await supabase
+    .from('products')
+    .select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium, description, stock_quantity')
+    .eq('category', product.category)
+    .neq('id', product.id)
+    .limit(4);
+
   const mappedProduct = {
     id: product.id,
     name: product.name,
@@ -38,9 +45,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     isPremium: product.is_premium,
   };
 
+  const mappedRelatedProducts = (relatedProductsData || []).map(p => ({
+    id: p.id,
+    name: p.name,
+    category: p.category,
+    price: `₹${parseFloat(p.price).toFixed(2)}`,
+    originalPrice: p.original_price ? `₹${parseFloat(p.original_price).toFixed(2)}` : undefined,
+    image: p.image_url || "",
+    isNew: p.is_new,
+    isSale: p.is_sale,
+    isPremium: p.is_premium,
+  }));
+
   return (
     <main className="min-h-screen bg-background">
-      <ProductClient product={mappedProduct} />
+      <ProductClient product={mappedProduct} relatedProducts={mappedRelatedProducts as any} />
     </main>
   );
 }

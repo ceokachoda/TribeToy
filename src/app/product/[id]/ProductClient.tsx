@@ -1,6 +1,6 @@
 "use client";
 
-import { products, Product } from "@/data/products";
+import { Product } from "@/data/products";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,17 +9,13 @@ import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
 
-export default function ProductClient({ product }: { product: Product }) {
+export default function ProductClient({ product, relatedProducts = [] }: { product: Product, relatedProducts?: Product[] }) {
   const router = useRouter();
   const { addToCart, totalItems } = useCart();
   const { showToast } = useToast();
   
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  const relatedProducts = products
-    .filter(p => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
 
 
   // Mocking multiple angles for the carousel
@@ -248,7 +244,7 @@ export default function ProductClient({ product }: { product: Product }) {
           </p>
 
           {/* Desktop Add to Cart */}
-          <div className="flex gap-4 mb-8">
+          <div className="hidden lg:flex gap-4 mb-8">
             <button 
               onClick={() => addToCart(product)}
               className="flex-1 py-4 md:py-5 bg-primary text-white rounded-2xl font-black tracking-widest uppercase text-sm md:text-base flex items-center justify-center hover:bg-[#4a5d4e] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
