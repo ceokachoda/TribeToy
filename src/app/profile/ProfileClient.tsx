@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { products, Product } from "@/data/products";
 import { useToast } from "@/context/ToastContext";
+import { createClient } from "@/utils/supabase/client";
 
 // Mock Tracking Stages
 const trackingStages = [
