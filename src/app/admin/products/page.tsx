@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
 import Image from "next/image";
+import DeleteButton from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -141,9 +142,7 @@ export default async function AdminProductsPage({
                       >
                         <FiEdit2 size={18} />
                       </Link>
-                      <button className="text-red-500 hover:text-red-700 p-1" title="Delete">
-                        <FiTrash2 size={18} />
-                      </button>
+                      <DeleteButton productId={product.id} />
                     </div>
                   </td>
                 </tr>
