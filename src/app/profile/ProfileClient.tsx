@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, User, MapPin, CreditCard, ChevronRight, ChevronLeft, Download, Truck, CheckCircle2, Circle, X, Heart, Lock, Loader2, Phone } from "lucide-react";
+import { Package, User, MapPin, CreditCard, ChevronRight, ChevronLeft, Download, Truck, CheckCircle2, Circle, X, Heart, Lock, Loader2, Phone, Shield } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
@@ -40,6 +40,7 @@ function ProfileContent() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
 
   // Phone OTP Modal State
@@ -162,6 +163,17 @@ function ProfileContent() {
         setFullName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "User");
         setEmail(session.user.email || "");
         setPhone(session.user.user_metadata?.phone || "");
+        
+        // Fetch role
+        const { data: userData } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+          
+        if (userData?.role === "admin") {
+          setIsAdmin(true);
+        }
         
         // Fetch real orders from database
         const { data: orderData } = await supabase
@@ -312,6 +324,16 @@ function ProfileContent() {
             <MapPin size={18} />
             Saved Addresses
           </button>
+
+          {isAdmin && (
+            <button 
+              onClick={() => router.push("/admin")}
+              className="flex items-center gap-3 px-6 py-4 rounded-2xl transition-all font-bold text-sm bg-emerald-50 text-emerald-600 hover:bg-emerald-100 mt-2 border border-emerald-100"
+            >
+              <Shield size={18} />
+              Admin Dashboard
+            </button>
+          )}
 
           <button 
             onClick={handleLogout}

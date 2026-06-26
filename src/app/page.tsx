@@ -6,7 +6,17 @@ import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
   const supabase = await createClient();
-  const { data: dbProducts, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+  const [productsResponse, settingsResponse, storefrontResponse] = await Promise.all([
+    supabase.from('products').select('*').order('created_at', { ascending: false }),
+    supabase.from('site_settings').select('value').eq('key', 'hero_images').single(),
+    supabase.from('site_settings').select('value').eq('key', 'storefront_config').single()
+  ]);
+
+  const dbProducts = productsResponse.data;
+  const heroSettings = settingsResponse.data?.value || {
+    custom_prints: "/ghibli_hero_v2.png",
+    new_arrivals: "/ghibli_new_arrivals_v2.png"
+  };
 
   const mappedProducts = (dbProducts || []).map((p: any) => ({
     id: p.id,
@@ -18,11 +28,14 @@ export default async function Home() {
     isNew: p.is_new,
     isSale: p.is_sale,
     isPremium: p.is_premium,
+    is_hero: p.is_hero,
   }));
+
+  const storefrontConfig = storefrontResponse.data?.value || null;
 
   return (
     <>
-      <HeroSection products={mappedProducts} />
+      <HeroSection products={mappedProducts} heroImages={heroSettings} storefrontConfig={storefrontConfig} />
       <ProductCategories />
       <FeaturedProducts products={mappedProducts} />
       <AboutSection />

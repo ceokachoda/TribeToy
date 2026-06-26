@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store, Search, ArrowLeft, Shield } from "lucide-react";
+import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store, Search, ArrowLeft, Shield, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -24,6 +24,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -300,6 +301,17 @@ export default function Navbar() {
             <Search size={14} />
           </button>
 
+          {/* Wishlist Button (Mobile) */}
+          <Link 
+            href="/profile?tab=wishlist"
+            className="relative w-8 h-8 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-foreground/5 flex items-center justify-center text-foreground/80 hover:bg-red-50 hover:text-red-500 transition-all active:scale-95"
+          >
+            <Heart size={14} />
+            {wishlistCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
+            )}
+          </Link>
+
           {/* Menu Button */}
           <button 
             onClick={() => setMobileMenuOpen(true)}
@@ -311,6 +323,7 @@ export default function Navbar() {
         </div>
 
       </div>
+    </header>
 
       {/* Mobile Search Overlay */}
       <AnimatePresence>
@@ -319,7 +332,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-[60] bg-white flex flex-col lg:hidden"
+            className="fixed inset-0 h-[100dvh] z-[60] bg-white flex flex-col lg:hidden"
           >
             {/* Search Header */}
             <div className="flex items-center gap-3 p-4 border-b border-foreground/5 shadow-sm bg-white z-10">
@@ -407,7 +420,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-50 bg-background/98 backdrop-blur-3xl flex flex-col items-center justify-center shadow-2xl overflow-y-auto pb-24 pt-16"
+            className="fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-3xl flex flex-col items-center justify-center shadow-2xl overflow-y-auto pb-24 pt-16"
           >
             <button
               className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors"
@@ -490,16 +503,101 @@ export default function Navbar() {
                 </motion.div>
               )}
             </nav>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="mt-12 text-center flex flex-col items-center gap-1"
+            >
+              <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">
+                Powered by WeDrip OS
+              </span>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+      {/* Mobile Categories Modal */}
+      <AnimatePresence>
+        {mobileCategoriesOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 h-[100dvh] z-[70] bg-black/40 flex justify-end flex-col lg:hidden"
+            onClick={() => setMobileCategoriesOpen(false)}
+          >
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-t-3xl h-[70vh] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)] relative"
+            >
+              {/* Drag Handle & Header */}
+              <div className="flex flex-col items-center pt-3 pb-4 border-b border-black/5 shrink-0">
+                <div className="w-12 h-1.5 bg-black/10 rounded-full mb-4" />
+                <div className="flex justify-between items-center w-full px-6">
+                  <h3 className="text-xl font-heading font-black text-slate-900 flex items-center gap-2">
+                    <Filter className="text-primary" size={20} /> Categories
+                  </h3>
+                  <button 
+                    onClick={() => setMobileCategoriesOpen(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Categories List */}
+              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+                <Link
+                  href="/shop"
+                  onClick={() => setMobileCategoriesOpen(false)}
+                  className="flex items-center justify-between p-4 bg-[#eff4f0] rounded-2xl border border-primary/20 active:scale-[0.98] transition-transform group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="font-bold text-primary">All Toys</span>
+                  </div>
+                  <ArrowLeft size={16} className="rotate-180 text-primary opacity-50 group-hover:opacity-100 transition-opacity" />
+                </Link>
+
+                {[
+                  "Cultural",
+                  "Educational",
+                  "Statues",
+                  "Toys & Figurines",
+                  "Utility & Decor"
+                ].map((category) => (
+                  <Link
+                    key={category}
+                    href={`/shop?category=${encodeURIComponent(category)}`}
+                    onClick={() => setMobileCategoriesOpen(false)}
+                    className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-transform group"
+                  >
+                    <span className="font-bold text-slate-700">{category}</span>
+                    <ArrowLeft size={16} className="rotate-180 text-slate-300 group-hover:text-primary transition-colors" />
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mobile Bottom Navigation Bar (App-like) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <Link href="/" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Home size={22} className={pathname === '/' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Home</span>
         </Link>
+        <button onClick={() => setMobileCategoriesOpen(true)} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors text-[#8a958c]`}>
+          <Filter size={22} className="stroke-2" />
+          <span className="text-[10px] font-bold">Categories</span>
+        </button>
         <Link href="/shop" className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname.startsWith('/shop') ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Store size={22} className={pathname.startsWith('/shop') ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Shop</span>
@@ -508,13 +606,6 @@ export default function Navbar() {
           <ShoppingCart size={22} className={pathname === '/cart' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Cart</span>
           {totalItems > 0 && (
-            <span className="absolute top-1 right-[25%] w-2 h-2 bg-red-500 rounded-full shadow-sm" />
-          )}
-        </Link>
-        <Link href="/profile?tab=wishlist" className="flex flex-col items-center gap-1 flex-1 py-2 transition-colors relative text-[#8a958c]">
-          <Heart size={22} className="stroke-2" />
-          <span className="text-[10px] font-bold">Wishlist</span>
-          {wishlistCount > 0 && (
             <span className="absolute top-1 right-[25%] w-2 h-2 bg-red-500 rounded-full shadow-sm" />
           )}
         </Link>

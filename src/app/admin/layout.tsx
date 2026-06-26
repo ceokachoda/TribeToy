@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FiHome, FiBox, FiShoppingCart, FiFileText, FiUsers, FiGlobe } from "react-icons/fi";
+import { FiHome, FiBox, FiShoppingCart, FiFileText, FiUsers, FiGlobe, FiSettings } from "react-icons/fi";
 
 export default function AdminLayout({
   children,
@@ -23,6 +23,8 @@ export default function AdminLayout({
           <NavItem href="/admin/products" icon={<FiBox />} label="Products" />
           <NavItem href="/admin/orders" icon={<FiShoppingCart />} label="Orders" />
           <NavItem href="/admin/blogs" icon={<FiFileText />} label="Blogs" />
+          <NavItem href="/admin/homepage" icon={<FiHome />} label="Homepage" />
+          <NavItem href="/admin/settings" icon={<FiSettings />} label="Settings" />
         </nav>
         <div className="p-4 mt-auto hidden md:block">
           <Link 

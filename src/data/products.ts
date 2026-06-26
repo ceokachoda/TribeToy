@@ -8,6 +8,7 @@ export type Product = {
   isNew?: boolean;
   isSale?: boolean;
   isPremium?: boolean;
+  is_hero?: boolean;
   description?: string;
 };
 

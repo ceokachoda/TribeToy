@@ -101,8 +101,8 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-black/10">
         <div className="container mx-auto px-6 md:px-12 py-6 flex flex-col lg:flex-row items-center justify-between gap-4">
-          <p className="text-foreground/50 text-sm">
-            © {new Date().getFullYear()} TribeToy. All rights reserved.
+          <p className="text-foreground/50 text-sm flex items-center gap-2">
+            © {new Date().getFullYear()} TribeToy. All rights reserved. <span className="text-xs opacity-60">| Powered by WeDrip OS</span>
           </p>
           <div className="flex flex-wrap gap-4 md:gap-6 text-xs text-foreground/40 mt-4 md:mt-0">
             <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>

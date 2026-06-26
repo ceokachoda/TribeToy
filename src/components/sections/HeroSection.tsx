@@ -7,15 +7,52 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Product } from "@/data/products";
 
-export default function HeroSection({ products }: { products: Product[] }) {
+export default function HeroSection({ products, heroImages, storefrontConfig }: { products: Product[], heroImages?: any, storefrontConfig?: any }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const configuredCarouselIds = storefrontConfig?.carousel?.filter((id: string) => id) || [];
+  const configuredMarqueeIds = storefrontConfig?.marquee?.filter((id: string) => id) || [];
+
+  const carouselProducts = configuredCarouselIds.length > 0 
+    ? configuredCarouselIds.map((id: string) => products.find(p => String(p.id) === String(id))).filter(Boolean) as Product[]
+    : products.filter(p => p.is_hero && p.image);
+
+  const slides = carouselProducts.length > 0 
+    ? carouselProducts.map(p => ({
+        url: `/product/${p.id}`,
+        image: p.image,
+        subtitle: p.category,
+        title: p.name
+      }))
+    : [
+        {
+          url: "/shop?category=Cultural",
+          image: products.find(p => p.category === 'Cultural' && p.image)?.image,
+          subtitle: "Featured Collection",
+          title: "Assamese Heritage Models"
+        },
+        {
+          url: "/shop?category=Educational",
+          image: products.find(p => p.category === 'Educational' && p.image)?.image,
+          subtitle: "Interactive Learning",
+          title: "Educational Eco-Toys"
+        },
+        {
+          url: "/shop?category=Toys%20%26%20Figurines",
+          image: products.find(p => p.category === 'Toys & Figurines' && p.image)?.image,
+          subtitle: "Premium Figurines",
+          title: "New Arrivals"
+        }
+      ];
+
+  const safeSlideCount = Math.max(1, slides.length);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3);
+      setCurrentSlide((prev) => (prev + 1) % safeSlideCount);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [safeSlideCount]);
   const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
@@ -201,25 +238,21 @@ export default function HeroSection({ products }: { products: Product[] }) {
                     onDragEnd={(e, { offset, velocity }) => {
                       const swipe = Math.abs(offset.x) * velocity.x;
                       if (swipe < -100) {
-                        setCurrentSlide((prev) => (prev + 1) % 3);
+                        setCurrentSlide((prev) => (prev + 1) % safeSlideCount);
                       } else if (swipe > 100) {
-                        setCurrentSlide((prev) => (prev - 1 + 3) % 3);
+                        setCurrentSlide((prev) => (prev - 1 + safeSlideCount) % safeSlideCount);
                       }
                     }}
                     className="absolute inset-0 cursor-grab active:cursor-grabbing"
                   >
                     <Link 
-                      href={[
-                        "/shop?category=Cultural",
-                        "/shop?category=Educational",
-                        "/shop?category=Toys%20%26%20Figurines"
-                      ][currentSlide]} 
+                      href={slides[currentSlide % safeSlideCount]?.url || "#"} 
                       className="absolute inset-0 block"
                     >
-                      {products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide] && p.image)?.image && (
+                      {slides[currentSlide % safeSlideCount]?.image && (
                         <Image 
-                          src={products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide] && p.image)!.image} 
-                          alt="Featured" 
+                          src={slides[currentSlide % safeSlideCount].image!} 
+                          alt={slides[currentSlide % safeSlideCount].title} 
                           fill 
                           className="object-cover brightness-95" 
                           sizes="(max-width: 768px) 100vw" 
@@ -229,10 +262,10 @@ export default function HeroSection({ products }: { products: Product[] }) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4 flex flex-col">
                         <span className="text-[10px] text-primary font-black uppercase tracking-widest mb-1">
-                          {["Featured Collection", "Interactive Learning", "Premium Figurines"][currentSlide]}
+                          {slides[currentSlide % safeSlideCount]?.subtitle}
                         </span>
                         <h3 className="text-xl font-black text-white leading-tight">
-                          {["Assamese Heritage Models", "Educational Eco-Toys", "New Arrivals"][currentSlide]}
+                          {slides[currentSlide % safeSlideCount]?.title}
                         </h3>
                       </div>
                     </Link>
@@ -241,7 +274,7 @@ export default function HeroSection({ products }: { products: Product[] }) {
                 
                 {/* Pagination Dots */}
                 <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
-                  {[0, 1, 2].map((i) => (
+                  {slides.map((_, i) => (
                     <div 
                       key={i} 
                       className={`h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-5 bg-primary' : 'w-1.5 bg-white/40 backdrop-blur-md'}`} 
@@ -252,7 +285,7 @@ export default function HeroSection({ products }: { products: Product[] }) {
               
               {/* Two Square Cards */}
               <Link href="/customization" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
-                <Image src="/ghibli_hero_v2.png" alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" />
+                <Image src={heroImages?.custom_prints || "/ghibli_hero_v2.png"} alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex flex-col">
                   <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-0.5">Your Design</span>
@@ -261,7 +294,7 @@ export default function HeroSection({ products }: { products: Product[] }) {
               </Link>
               
               <Link href="/shop" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
-                <Image src="/ghibli_new_arrivals_v2.png" alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" />
+                <Image src={heroImages?.new_arrivals || "/ghibli_new_arrivals_v2.png"} alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
                 <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-sm z-10">
@@ -283,16 +316,24 @@ export default function HeroSection({ products }: { products: Product[] }) {
             className="w-full lg:hidden relative overflow-hidden -mx-6 px-6 mt-4 pb-2"
           >
             <div className="flex gap-3 w-max animate-[marquee_15s_linear_infinite] hover:[animation-play-state:paused]">
-              {[...products.filter(p => p.image).slice(0, 5), ...products.filter(p => p.image).slice(0, 5)].map((product, i) => (
-                <Link href={`/product/${product.id}`} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95">
-                  <Image src={product.image} alt={product.name} fill className="object-cover brightness-105" sizes="144px" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex flex-col">
-                    <span className="text-[10px] text-primary font-black uppercase tracking-widest line-clamp-1 mb-0.5">{product.category}</span>
-                    <p className="text-xs font-bold text-white line-clamp-1 leading-tight">{product.name}</p>
-                  </div>
-                </Link>
-              ))}
+              {(() => {
+                const marqueeItems = configuredMarqueeIds.length > 0 
+                  ? configuredMarqueeIds.map((id: string) => products.find(p => String(p.id) === String(id))).filter(Boolean) as Product[]
+                  : (products.filter(p => p.is_hero && p.image).length > 0 ? products.filter(p => p.is_hero && p.image) : products.filter(p => p.image).slice(0, 5));
+                
+                // Duplicate items to ensure enough scrolling content
+                const duplicatedItems = [...marqueeItems, ...marqueeItems, ...marqueeItems].slice(0, 10);
+                return duplicatedItems.map((product, i) => (
+                  <Link href={`/product/${product.id}`} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95">
+                    <Image src={product.image!} alt={product.name} fill className="object-cover brightness-105" sizes="144px" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3 flex flex-col">
+                      <span className="text-[10px] text-primary font-black uppercase tracking-widest line-clamp-1 mb-0.5">{product.category}</span>
+                      <p className="text-xs font-bold text-white line-clamp-1 leading-tight">{product.name}</p>
+                    </div>
+                  </Link>
+                ));
+              })()}
             </div>
             
             {/* Fade Edges for Marquee */}

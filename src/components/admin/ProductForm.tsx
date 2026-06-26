@@ -27,6 +27,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
     is_new: initialData?.is_new || false,
     is_sale: initialData?.is_sale || false,
     is_premium: initialData?.is_premium || false,
+    is_hero: initialData?.is_hero || false,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -83,6 +84,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
         is_new: formData.is_new,
         is_sale: formData.is_sale,
         is_premium: formData.is_premium,
+        is_hero: formData.is_hero,
         image_url: imageUrl,
       };
 
@@ -258,6 +260,18 @@ export default function ProductForm({ initialData }: ProductFormProps) {
             <div className="flex flex-col">
               <span className="text-sm font-semibold text-slate-800">Premium Item</span>
               <span className="text-xs text-slate-500">Mark as high-end/exclusive.</span>
+            </div>
+          </label>
+          <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors flex-1">
+            <input
+              type="checkbox"
+              checked={formData.is_hero}
+              onChange={(e) => setFormData({ ...formData, is_hero: e.target.checked })}
+              className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500 border-slate-300"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-slate-800">Hero Section</span>
+              <span className="text-xs text-slate-500">Show in the Hero Carousel.</span>
             </div>
           </label>
         </div>
