@@ -15,6 +15,16 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       touchMultiplier: 2,
     });
 
+    // Detect if we are on a touch device and disable lenis to prevent jank
+    const isTouchDevice = 
+      "ontouchstart" in window || 
+      navigator.maxTouchPoints > 0;
+    
+    if (isTouchDevice) {
+      lenis.destroy();
+      return;
+    }
+
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);

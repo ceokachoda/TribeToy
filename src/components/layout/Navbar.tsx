@@ -415,109 +415,117 @@ export default function Navbar() {
       </AnimatePresence>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-3xl flex flex-col items-center justify-center shadow-2xl overflow-y-auto pb-24 pt-16"
-          >
-            <button
-              className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+      <div
+        className={`fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl overflow-y-auto pb-24 pt-16 transition-all duration-300 transform-gpu ${
+          mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-8 pointer-events-none"
+        }`}
+      >
+        <button
+          className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <X size={32} />
+        </button>
+        <nav className="flex flex-col items-center gap-6 w-full">
+          {navLinks.map((link, i) => (
+            <div
+              className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{ transitionDelay: `${i * 50}ms` }}
+              key={link.name}
             >
-              <X size={32} />
-            </button>
-            <nav className="flex flex-col items-center gap-6 w-full">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  key={link.name}
+              <Link
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-3xl font-heading font-bold text-foreground hover:text-primary transition-colors block px-4 py-2"
+              >
+                {link.name}
+              </Link>
+            </div>
+          ))}
+
+          <div 
+            className={`w-12 h-1 bg-black/10 rounded-full my-2 transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 scale-100" : "opacity-0 scale-0"}`}
+            style={{ transitionDelay: '300ms' }}
+          />
+
+          {userName ? (
+            <>
+              {isAdmin && (
+                <div 
+                  className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                  style={{ transitionDelay: '350ms' }}
                 >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-3xl font-heading font-bold text-foreground hover:text-primary transition-colors"
-                  >
-                    {link.name}
+                  <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-2 px-4 py-2">
+                    <Shield size={24} />
+                    Admin Dashboard
                   </Link>
-                </motion.div>
-              ))}
-
-              <motion.div 
-                initial={{ opacity: 0, scale: 0 }} 
-                animate={{ opacity: 1, scale: 1 }} 
-                transition={{ delay: 0.3 }}
-                className="w-12 h-1 bg-black/10 rounded-full my-2" 
-              />
-
-              {userName ? (
-                <>
-                  {isAdmin && (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-2">
-                        <Shield size={24} />
-                        Admin Dashboard
-                      </Link>
-                    </motion.div>
-                  )}
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                    <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors">
-                      My Profile
-                    </Link>
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                    <Link href="/profile?tab=wishlist" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors relative">
-                      My Wishlist
-                      {wishlistCount > 0 && <span className="absolute -right-3 top-1 w-2 h-2 bg-red-500 rounded-full shadow-sm" />}
-                    </Link>
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-                    <Link href="/profile?tab=orders" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors">
-                      My Orders
-                    </Link>
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-                    <button 
-                      onClick={async () => {
-                        const supabase = createClient();
-                        await supabase.auth.signOut();
-                        setUserName(null);
-                        setMobileMenuOpen(false);
-                        showToast("Signed out successfully", "success");
-                        router.refresh();
-                      }}
-                      className="text-xl font-heading font-bold text-red-500 hover:text-red-600 transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  </motion.div>
-                </>
-              ) : (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-8 py-3 rounded-full bg-[#1a1a1a] text-white text-sm font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all">
-                    Sign In
-                  </Link>
-                </motion.div>
+                </div>
               )}
-            </nav>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mt-12 text-center flex flex-col items-center gap-1"
+              <div 
+                className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: '400ms' }}
+              >
+                <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors block px-4 py-2">
+                  My Profile
+                </Link>
+              </div>
+              <div 
+                className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: '450ms' }}
+              >
+                <Link href="/profile?tab=wishlist" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors relative block px-4 py-2">
+                  My Wishlist
+                  {wishlistCount > 0 && <span className="absolute right-0 top-2 w-2 h-2 bg-red-500 rounded-full shadow-sm" />}
+                </Link>
+              </div>
+              <div 
+                className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: '500ms' }}
+              >
+                <Link href="/profile?tab=orders" onClick={() => setMobileMenuOpen(false)} className="text-xl font-heading font-bold text-[#5a6b5e] hover:text-[#1a1a1a] transition-colors block px-4 py-2">
+                  My Orders
+                </Link>
+              </div>
+              <div 
+                className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: '550ms' }}
+              >
+                <button 
+                  onClick={async () => {
+                    const supabase = createClient();
+                    await supabase.auth.signOut();
+                    setUserName(null);
+                    setMobileMenuOpen(false);
+                    showToast("Signed out successfully", "success");
+                    router.refresh();
+                  }}
+                  className="text-xl font-heading font-bold text-red-500 hover:text-red-600 transition-colors block px-4 py-2"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </>
+          ) : (
+            <div 
+              className={`transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{ transitionDelay: '400ms' }}
             >
-              <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">
-                Powered by WeDrip OS
-              </span>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-8 py-3 rounded-full bg-[#1a1a1a] text-white text-sm font-bold uppercase tracking-wider hover:bg-[#4a5d4e] transition-all block mt-4">
+                Sign In
+              </Link>
+            </div>
+          )}
+        </nav>
+        
+        <div
+          className={`mt-12 text-center flex flex-col items-center gap-1 transition-all duration-500 transform-gpu ${mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          style={{ transitionDelay: '600ms' }}
+        >
+          <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">
+            Powered by WeDrip OS
+          </span>
+        </div>
+      </div>
       {/* Mobile Categories Modal */}
       <AnimatePresence>
         {mobileCategoriesOpen && (
