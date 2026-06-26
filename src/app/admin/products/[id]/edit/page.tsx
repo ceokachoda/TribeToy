@@ -1,24 +1,12 @@
+import { createClient } from "@/utils/supabase/server";
 import ProductForm from "@/components/admin/ProductForm";
 import Link from "next/link";
 import { FiArrowLeft } from "react-icons/fi";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   const { data: product, error } = await supabase
     .from("products")

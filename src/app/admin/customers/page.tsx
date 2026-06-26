@@ -1,5 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { FiChevronLeft, FiChevronRight, FiSearch, FiUser } from "react-icons/fi";
 import { RevealField, maskEmail } from "@/components/admin/RevealField";
@@ -17,18 +16,7 @@ export default async function AdminCustomersPage({
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   let query = supabase
     .from("users")

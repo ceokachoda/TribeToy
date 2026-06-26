@@ -1,5 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { FiChevronLeft, FiChevronRight, FiEye, FiShoppingCart, FiDownloadCloud } from "react-icons/fi";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
@@ -18,18 +17,7 @@ export default async function AdminOrdersPage({
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   // Fetch orders with user details
   const { data: orders, count, error } = await supabase

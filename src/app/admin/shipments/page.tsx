@@ -1,5 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { FiChevronLeft, FiChevronRight, FiPackage } from "react-icons/fi";
 import { LabelDownloadButton } from "@/components/admin/LabelDownloadButton";
@@ -17,18 +16,7 @@ export default async function AdminShipmentsPage({
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   const { data: shipments, count, error } = await supabase
     .from("shipments")

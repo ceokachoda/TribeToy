@@ -1,5 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
 import Image from "next/image";
@@ -17,18 +16,7 @@ export default async function AdminProductsPage({
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   let query = supabase
     .from("products")
