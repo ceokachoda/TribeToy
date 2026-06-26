@@ -28,15 +28,15 @@ const ProductCard = memo(({ product, wishlist, toggleWishlist, addToCart, router
 
       <div className="absolute top-2 left-2 md:top-4 md:left-4 z-20 flex flex-col gap-1 md:gap-2">
         {product.isSale && (
-          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-accent/90 backdrop-blur-xl text-black text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">Sale</span>
+          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-accent text-black text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">Sale</span>
         )}
         {product.isPremium && (
-          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
+          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg flex items-center gap-1">
             <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2" /> <span className="hidden lg:inline">Pro</span>
           </span>
         )}
         {product.isNew && (
-          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-primary/90 backdrop-blur-xl text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">New</span>
+          <span className="px-1.5 py-0.5 md:px-3 md:py-1 bg-primary text-white text-[5px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-lg">New</span>
         )}
       </div>
 
@@ -67,7 +67,7 @@ const ProductCard = memo(({ product, wishlist, toggleWishlist, addToCart, router
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110"
+            className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110 transform-gpu backface-hidden"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (

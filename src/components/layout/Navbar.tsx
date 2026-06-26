@@ -121,6 +121,20 @@ export default function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    if (mobileMenuOpen || mobileCategoriesOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "unset";
+      document.body.style.touchAction = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.style.touchAction = "unset";
+    };
+  }, [mobileMenuOpen, mobileCategoriesOpen]);
+
   return (
     <>
     <header
@@ -416,12 +430,12 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl overflow-y-auto pb-24 pt-16 transition-all duration-300 transform-gpu ${
+        className={`fixed inset-0 h-[100dvh] z-50 bg-background/98 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl overflow-y-auto overscroll-none pb-24 pt-16 transition-all duration-300 transform-gpu ${
           mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-8 pointer-events-none"
         }`}
       >
         <button
-          className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors"
+          className="absolute top-6 right-6 p-2 text-foreground hover:text-primary transition-colors z-50"
           onClick={() => setMobileMenuOpen(false)}
         >
           <X size={32} />
@@ -598,7 +612,9 @@ export default function Navbar() {
       </AnimatePresence>
 
       {/* Mobile Bottom Navigation Bar (App-like) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)] transition-transform duration-300 ${
+        mobileMenuOpen || mobileCategoriesOpen ? "translate-y-full" : "translate-y-0"
+      }`}>
         <Link href="/" prefetch={true} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>
           <Home size={22} className={pathname === '/' ? 'fill-primary/10 stroke-[2.5px]' : 'stroke-2'} />
           <span className="text-[10px] font-bold">Home</span>

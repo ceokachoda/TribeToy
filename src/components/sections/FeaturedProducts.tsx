@@ -62,16 +62,15 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
         {/* Animated Glow behind card */}
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-transparent group-hover:from-primary/20 transition-colors duration-700 pointer-events-none z-0" />
 
-        {/* Badges */}
         <div className="absolute top-2 left-2 md:top-5 md:left-5 z-20 flex flex-col gap-1 md:gap-2">
           {product.isNew && (
-            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-primary/90 backdrop-blur-xl text-black text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">New Release</span>
+            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-primary text-black text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">New Release</span>
           )}
           {product.isSale && (
-            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-accent/90 backdrop-blur-xl text-black text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">Special Offer</span>
+            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-accent text-black text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl">Special Offer</span>
           )}
           {product.isPremium && (
-            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-xl text-white text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl flex items-center gap-1">
+            <span className="px-2 md:px-4 py-0.5 md:py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[6px] md:text-[9px] font-black tracking-[0.2em] uppercase rounded-full shadow-xl flex items-center gap-1">
               <Sparkles className="w-2 h-2 md:w-3 md:h-3 text-white" /> <span className="hidden lg:inline">Pro Grade</span><span className="inline lg:hidden">Pro</span>
             </span>
           )}
@@ -106,7 +105,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
               src={product.image}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110"
+              className="object-cover transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110 transform-gpu backface-hidden"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
           ) : (
