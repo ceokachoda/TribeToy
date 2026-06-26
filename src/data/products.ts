@@ -8,6 +8,7 @@ export type Product = {
   isNew?: boolean;
   isSale?: boolean;
   isPremium?: boolean;
+  description?: string;
 };
 
 export const products: Product[] = [

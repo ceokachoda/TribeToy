@@ -1,10 +1,10 @@
 "use client";
 
-import { Product } from "@/data/products";
+import { products, Product } from "@/data/products";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Heart, Share2, Star, ShoppingBag, ArrowLeft, Truck, ShieldCheck, Undo2, X, Loader2 } from "lucide-react";
+import { ChevronLeft, Heart, Share2, Star, ShoppingBag, ArrowLeft, Truck, ShieldCheck, Undo2, X, Loader2, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,11 @@ export default function ProductClient({ product }: { product: Product }) {
   
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const relatedProducts = products
+    .filter(p => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
+
 
   // Mocking multiple angles for the carousel
   const images = [
@@ -239,7 +244,7 @@ export default function ProductClient({ product }: { product: Product }) {
           </div>
           
           <p className="text-sm md:text-base text-foreground/70 leading-relaxed mb-6 md:mb-8 max-w-prose">
-            Premium 3D printed model crafted with eco-friendly PLA bioplastic. Highly detailed finish perfect for collectors and enthusiasts. Durable, sustainable, and proudly made in India. Experience the intersection of technology and art with this masterpiece.
+            {product.description || `Premium 3D printed ${product.name} crafted with eco-friendly PLA bioplastic. Highly detailed finish perfect for collectors and enthusiasts. Durable, sustainable, and proudly made in India. Experience the intersection of technology and art with this masterpiece.`}
           </p>
 
           {/* Desktop Add to Cart */}
@@ -309,6 +314,59 @@ export default function ProductClient({ product }: { product: Product }) {
           </div>
         </div>
       </div>
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 mt-16 md:mt-24">
+          <div className="flex items-center justify-between mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-4xl font-heading font-black text-foreground">
+              You May Also <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">Like</span>
+            </h2>
+            <button onClick={() => router.push('/shop?category=' + encodeURIComponent(product.category))} className="hidden md:flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all">
+              View All <ChevronRight size={16} />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {relatedProducts.map((relatedProduct) => (
+              <div 
+                key={relatedProduct.id} 
+                onClick={() => router.push('/product/' + relatedProduct.id)}
+                className="group relative rounded-3xl bg-white border border-foreground/10 hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] hover:-translate-y-2 flex flex-col h-full transform-gpu cursor-pointer"
+              >
+                {/* Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
+                
+                {/* Image */}
+                <div className="relative h-40 md:h-56 w-full bg-foreground/5 overflow-hidden flex items-center justify-center border-b border-foreground/5">
+                  <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.03)] z-10 pointer-events-none" />
+                  {relatedProduct.image ? (
+                    <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" sizes="(max-width: 768px) 50vw, 25vw" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-tr from-foreground/5 to-foreground/10 flex flex-col items-center justify-center gap-2 transition-transform duration-[2s] group-hover:scale-105">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/40 backdrop-blur-md border border-white/60 flex items-center justify-center shadow-sm">
+                        <ShoppingBag className="text-foreground/30 w-5 h-5 md:w-6 md:h-6" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-4 md:p-5 flex flex-col flex-grow relative z-20 bg-white">
+                  <span className="text-[8px] md:text-[9px] text-primary font-black uppercase tracking-[0.2em] mb-1 line-clamp-1">{relatedProduct.category}</span>
+                  <h3 className="text-sm md:text-base font-heading font-bold text-foreground leading-tight mb-auto line-clamp-2">{relatedProduct.name}</h3>
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-foreground/5">
+                    <span className="text-sm md:text-lg font-black text-foreground">{relatedProduct.price}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => router.push('/shop?category=' + encodeURIComponent(product.category))} className="md:hidden w-full mt-6 py-4 bg-primary/10 text-primary rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+            View All <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Fixed Bottom Action Bar (Mobile Only) */}
       <div className="fixed lg:hidden bottom-0 left-0 right-0 bg-white border-t border-black/10 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 flex shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
