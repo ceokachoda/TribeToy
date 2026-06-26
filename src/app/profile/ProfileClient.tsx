@@ -39,7 +39,9 @@ function ProfileContent() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
 
@@ -57,8 +59,23 @@ function ProfileContent() {
     await supabase.auth.updateUser({
       data: { full_name: fullName }
     });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase.from("users").update({ full_name: fullName }).eq("id", session.user.id);
+    }
     setIsSavingProfile(false);
     showToast("Profile details updated successfully!", "success");
+  };
+
+  const handleSaveAddress = async () => {
+    setIsSavingAddress(true);
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase.from("users").update({ address }).eq("id", session.user.id);
+      showToast("Address updated successfully!", "success");
+    }
+    setIsSavingAddress(false);
   };
 
   const handleSavePhoneDirect = async () => {
@@ -164,15 +181,18 @@ function ProfileContent() {
         setEmail(session.user.email || "");
         setPhone(session.user.user_metadata?.phone || "");
         
-        // Fetch role
+        // Fetch role and address
         const { data: userData } = await supabase
           .from("users")
-          .select("role")
+          .select("role, address")
           .eq("id", session.user.id)
           .single();
           
         if (userData?.role === "admin") {
           setIsAdmin(true);
+        }
+        if (userData?.address) {
+          setAddress(userData.address);
         }
         
         // Fetch real orders from database
@@ -473,9 +493,25 @@ function ProfileContent() {
           )}
 
           {activeTab === "addresses" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] text-center">
-              <h2 className="text-2xl font-bold text-[#1a1a1a] mb-4">Saved Addresses</h2>
-              <p className="text-[#5a6b5e]">You haven't saved any addresses yet.</p>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
+              <h2 className="text-2xl font-bold text-[#1a1a1a] mb-4">Saved Address</h2>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Shipping Address</label>
+                <textarea 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  rows={4}
+                  placeholder="Enter your full shipping address here..."
+                  className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all resize-none" 
+                />
+              </div>
+              <button 
+                onClick={handleSaveAddress}
+                disabled={isSavingAddress}
+                className="mt-6 px-8 py-4 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors flex items-center justify-center min-w-[200px] disabled:opacity-80 disabled:cursor-not-allowed"
+              >
+                {isSavingAddress ? <Loader2 size={18} className="animate-spin" /> : "Save Address"}
+              </button>
             </motion.div>
           )}
 

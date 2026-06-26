@@ -1,11 +1,36 @@
 import Link from "next/link";
-import { FiHome, FiBox, FiShoppingCart, FiFileText, FiUsers, FiGlobe, FiSettings } from "react-icons/fi";
+import { FiHome, FiBox, FiShoppingCart, FiFileText, FiUsers, FiGlobe, FiSettings, FiPenTool, FiPackage } from "react-icons/fi";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  
+  // Verify auth and admin role
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?redirect=/admin");
+  
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+    
+  if (!profile || profile.role !== "admin") redirect("/");
+
+  // Fetch alerts
+  const [
+    { count: lowStockCount },
+    { count: pendingOrdersCount }
+  ] = await Promise.all([
+    supabase.from("products").select("id", { count: "exact", head: true }).lt("stock", 10),
+    supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "paid")
+  ]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans">
       {/* Sidebar */}
@@ -20,9 +45,12 @@ export default function AdminLayout({
         </div>
         <nav className="mt-2 flex md:flex-col gap-1 px-4 overflow-x-auto hide-scrollbar flex-1">
           <NavItem href="/admin" icon={<FiHome />} label="Dashboard" />
-          <NavItem href="/admin/products" icon={<FiBox />} label="Products" />
-          <NavItem href="/admin/orders" icon={<FiShoppingCart />} label="Orders" />
+          <NavItem href="/admin/products" icon={<FiBox />} label="Products" badge={(lowStockCount ?? 0) > 0 ? (lowStockCount ?? 0) : undefined} badgeColor="bg-amber-500" />
+          <NavItem href="/admin/orders" icon={<FiShoppingCart />} label="Orders" badge={(pendingOrdersCount ?? 0) > 0 ? (pendingOrdersCount ?? 0) : undefined} badgeColor="bg-blue-500" />
+          <NavItem href="/admin/shipments" icon={<FiPackage />} label="Shipments" />
+          <NavItem href="/admin/customizations" icon={<FiPenTool />} label="Customizations" />
           <NavItem href="/admin/blogs" icon={<FiFileText />} label="Blogs" />
+          <NavItem href="/admin/customers" icon={<FiUsers />} label="Customers" />
           <NavItem href="/admin/homepage" icon={<FiHome />} label="Homepage" />
           <NavItem href="/admin/settings" icon={<FiSettings />} label="Settings" />
         </nav>
@@ -57,14 +85,21 @@ export default function AdminLayout({
   );
 }
 
-function NavItem({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+function NavItem({ href, icon, label, badge, badgeColor }: { href: string; icon: React.ReactNode; label: string; badge?: number; badgeColor?: string }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all flex-shrink-0"
+      className="flex items-center justify-between gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all flex-shrink-0"
     >
-      <span className="text-lg">{icon}</span>
-      <span className="font-medium whitespace-nowrap">{label}</span>
+      <div className="flex items-center gap-3">
+        <span className="text-lg">{icon}</span>
+        <span className="font-medium whitespace-nowrap">{label}</span>
+      </div>
+      {badge !== undefined && (
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${badgeColor || "bg-emerald-500"}`}>
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }

@@ -17,25 +17,25 @@ export default function SettingsPage() {
   const newArrivalsRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const fetchSettings = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "hero_images")
+        .single();
+
+      if (data && data.value) {
+        setImages({
+          custom_prints: data.value.custom_prints || "/ghibli_hero_v2.png",
+          new_arrivals: data.value.new_arrivals || "/ghibli_new_arrivals_v2.png"
+        });
+      }
+      setIsLoading(false);
+    };
+
     fetchSettings();
   }, []);
-
-  const fetchSettings = async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "hero_images")
-      .single();
-
-    if (data && data.value) {
-      setImages({
-        custom_prints: data.value.custom_prints || "/ghibli_hero_v2.png",
-        new_arrivals: data.value.new_arrivals || "/ghibli_new_arrivals_v2.png"
-      });
-    }
-    setIsLoading(false);
-  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "custom_prints" | "new_arrivals") => {
     const file = e.target.files?.[0];

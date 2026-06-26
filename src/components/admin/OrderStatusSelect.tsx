@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { updateOrderStatus, type OrderStatus } from "@/utils/admin/orders";
+
+const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  pending: ["paid", "cancelled"],
+  paid: ["shipped", "cancelled"],
+  shipped: ["delivered", "cancelled"],
+  delivered: [],
+  cancelled: [],
+};
 
 export default function OrderStatusSelect({
   orderId,
@@ -10,31 +18,32 @@ export default function OrderStatusSelect({
   orderId: string;
   currentStatus: string;
 }) {
-  const [status, setStatus] = useState(currentStatus);
+  const [status, setStatus] = useState<OrderStatus>(currentStatus as OrderStatus);
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value;
+    const newStatus = e.target.value as OrderStatus;
+    const oldStatus = status;
+    
     setStatus(newStatus);
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: newStatus })
-        .eq("id", orderId);
-
-      if (error) throw error;
-      // Optionally trigger a toast notification here
-    } catch (err) {
+      const res = await updateOrderStatus(orderId, newStatus);
+      if (!res.ok) {
+        throw new Error(res.error || "Failed to update order status");
+      }
+      alert(`Order updated to ${newStatus}`);
+    } catch (err: any) {
       console.error("Error updating order status:", err);
-      // Revert on failure
-      setStatus(currentStatus);
+      alert(err.message || "Failed to update order status");
+      setStatus(oldStatus);
     } finally {
       setLoading(false);
     }
   };
+
+  const currentAllowed = VALID_TRANSITIONS[currentStatus as OrderStatus] || [];
 
   return (
     <select
@@ -53,11 +62,11 @@ export default function OrderStatusSelect({
           : "bg-red-50 text-red-700 border-red-200"
       }`}
     >
-      <option value="pending">Pending</option>
-      <option value="paid">Paid</option>
-      <option value="shipped">Shipped</option>
-      <option value="delivered">Delivered</option>
-      <option value="cancelled">Cancelled</option>
+      <option value="pending" disabled={status !== "pending"}>Pending</option>
+      <option value="paid" disabled={status !== "paid" && !currentAllowed.includes("paid")}>Paid</option>
+      <option value="shipped" disabled={status !== "shipped" && !currentAllowed.includes("shipped")}>Shipped</option>
+      <option value="delivered" disabled={status !== "delivered" && !currentAllowed.includes("delivered")}>Delivered</option>
+      <option value="cancelled" disabled={status !== "cancelled" && !currentAllowed.includes("cancelled")}>Cancelled</option>
     </select>
   );
 }

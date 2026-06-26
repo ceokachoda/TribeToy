@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
 import Image from "next/image";
 
 export const dynamic = "force-dynamic";
@@ -9,10 +9,11 @@ export const dynamic = "force-dynamic";
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const currentPage = parseInt(resolvedSearchParams.page || "1", 10);
+  const searchQuery = resolvedSearchParams.q || "";
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
@@ -29,11 +30,16 @@ export default async function AdminProductsPage({
     }
   );
 
-  const { data: products, count, error } = await supabase
+  let query = supabase
     .from("products")
     .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(offset, offset + itemsPerPage - 1);
+    .order("created_at", { ascending: false });
+
+  if (searchQuery) {
+    query = query.ilike("name", `%${searchQuery}%`);
+  }
+
+  const { data: products, count, error } = await query.range(offset, offset + itemsPerPage - 1);
 
   if (error) {
     console.error("Error fetching products:", error);
@@ -56,6 +62,27 @@ export default async function AdminProductsPage({
         </Link>
       </div>
 
+      <form method="get" className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+        <div className="relative flex-1">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            name="q"
+            defaultValue={searchQuery}
+            placeholder="Search products by name..."
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-sm"
+          />
+        </div>
+        <button type="submit" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-medium transition-colors">
+          Search
+        </button>
+        {searchQuery && (
+          <Link href="/admin/products" className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors">
+            Clear
+          </Link>
+        )}
+      </form>
+
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-600">
@@ -69,7 +96,12 @@ export default async function AdminProductsPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {products?.map((product) => (
+              {products?.map((product) => {
+                const available = (product.stock_quantity || 0) - (product.reserved || 0);
+                const isLow = available <= (product.low_stock_threshold || 5);
+                const isOutOfStock = available <= 0;
+
+                return (
                 <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-100 rounded-md overflow-hidden relative flex-shrink-0">
@@ -93,17 +125,24 @@ export default async function AdminProductsPage({
                     ₹{product.price.toLocaleString("en-IN")}
                   </td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        product.stock_quantity > 10
-                          ? "bg-emerald-100 text-emerald-800"
-                          : product.stock_quantity > 0
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {product.stock_quantity > 0 ? `${product.stock_quantity} in stock` : "Out of stock"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          isOutOfStock
+                            ? "bg-red-100 text-red-800"
+                            : isLow
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
+                        {available} available
+                      </span>
+                      {product.reserved > 0 && (
+                        <span className="text-xs text-slate-400" title={`${product.reserved} reserved for pending orders`}>
+                          ({product.reserved} rsv)
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-3">
@@ -120,7 +159,8 @@ export default async function AdminProductsPage({
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
               {(!products || products.length === 0) && (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-slate-500">

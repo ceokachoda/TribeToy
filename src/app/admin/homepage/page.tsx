@@ -23,50 +23,50 @@ export default function HomepageSettings() {
   const { showToast } = useToast();
 
   useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient();
+      try {
+        // Fetch all products
+        const { data: productsData } = await supabase
+          .from("products")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (productsData) {
+          const mapped = productsData.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            price: p.price,
+            image: p.image_url,
+            is_hero: p.is_hero
+          }));
+          setProducts(mapped as Product[]);
+        }
+
+        // Fetch config
+        const { data: configData } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "storefront_config")
+          .single();
+
+        if (configData?.value) {
+          setConfig({
+            carousel: configData.value.carousel || ["", "", ""],
+            marquee: configData.value.marquee || []
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        showToast("Failed to load settings", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    const supabase = createClient();
-    try {
-      // Fetch all products
-      const { data: productsData } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (productsData) {
-        const mapped = productsData.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          category: p.category,
-          price: p.price,
-          image: p.image_url,
-          is_hero: p.is_hero
-        }));
-        setProducts(mapped as Product[]);
-      }
-
-      // Fetch config
-      const { data: configData } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "storefront_config")
-        .single();
-
-      if (configData?.value) {
-        setConfig({
-          carousel: configData.value.carousel || ["", "", ""],
-          marquee: configData.value.marquee || []
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      showToast("Failed to load settings", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [showToast]);
 
   const handleSave = async () => {
     setSaving(true);

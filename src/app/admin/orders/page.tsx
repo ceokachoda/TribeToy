@@ -1,8 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight, FiEye } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiEye, FiShoppingCart, FiDownloadCloud } from "react-icons/fi";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import { GenerateLabelAction } from "@/components/admin/GenerateLabelAction";
+import { type OrderStatus } from "@/utils/admin/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +49,20 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Orders</h1>
-        <p className="text-slate-500 mt-1">Manage customer orders and update shipping statuses.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+            <FiShoppingCart className="text-emerald-500" /> Orders
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm md:text-base">Manage customer orders and fulfillment.</p>
+        </div>
+        
+        <Link 
+          href="/admin/orders/import" 
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-sm"
+        >
+          <FiDownloadCloud /> Import Amazon CSV
+        </Link>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -87,9 +100,12 @@ export default async function AdminOrdersPage({
                     <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-blue-600 hover:text-blue-800 p-1 flex items-center gap-1 justify-end w-full" title="View Details">
-                      <FiEye size={16} /> <span className="text-xs">View</span>
-                    </button>
+                    <div className="flex flex-col items-end gap-2">
+                      <button className="text-blue-600 hover:text-blue-800 p-1 flex items-center gap-1 justify-end" title="View Details">
+                        <FiEye size={16} /> <span className="text-xs">View</span>
+                      </button>
+                      <GenerateLabelAction orderId={order.id} currentStatus={order.status as OrderStatus} />
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -12,7 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    "*.js"
+    "*.js",
+    "TribeToy-Sale-s-Dashboard/**"
   ]),
   {
     rules: {

@@ -28,6 +28,10 @@ export default function ProductForm({ initialData }: ProductFormProps) {
     is_sale: initialData?.is_sale || false,
     is_premium: initialData?.is_premium || false,
     is_hero: initialData?.is_hero || false,
+    reserved: initialData?.reserved ?? 0,
+    damaged: initialData?.damaged ?? 0,
+    low_stock_threshold: initialData?.low_stock_threshold ?? 5,
+    location: initialData?.location || "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -86,6 +90,10 @@ export default function ProductForm({ initialData }: ProductFormProps) {
         is_premium: formData.is_premium,
         is_hero: formData.is_hero,
         image_url: imageUrl,
+        reserved: parseInt(formData.reserved.toString(), 10) || 0,
+        damaged: parseInt(formData.damaged.toString(), 10) || 0,
+        low_stock_threshold: parseInt(formData.low_stock_threshold.toString(), 10) || 5,
+        location: formData.location,
       };
 
       if (initialData?.id) {
@@ -213,6 +221,50 @@ export default function ProductForm({ initialData }: ProductFormProps) {
               className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
               value={formData.stock_quantity}
               onChange={(e) => setFormData({ ...formData, stock_quantity: parseInt(e.target.value) || 0 })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Reserved</label>
+            <input
+              type="number"
+              min="0"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900 bg-slate-50"
+              value={formData.reserved}
+              readOnly
+              title="Reserved stock is managed automatically by orders."
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Damaged / Lost</label>
+            <input
+              type="number"
+              min="0"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              value={formData.damaged}
+              onChange={(e) => setFormData({ ...formData, damaged: parseInt(e.target.value) || 0 })}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Low Stock Alert</label>
+            <input
+              type="number"
+              min="0"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              value={formData.low_stock_threshold}
+              onChange={(e) => setFormData({ ...formData, low_stock_threshold: parseInt(e.target.value) || 0 })}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Shelf Location</label>
+            <input
+              type="text"
+              placeholder="e.g. A1-Bin3"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             />
           </div>
         </div>
