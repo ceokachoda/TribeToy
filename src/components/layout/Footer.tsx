@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="hidden lg:block relative mt-20 pt-20 pb-10 overflow-hidden border-t border-black/5 bg-background">
+    <footer className="relative mt-20 pt-20 pb-10 overflow-hidden border-t border-black/5 bg-background">
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
