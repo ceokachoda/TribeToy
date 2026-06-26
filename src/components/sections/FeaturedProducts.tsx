@@ -6,14 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { products, Product } from "@/data/products";
+import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { QuickViewModal } from "@/components/ui/QuickViewModal";
 import { useToast } from "@/context/ToastContext";
 
-const featuredProducts = products.slice(0, 4);
-
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ products }: { products: Product[] }) {
+  const featuredProducts = products.filter(p => p.image).slice(0, 4);
   const router = useRouter();
   const { addToCart } = useCart();
   const { showToast } = useToast();

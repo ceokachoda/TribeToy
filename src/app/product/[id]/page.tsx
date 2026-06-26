@@ -1,16 +1,12 @@
 import ProductClient from "./ProductClient";
-import { products } from "@/data/products";
+import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
-
-export function generateStaticParams() {
-  return products.map((p) => ({
-    id: p.id.toString(),
-  }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = products.find(p => p.id.toString() === id);
+  const supabase = await createClient();
+  const { data: product } = await supabase.from('products').select('*').eq('id', id).single();
+  
   if (!product) return { title: 'Product Not Found' };
   
   return {
@@ -21,15 +17,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = products.find(p => p.id.toString() === id);
+  const supabase = await createClient();
+  const { data: product, error } = await supabase.from('products').select('*').eq('id', id).single();
   
   if (!product) {
     notFound();
   }
 
+  const mappedProduct = {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: `₹${parseFloat(product.price).toFixed(2)}`,
+    originalPrice: product.original_price ? `₹${parseFloat(product.original_price).toFixed(2)}` : undefined,
+    image: product.image_url || "",
+    isNew: product.is_new,
+    isSale: product.is_sale,
+    isPremium: product.is_premium,
+  };
+
   return (
     <main className="min-h-screen bg-background">
-      <ProductClient product={product} />
+      <ProductClient product={mappedProduct} />
     </main>
   );
 }

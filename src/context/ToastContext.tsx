@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode, useCallback } fr
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Heart, ShoppingBag, X } from "lucide-react";
 
-type ToastType = "success" | "wishlist" | "cart";
+type ToastType = "success" | "wishlist" | "cart" | "error";
 
 interface Toast {
   id: string;

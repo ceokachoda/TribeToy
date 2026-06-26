@@ -5,9 +5,9 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { products } from "@/data/products";
+import { Product } from "@/data/products";
 
-export default function HeroSection() {
+export default function HeroSection({ products }: { products: Product[] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -216,9 +216,9 @@ export default function HeroSection() {
                       ][currentSlide]} 
                       className="absolute inset-0 block"
                     >
-                      {products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide])?.image && (
+                      {products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide] && p.image)?.image && (
                         <Image 
-                          src={products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide])!.image} 
+                          src={products.find(p => p.category === ['Cultural', 'Educational', 'Toys & Figurines'][currentSlide] && p.image)!.image} 
                           alt="Featured" 
                           fill 
                           className="object-cover brightness-95" 

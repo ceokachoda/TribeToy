@@ -2,17 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Share2 } from "lucide-react";
-import { blogs } from "@/data/blogs";
-
-export function generateStaticParams() {
-  return blogs.map((blog) => ({
-    slug: blog.slug,
-  }));
-}
+import { createClient } from "@/utils/supabase/server";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const blog = blogs.find((b) => b.slug === slug);
+  const supabase = await createClient();
+  const { data: blog } = await supabase.from('blogs').select('*').eq('slug', slug).single();
+  
   if (!blog) return { title: "Not Found" };
 
   return {
@@ -23,11 +19,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const blog = blogs.find((b) => b.slug === slug);
+  const supabase = await createClient();
+  const { data: dbBlog, error } = await supabase.from('blogs').select('*').eq('slug', slug).single();
 
-  if (!blog) {
+  if (!dbBlog) {
     notFound();
   }
+
+  const blog = {
+    title: dbBlog.title,
+    excerpt: dbBlog.excerpt,
+    content: dbBlog.content,
+    coverImage: dbBlog.cover_image_url || "",
+    date: new Date(dbBlog.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    author: dbBlog.author_name,
+    tags: dbBlog.tags || [],
+  };
 
   return (
     <main className="min-h-screen bg-background">
@@ -40,7 +47,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </Link>
 
           <div className="flex gap-3 mb-8 flex-wrap justify-center">
-            {blog.tags.map(tag => (
+            {blog.tags.map((tag: string) => (
               <span key={tag} className="text-xs md:text-sm text-primary font-black uppercase tracking-[0.2em] bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">
                 {tag}
               </span>

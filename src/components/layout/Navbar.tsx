@@ -34,12 +34,37 @@ export default function Navbar() {
   const { showToast } = useToast();
 
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return products.filter(p => 
-      p.name.toLowerCase().includes(query) || 
-      p.category.toLowerCase().includes(query)
-    ).slice(0, 6);
+    // We will use a state for this instead
+    return [];
+  }, []);
+
+  const [dynamicSearchResults, setDynamicSearchResults] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSearch = async () => {
+      if (!searchQuery.trim()) {
+        setDynamicSearchResults([]);
+        return;
+      }
+      const query = searchQuery.toLowerCase();
+      const supabase = createClient();
+      const { data } = await supabase.from('products')
+        .select('*')
+        .or(`name.ilike.%${query}%,category.ilike.%${query}%`)
+        .limit(6);
+      
+      if (data) {
+        setDynamicSearchResults(data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          price: `₹${parseFloat(p.price).toFixed(2)}`,
+          image: p.image_url || "",
+        })));
+      }
+    };
+    const timer = setTimeout(fetchSearch, 300);
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   useEffect(() => {
@@ -307,10 +332,10 @@ export default function Navbar() {
                   <Search size={48} className="mb-4 text-foreground/20" />
                   <p className="text-sm font-bold text-foreground/60">Type to search for toys, statues, and more</p>
                 </div>
-              ) : searchResults.length > 0 ? (
+              ) : dynamicSearchResults.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   <span className="text-xs font-black uppercase tracking-wider text-foreground/40 px-2 mb-1">Products</span>
-                  {searchResults.map(product => (
+                  {dynamicSearchResults.map(product => (
                     <button 
                       key={product.id}
                       onClick={() => {
