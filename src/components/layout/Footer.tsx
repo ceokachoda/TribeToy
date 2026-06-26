@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="flex flex-col gap-6">
             <Link href="/" className="flex items-center gap-3 group glass-panel px-3 py-2 rounded-2xl w-max hover:shadow-[0_8px_32px_rgba(121,152,122,0.2)] transition-all">
@@ -51,7 +51,26 @@ export default function Footer() {
               </a>
             </div>
           </div>
+          {/* Links */}
+          <div className="hidden md:block">
+            <h3 className="font-heading font-semibold text-lg mb-6">Shop</h3>
+            <ul className="flex flex-col gap-3">
+              <li><Link href="/shop" className="text-foreground/60 hover:text-primary transition-colors text-sm">All Toys</Link></li>
+              <li><Link href="/shop?category=Educational" className="text-foreground/60 hover:text-primary transition-colors text-sm">Educational</Link></li>
+              <li><Link href="/shop?category=Utility & Decor" className="text-foreground/60 hover:text-primary transition-colors text-sm">Utility Decor</Link></li>
+              <li><Link href="/customization" className="text-foreground/60 hover:text-primary transition-colors text-sm">Custom 3D Printing</Link></li>
+            </ul>
+          </div>
 
+          {/* Company */}
+          <div className="hidden md:block">
+            <h3 className="font-heading font-semibold text-lg mb-6">Company</h3>
+            <ul className="flex flex-col gap-3">
+              <li><Link href="/about" className="text-foreground/60 hover:text-primary transition-colors text-sm">About Us</Link></li>
+              <li><Link href="/blog" className="text-foreground/60 hover:text-primary transition-colors text-sm">Blog</Link></li>
+              <li><Link href="/contact" className="text-foreground/60 hover:text-primary transition-colors text-sm">Contact</Link></li>
+            </ul>
+          </div>
 
 
           {/* Contact */}
