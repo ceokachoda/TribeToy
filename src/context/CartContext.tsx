@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             // Check if exists in DB
             const { data: existing } = await supabase
               .from('cart_items')
-              .select('*')
+              .select('id, quantity')
               .eq('user_id', userId)
               .eq('product_id', item.id)
               .maybeSingle();
@@ -104,7 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             id,
             quantity,
             product_id,
-            products (*)
+            products (id, name, category, price, original_price, image_url, is_new, is_sale, is_premium)
           `)
           .eq('user_id', userId);
 
@@ -153,7 +153,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (userId) {
       const { data: existing } = await supabase
         .from('cart_items')
-        .select('*')
+        .select('id, quantity')
         .eq('user_id', userId)
         .eq('product_id', product.id)
         .maybeSingle();

@@ -11,7 +11,7 @@ export const metadata = {
 
 export default async function BlogPage() {
   const supabase = await createClient();
-  const { data: dbBlogs, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
+  const { data: dbBlogs, error } = await supabase.from('blogs').select('slug, title, excerpt, content, cover_image_url, created_at, author_name, tags').order('created_at', { ascending: false });
 
   const mappedBlogs = (dbBlogs || []).map((b: any) => ({
     slug: b.slug,

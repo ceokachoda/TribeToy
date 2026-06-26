@@ -8,7 +8,7 @@ export const metadata = {
 
 export default async function ShopPage() {
   const supabase = await createClient();
-  const { data: dbProducts, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+  const { data: dbProducts, error } = await supabase.from('products').select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium').order('created_at', { ascending: false });
 
   // Map db records to the Product type expected by ShopClient
   const mappedProducts = (dbProducts || []).map((p: any) => ({

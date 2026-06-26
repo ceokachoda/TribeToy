@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
-  const { data: blog } = await supabase.from('blogs').select('*').eq('slug', slug).single();
+  const { data: blog } = await supabase.from('blogs').select('title, excerpt').eq('slug', slug).single();
   
   if (!blog) return { title: "Not Found" };
 
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
-  const { data: dbBlog, error } = await supabase.from('blogs').select('*').eq('slug', slug).single();
+  const { data: dbBlog, error } = await supabase.from('blogs').select('title, excerpt, content, cover_image_url, created_at, author_name, tags').eq('slug', slug).single();
 
   if (!dbBlog) {
     notFound();

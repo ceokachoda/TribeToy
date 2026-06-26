@@ -51,7 +51,7 @@ export default function Navbar() {
       const query = searchQuery.toLowerCase();
       const supabase = createClient();
       const { data } = await supabase.from('products')
-        .select('*')
+        .select('id, name, category, price, image_url, is_new')
         .or(`name.ilike.%${query}%,category.ilike.%${query}%`)
         .limit(6);
       

@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 export default async function Home() {
   const supabase = await createClient();
   const [productsResponse, settingsResponse, storefrontResponse] = await Promise.all([
-    supabase.from('products').select('*').order('created_at', { ascending: false }),
+    supabase.from('products').select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium, is_hero').order('created_at', { ascending: false }),
     supabase.from('site_settings').select('value').eq('key', 'hero_images').single(),
     supabase.from('site_settings').select('value').eq('key', 'storefront_config').single()
   ]);

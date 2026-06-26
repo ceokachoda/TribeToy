@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function POST(req: Request) {
   try {
@@ -29,8 +30,10 @@ export async function POST(req: Request) {
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
 
-    // Create order record
-    const { data: order, error: orderError } = await supabase
+    const adminSupabase = createAdminClient();
+
+    // Create order record using admin client to bypass RLS for order_items insertion
+    const { data: order, error: orderError } = await adminSupabase
       .from("orders")
       .insert({
         user_id: userId || null,
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
         price_at_purchase: parseFloat(item.price.replace(/[^0-9.]/g, ''))
       }));
 
-      await supabase.from("order_items").insert(orderItems);
+      await adminSupabase.from("order_items").insert(orderItems);
     }
 
     // Clear user cart if logged in
