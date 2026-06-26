@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FiHome, FiBox, FiShoppingCart, FiFileText, FiUsers, FiGlobe, FiSettings, FiPenTool, FiPackage } from "react-icons/fi";
+import { FiHome, FiBox, FiShoppingCart, FiFileText, FiUsers, FiGlobe, FiSettings, FiPenTool, FiPackage, FiTruck, FiLayout, FiTrendingUp } from "react-icons/fi";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -47,12 +47,21 @@ export default async function AdminLayout({
           <NavItem href="/admin" icon={<FiHome />} label="Dashboard" />
           <NavItem href="/admin/products" icon={<FiBox />} label="Products" badge={(lowStockCount ?? 0) > 0 ? (lowStockCount ?? 0) : undefined} badgeColor="bg-amber-500" />
           <NavItem href="/admin/orders" icon={<FiShoppingCart />} label="Orders" badge={(pendingOrdersCount ?? 0) > 0 ? (pendingOrdersCount ?? 0) : undefined} badgeColor="bg-blue-500" />
-          <NavItem href="/admin/shipments" icon={<FiPackage />} label="Shipments" />
-          <NavItem href="/admin/customizations" icon={<FiPenTool />} label="Customizations" />
-          <NavItem href="/admin/blogs" icon={<FiFileText />} label="Blogs" />
+          <NavItem href="/admin/shipments" icon={<FiTruck />} label="Shipments" />
           <NavItem href="/admin/customers" icon={<FiUsers />} label="Customers" />
-          <NavItem href="/admin/homepage" icon={<FiHome />} label="Homepage" />
-          <NavItem href="/admin/settings" icon={<FiSettings />} label="Settings" />
+          
+          <div className="pt-4 mt-4 border-t border-slate-700">
+            <p className="px-3 mb-2 text-xs font-black text-slate-500 uppercase tracking-wider">Content</p>
+            <NavItem href="/admin/blogs" icon={<FiFileText />} label="Blog Posts" />
+            <NavItem href="/admin/homepage" icon={<FiLayout />} label="Homepage Settings" />
+          </div>
+
+          <div className="pt-4 mt-4 border-t border-slate-700">
+            <p className="px-3 mb-2 text-xs font-black text-slate-500 uppercase tracking-wider">System</p>
+            <NavItem href="/admin/inventory" icon={<FiBox />} label="Inventory / Materials" />
+            <NavItem href="/admin/analytics/daily" icon={<FiTrendingUp />} label="Day-Wise Sales" />
+            <NavItem href="/admin/settings" icon={<FiSettings />} label="Settings" />
+          </div>
         </nav>
         <div className="p-4 mt-auto hidden md:block">
           <Link 
