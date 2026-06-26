@@ -18,9 +18,9 @@ export default function CartClient() {
   const handleCheckout = async () => {
     setIsProcessingCheckout(true);
     const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
     
-    if (session?.user) {
+    if (user) {
       router.push("/checkout");
     } else {
       router.push("/login?redirect=/checkout");
