@@ -277,7 +277,7 @@ function ShopContent({ initialProducts }: { initialProducts: Product[] }) {
           layout
           className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6"
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="wait">
             {filteredProducts.map((product, index) => (
                 <ProductCard key={product.id} product={product as any} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart as any} router={router} />
             ))}

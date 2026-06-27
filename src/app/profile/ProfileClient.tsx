@@ -670,24 +670,33 @@ function ProfileContent() {
                     </div>
 
                     <div className="flex flex-col gap-4">
-                      {selectedOrder.items.map((item: any, i: number) => (
-                        <div key={i} className="flex items-center gap-3 md:gap-4 py-4 border-b border-[rgba(0,0,0,0.05)]">
-                          <div className="w-14 h-14 md:w-16 md:h-16 bg-[#f4f5f4] rounded-xl relative overflow-hidden flex-shrink-0">
-                            {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
+                      {(selectedOrder?.items || []).map((item: any, i: number) => {
+                        const rawPrice = item.price;
+                        const numericPrice = typeof rawPrice === 'string' 
+                          ? parseFloat(rawPrice.replace(/[^0-9.]/g, '')) 
+                          : parseFloat(rawPrice || 0);
+                        const qty = item.quantity || 1;
+                        const itemTotal = isNaN(numericPrice) ? 0 : numericPrice * qty;
+
+                        return (
+                          <div key={i} className="flex items-center gap-3 md:gap-4 py-4 border-b border-[rgba(0,0,0,0.05)]">
+                            <div className="w-14 h-14 md:w-16 md:h-16 bg-[#f4f5f4] rounded-xl relative overflow-hidden flex-shrink-0">
+                              {item.image && <Image src={item.image} alt={item.name || 'Product'} fill className="object-cover" />}
+                            </div>
+                            <div className="flex-grow min-w-0">
+                              <h4 className="text-xs md:text-sm font-bold text-[#1a1a1a] line-clamp-2 md:line-clamp-none leading-snug">{item.name || 'Product'}</h4>
+                              <p className="text-[10px] md:text-xs text-[#8a958c] mt-0.5">Qty: {qty}</p>
+                            </div>
+                            <span className="text-sm md:text-base font-bold text-[#1a1a1a] whitespace-nowrap shrink-0">₹{itemTotal.toFixed(2)}</span>
                           </div>
-                          <div className="flex-grow min-w-0">
-                            <h4 className="text-xs md:text-sm font-bold text-[#1a1a1a] line-clamp-2 md:line-clamp-none leading-snug">{item.name}</h4>
-                            <p className="text-[10px] md:text-xs text-[#8a958c] mt-0.5">Qty: {item.quantity}</p>
-                          </div>
-                          <span className="text-sm md:text-base font-bold text-[#1a1a1a] whitespace-nowrap shrink-0">₹{(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     <div className="flex flex-col gap-3 mt-6 text-[#5a6b5e] font-medium text-sm">
                       <div className="flex justify-between items-center">
                         <span>Subtotal</span>
-                        <span className="font-bold text-[#1a1a1a]">₹{selectedOrder.total.toFixed(2)}</span>
+                        <span className="font-bold text-[#1a1a1a]">₹{(selectedOrder?.total || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span>Shipping</span>
@@ -701,7 +710,7 @@ function ProfileContent() {
                       <div className="w-full h-px bg-[rgba(0,0,0,0.1)] my-2" />
                       <div className="flex justify-between items-center text-xl">
                         <span className="font-black text-[#1a1a1a]">Total Paid</span>
-                        <span className="font-black text-[#1a1a1a]">₹{selectedOrder.total.toFixed(2)}</span>
+                        <span className="font-black text-[#1a1a1a]">₹{(selectedOrder?.total || 0).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
