@@ -22,12 +22,14 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
   useEffect(() => {
     // Lock body scroll when modal is open
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     const mainEl = document.getElementById('admin-main-scroll');
     if (mainEl) {
       mainEl.style.overflow = "hidden";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
       if (mainEl) {
         mainEl.style.overflow = "";
       }
@@ -220,8 +222,8 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                       setData({...data, products: Array.from(c)});
                     }} className={`border rounded-lg text-xs cursor-pointer overflow-hidden transition-all ${selected ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20' : 'bg-white hover:border-slate-300'}`}>
                       <div className="h-20 relative w-full bg-slate-100 flex items-center justify-center">
-                        {p.image ? (
-                          <Image src={p.image} alt={p.name} fill className="object-cover" />
+                        {p.image || (p as any).image_url ? (
+                          <Image src={p.image || (p as any).image_url} alt={p.name} fill className="object-cover" />
                         ) : (
                           <FiImage size={24} className="text-slate-300" />
                         )}
