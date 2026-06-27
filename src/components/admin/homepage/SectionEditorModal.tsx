@@ -20,19 +20,21 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
   const supabase = createClient();
 
   useEffect(() => {
-    // Lock body scroll when modal is open
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    const mainEl = document.getElementById('admin-main-scroll');
-    if (mainEl) {
-      mainEl.style.overflow = "hidden";
-    }
+    // Lock body scroll when modal is open - iOS proof
+    const scrollY = window.scrollY;
+    const originalPosition = document.body.style.position;
+    const originalTop = document.body.style.top;
+    const originalWidth = document.body.style.width;
+
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+
     return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      if (mainEl) {
-        mainEl.style.overflow = "";
-      }
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.width = originalWidth;
+      window.scrollTo(0, scrollY);
     };
   }, []);
 

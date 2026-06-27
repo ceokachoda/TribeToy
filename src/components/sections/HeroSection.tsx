@@ -60,12 +60,15 @@ export default function HeroSection({ products, config }: { products: Product[],
 
   const safeSlideCount = Math.max(1, slides.length);
 
+  const [isHovered, setIsHovered] = useState(false);
+
   useEffect(() => {
+    if (isHovered) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % safeSlideCount);
     }, 4000);
     return () => clearInterval(timer);
-  }, [safeSlideCount]);
+  }, [safeSlideCount, isHovered]);
   const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
@@ -93,7 +96,13 @@ export default function HeroSection({ products, config }: { products: Product[],
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-20 md:pt-28 pb-4 md:pb-8">
+    <section 
+      className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-20 md:pt-28 pb-4 md:pb-8"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={() => setIsHovered(true)}
+      onTouchEnd={() => setIsHovered(false)}
+    >
       
       {/* Refined Decorative Light Background Elements */}
       <motion.div 
