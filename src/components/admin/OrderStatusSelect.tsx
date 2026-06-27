@@ -15,9 +15,11 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 export default function OrderStatusSelect({
   orderId,
   currentStatus,
+  isCOD = false,
 }: {
   orderId: string;
   currentStatus: string;
+  isCOD?: boolean;
 }) {
   const [status, setStatus] = useState<OrderStatus>(currentStatus as OrderStatus);
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,7 @@ export default function OrderStatusSelect({
       }`}
     >
       <option value="pending" disabled={status !== "pending"}>Pending</option>
-      <option value="paid" disabled={status !== "paid" && !currentAllowed.includes("paid")}>Paid</option>
+      {!isCOD && <option value="paid" disabled={status !== "paid" && !currentAllowed.includes("paid")}>Paid</option>}
       <option value="shipped" disabled={status !== "shipped" && !currentAllowed.includes("shipped")}>Shipped</option>
       <option value="delivered" disabled={status !== "delivered" && !currentAllowed.includes("delivered")}>Delivered</option>
       <option value="cancelled" disabled={status !== "cancelled" && !currentAllowed.includes("cancelled")}>Cancelled</option>

@@ -8,10 +8,10 @@ import { getActorId, logAudit } from "@/utils/admin/audit";
 export type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled";
 
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ["paid", "cancelled"],
-  paid: ["shipped", "cancelled"],
-  shipped: ["delivered", "cancelled"],
-  delivered: [],
+  pending: ["paid", "shipped", "cancelled"],
+  paid: ["shipped", "delivered", "cancelled"],
+  shipped: ["delivered", "paid", "cancelled"],
+  delivered: ["paid"],
   cancelled: [],
 };
 
@@ -90,7 +90,9 @@ export async function updateOrderStatus(
         newStock = Math.max(0, newStock - item.quantity);
       }
       // pending -> shipped: Fast-track fulfill (deduct directly from stock)
-      // Wait, pending -> shipped is not a valid transition in our map.
+      else if (currentStatus === "pending" && newStatus === "shipped") {
+        newStock = Math.max(0, newStock - item.quantity);
+      }
       // paid -> cancelled: Release reservation
       else if (currentStatus === "paid" && newStatus === "cancelled") {
         newReserved = Math.max(0, newReserved - item.quantity);

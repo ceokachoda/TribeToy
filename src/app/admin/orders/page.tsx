@@ -127,7 +127,7 @@ export default async function AdminOrdersPage({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+                    <OrderStatusSelect orderId={order.id} currentStatus={order.status} isCOD={!order.razorpay_order_id} />
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex flex-col items-end gap-2">
