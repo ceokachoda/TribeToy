@@ -5,14 +5,19 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getActorId, logAudit } from "@/utils/admin/audit";
 
-export type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+export type OrderStatus = "pending" | "paid" | "reserved" | "packed" | "shipped" | "dispatched" | "delivered" | "cancelled" | "returned" | "refunded";
 
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   pending: ["paid", "shipped", "cancelled"],
-  paid: ["shipped", "delivered", "cancelled"],
-  shipped: ["delivered", "paid", "cancelled"],
-  delivered: ["paid"],
-  cancelled: [],
+  paid: ["reserved", "packed", "shipped", "cancelled", "refunded"],
+  reserved: ["packed", "shipped", "cancelled"],
+  packed: ["shipped", "dispatched", "cancelled"],
+  shipped: ["dispatched", "delivered", "returned"],
+  dispatched: ["delivered", "returned"],
+  delivered: ["returned"],
+  cancelled: ["refunded"],
+  returned: ["refunded"],
+  refunded: [],
 };
 
 export async function updateOrderStatus(
@@ -80,25 +85,25 @@ export async function updateOrderStatus(
       let newReserved = product.reserved || 0;
 
       // Logic:
-      // pending -> paid: Reserve stock
-      if (currentStatus === "pending" && newStatus === "paid") {
+      // pending -> paid or reserved: Reserve stock
+      if (currentStatus === "pending" && (newStatus === "paid" || newStatus === "reserved")) {
         newReserved += item.quantity;
       }
-      // paid -> shipped: Fulfill stock (deduct from reserved and stock_quantity)
-      else if (currentStatus === "paid" && newStatus === "shipped") {
+      // fulfilling: shipped or dispatched
+      else if (["paid", "reserved", "packed"].includes(currentStatus) && ["shipped", "dispatched"].includes(newStatus)) {
         newReserved = Math.max(0, newReserved - item.quantity);
         newStock = Math.max(0, newStock - item.quantity);
       }
-      // pending -> shipped: Fast-track fulfill (deduct directly from stock)
-      else if (currentStatus === "pending" && newStatus === "shipped") {
+      // pending -> shipped/dispatched: Fast-track fulfill
+      else if (currentStatus === "pending" && ["shipped", "dispatched"].includes(newStatus)) {
         newStock = Math.max(0, newStock - item.quantity);
       }
-      // paid -> cancelled: Release reservation
-      else if (currentStatus === "paid" && newStatus === "cancelled") {
+      // cancelling from reserved states
+      else if (["paid", "reserved", "packed"].includes(currentStatus) && newStatus === "cancelled") {
         newReserved = Math.max(0, newReserved - item.quantity);
       }
-      // shipped -> cancelled: Restock items
-      else if (currentStatus === "shipped" && newStatus === "cancelled") {
+      // returning or cancelling after fulfillment
+      else if (["shipped", "dispatched", "delivered"].includes(currentStatus) && ["cancelled", "returned"].includes(newStatus)) {
         newStock += item.quantity;
       }
 

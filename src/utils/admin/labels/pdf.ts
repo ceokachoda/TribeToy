@@ -49,6 +49,15 @@ export async function generateLabel(
   if (!actorId) return { ok: false, error: "Unauthorized" };
 
   const adminSupabase = createAdminClient();
+  const { data: settings } = await adminSupabase.from("settings").select("*").eq("id", 1).single();
+  const senderInfo = settings || {
+    sender_name: "TribeToy",
+    sender_address: "123 Toy Street",
+    sender_city: "Mumbai",
+    sender_state: "Maharashtra",
+    sender_pincode: "400001",
+    sender_phone: "+91 99999 99999",
+  };
 
   // 1. load order
   const { data: order, error: orderErr } = await supabase
@@ -100,7 +109,8 @@ export async function generateLabel(
   const path = `${order.id}/${shipmentId}-v${version}.pdf`;
 
   // 3. QR + render PDF
-  const qrText = awb ? `${order.id} ${awb}` : order.id;
+  const orderDisplayId = order.order_no || order.id;
+  const qrText = awb ? `${orderDisplayId} ${awb}` : orderDisplayId;
   const qrDataUrl = await makeQrDataUrl(qrText);
 
   const labelItems: LabelItem[] = orderItems.map((it) => ({
@@ -127,12 +137,12 @@ export async function generateLabel(
 
   const labelElement = createElement(LabelDocument, {
     sender: {
-      name: "TribeToy",
-      address: "123 Toy Street",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pincode: "400001",
-      phone: "+91 99999 99999",
+      name: senderInfo.sender_name,
+      address: senderInfo.sender_address,
+      city: senderInfo.sender_city,
+      state: senderInfo.sender_state,
+      pincode: senderInfo.sender_pincode,
+      phone: senderInfo.sender_phone,
     },
     recipient: {
       name: shipName,
@@ -142,7 +152,7 @@ export async function generateLabel(
       pincode: shipPincode,
       phone: shipPhone,
     },
-    orderNo: `TT-${order.id.split("-")[0].toUpperCase()}`,
+    orderNo: order.order_no || `TT-${order.id.split("-")[0].toUpperCase()}`,
     courierLabel: COURIER_LABEL[courier],
     awb,
     items: labelItems,

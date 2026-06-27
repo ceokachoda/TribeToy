@@ -1,147 +1,169 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight, FiEye, FiShoppingCart, FiDownloadCloud, FiArrowLeft } from "react-icons/fi";
-import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import OrderStatusBadge from "@/components/admin/OrderStatusBadge";
 import { GenerateLabelAction } from "@/components/admin/GenerateLabelAction";
-import { type OrderStatus } from "@/utils/admin/orders";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; tab?: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const currentPage = parseInt(resolvedSearchParams.page || "1", 10);
-  const activeTab = resolvedSearchParams.tab || "all";
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
   const supabase = await createClient();
 
-  let query = supabase
+  // Fetch all orders
+  const { data: orders, count } = await supabase
     .from("orders")
-    .select(`
-      *,
-      users:user_id (email, full_name)
-    `, { count: "exact" })
-    .order("created_at", { ascending: false });
+    .select(`*, users:user_id (email, full_name)`, { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + itemsPerPage - 1);
 
-  if (activeTab === "cod") {
-    query = query.is("razorpay_order_id", null);
-  } else if (activeTab === "paid") {
-    query = query.not("razorpay_order_id", "is", null);
-  }
-
-  // Fetch orders with user details
-  const { data: orders, count, error } = await query.range(offset, offset + itemsPerPage - 1);
-
-  if (error) {
-    console.error("Error fetching orders:", error);
-  }
+  // Fetch packing exceptions (orders paid/reserved > 3 days ago)
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+  
+  const { data: exceptions } = await supabase
+    .from("orders")
+    .select(`*, users:user_id (email, full_name)`)
+    .in("status", ["paid", "reserved", "packed", "shipped"])
+    .lte("created_at", threeDaysAgo.toISOString())
+    .order("created_at", { ascending: true })
+    .limit(5);
 
   const totalPages = count ? Math.ceil(count / itemsPerPage) : 1;
 
+  const calculateAge = (dateString: string) => {
+    const diff = Date.now() - new Date(dateString).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
-            <FiArrowLeft size={20} />
-          </Link>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-              <FiShoppingCart className="text-emerald-500" /> Orders
-            </h1>
-            <p className="text-slate-500 mt-1 text-sm md:text-base">Manage customer orders and fulfillment.</p>
+    <div className="space-y-8 pb-12">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-2">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Orders</h1>
+        </div>
+        <div className="flex items-center gap-4 text-sm">
+          <span className="text-slate-500">Signed in as <strong className="text-slate-900">Admin</strong></span>
+          <span className="text-emerald-600 font-medium">Admin</span>
+        </div>
+      </div>
+
+      {/* Packing Exceptions */}
+      {exceptions && exceptions.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-5 border-b border-slate-50">
+            <h2 className="text-lg font-bold text-slate-900">Packing exceptions</h2>
+            <p className="text-sm text-slate-500">Orders waiting to dispatch for 3+ days.</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-[#FAF8F5] text-slate-500 text-xs uppercase tracking-wider font-semibold border-y border-slate-100">
+                <tr>
+                  <th className="px-6 py-4">Order</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Channel</th>
+                  <th className="px-6 py-4">Customer</th>
+                  <th className="px-6 py-4">Total</th>
+                  <th className="px-6 py-4 text-right">Age</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {exceptions.map((order) => (
+                  <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-900">
+                      {order.order_no || `TT-${order.id.split("-")[0].toUpperCase()}`}
+                    </td>
+                    <td className="px-6 py-4">
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
+                        {order.channel || "Website"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-slate-700">
+                      {order.users?.full_name || "Guest"}
+                    </td>
+                    <td className="px-6 py-4 text-slate-700">
+                      ₹{order.total_amount.toLocaleString("en-IN")}
+                    </td>
+                    <td className="px-6 py-4 text-right text-orange-600 font-bold">
+                      {calculateAge(order.created_at)}d
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-        
-        <Link 
-          href="/admin/orders/import" 
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-sm"
-        >
-          <FiDownloadCloud /> Import Amazon CSV
-        </Link>
-      </div>
+      )}
 
-      {/* Tabs */}
-      <div className="flex space-x-4 border-b border-slate-200">
-        <Link 
-          href="/admin/orders?tab=all"
-          className={`px-4 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'all' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          All Orders
-        </Link>
-        <Link 
-          href="/admin/orders?tab=paid"
-          className={`px-4 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'paid' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Prepaid Orders
-        </Link>
-        <Link 
-          href="/admin/orders?tab=cod"
-          className={`px-4 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'cod' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          COD Orders
-        </Link>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Main Orders Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-[#FAF8F5] text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-100">
               <tr>
-                <th className="px-6 py-4">Order ID</th>
+                <th className="px-6 py-4">Order #</th>
                 <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Channel</th>
                 <th className="px-6 py-4">Customer</th>
                 <th className="px-6 py-4">Total</th>
                 <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Payment</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
-              {orders?.map((order) => (
-                <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-mono text-xs text-slate-500">
-                    {`TT-${order.id.split("-")[0].toUpperCase()}`}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {new Date(order.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900">
-                      {order.users?.full_name || "Guest User"}
-                    </div>
-                    <div className="text-xs text-slate-500">{order.users?.email}</div>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-slate-900">
-                    <div className="flex flex-col gap-1.5 items-start">
-                      <span>₹{order.total_amount.toLocaleString("en-IN")}</span>
-                      {order.razorpay_order_id ? (
-                        <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full w-max">Prepaid</span>
-                      ) : (
-                        <span className="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full w-max">COD</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <OrderStatusSelect orderId={order.id} currentStatus={order.status} isCOD={!order.razorpay_order_id} />
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex flex-col items-end gap-2">
-                      <Link href={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-800 p-1 flex items-center gap-1 justify-end" title="View Details">
-                        <FiEye size={16} /> <span className="text-xs">View</span>
-                      </Link>
-                      <GenerateLabelAction orderId={order.id} currentStatus={order.status as OrderStatus} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-slate-50">
+              {orders?.map((order) => {
+                const isPaid = !!order.razorpay_order_id;
+                const orderNo = order.order_no || `TT-${order.id.split("-")[0].toUpperCase()}`;
+                
+                return (
+                  <tr key={order.id} className="hover:bg-slate-50 transition-colors group">
+                    <td className="px-6 py-5 font-bold text-slate-900">
+                      {orderNo}
+                    </td>
+                    <td className="px-6 py-5 text-slate-600">
+                      {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-green-50 text-green-700 border border-green-100">
+                        {order.channel || "Website"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-slate-700">
+                      {order.users?.full_name || "Guest"}
+                    </td>
+                    <td className="px-6 py-5 text-slate-700 font-medium">
+                      ₹{order.total_amount.toLocaleString("en-IN")}
+                    </td>
+                    <td className="px-6 py-5">
+                      <OrderStatusBadge status={order.status} orderId={order.id} interactive={true} />
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className={`text-[11px] font-bold px-2 py-1 rounded-full ${isPaid ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50"}`}>
+                        {isPaid ? "Paid" : "Unpaid"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                       <GenerateLabelAction orderId={order.id} currentStatus={order.status} />
+                    </td>
+                  </tr>
+                );
+              })}
               {(!orders || orders.length === 0) && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
                     No orders found.
                   </td>
                 </tr>
@@ -152,27 +174,27 @@ export default async function AdminOrdersPage({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="border-t border-slate-200 px-6 py-4 flex items-center justify-between">
-            <span className="text-sm text-slate-500">
-              Showing {Math.min(offset + 1, count || 0)} to {Math.min(offset + itemsPerPage, count || 0)} of {count} entries
+          <div className="border-t border-slate-50 px-6 py-4 flex items-center justify-between bg-[#FAF8F5]">
+            <span className="text-sm text-slate-500 font-medium">
+              Showing {offset + 1} to {Math.min(offset + itemsPerPage, count || 0)} of {count}
             </span>
             <div className="flex items-center gap-2">
               <Link
-                href={`/admin/orders?page=${Math.max(1, currentPage - 1)}&tab=${activeTab}`}
-                className={`p-2 rounded border ${
+                href={`/admin/orders?page=${Math.max(1, currentPage - 1)}`}
+                className={`p-2 rounded-lg bg-white border shadow-sm ${
                   currentPage === 1
-                    ? "border-slate-200 text-slate-300 pointer-events-none"
-                    : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                    ? "border-slate-100 text-slate-300 pointer-events-none"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <FiChevronLeft />
               </Link>
               <Link
-                href={`/admin/orders?page=${Math.min(totalPages, currentPage + 1)}&tab=${activeTab}`}
-                className={`p-2 rounded border ${
+                href={`/admin/orders?page=${Math.min(totalPages, currentPage + 1)}`}
+                className={`p-2 rounded-lg bg-white border shadow-sm ${
                   currentPage === totalPages
-                    ? "border-slate-200 text-slate-300 pointer-events-none"
-                    : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                    ? "border-slate-100 text-slate-300 pointer-events-none"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <FiChevronRight />
