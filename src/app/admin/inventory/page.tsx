@@ -75,7 +75,7 @@ export default async function InventoryPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {products?.map(product => {
-                const totalStock = product.stock_quantity || product.stock || 0;
+                const totalStock = product.stock_quantity || (product as any).stock || 0;
                 const reserved = product.reserved || 0;
                 const available = Math.max(0, totalStock - reserved);
                 const incoming = product.incoming || 0;
