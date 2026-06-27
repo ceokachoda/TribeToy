@@ -54,7 +54,7 @@ export async function POST(req: Request) {
           })
           .eq("id", order.id);
         
-        console.log(`Order ${order.id} marked as paid via Razorpay webhook`);
+        console.error(`Order ${order.id} marked as paid via Razorpay webhook`);
       }
     }
 

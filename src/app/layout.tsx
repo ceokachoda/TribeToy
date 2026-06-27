@@ -11,13 +11,41 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "TribeToy | Innovation in Every Layer",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tribetoy.com'),
+  title: {
+    default: "TribeToy | Innovation in Every Layer",
+    template: "%s | TribeToy"
+  },
   description: "India's most visually impressive 3D Printing company, bringing stories to life through sustainable, eco-friendly 3D printed toys and figures.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "TribeToy",
+  },
+  openGraph: {
+    title: "TribeToy | Innovation in Every Layer",
+    description: "India's most visually impressive 3D Printing company, bringing stories to life through sustainable, eco-friendly 3D printed toys and figures.",
+    url: "https://tribetoy.com",
+    siteName: "TribeToy",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TribeToy | Innovation in Every Layer",
+    description: "India's most visually impressive 3D Printing company, bringing stories to life through sustainable, eco-friendly 3D printed toys and figures.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 

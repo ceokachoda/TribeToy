@@ -109,7 +109,7 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessClient() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex flex-col gap-4 items-center justify-center"><div className="w-8 h-8 border-4 border-[#79987A] border-t-transparent rounded-full animate-spin"></div><div className="text-[#4A5D4E] font-medium font-outfit tracking-wide">Loading...</div></div>}>
       <OrderSuccessContent />
     </Suspense>
   );
