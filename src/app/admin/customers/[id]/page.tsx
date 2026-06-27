@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createAdminClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FiArrowLeft, FiUser, FiMail, FiMapPin, FiCalendar } from "react-icons/fi";
@@ -11,7 +11,7 @@ export default async function CustomerDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = await params;
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { data: customer, error } = await supabase
     .from("users")

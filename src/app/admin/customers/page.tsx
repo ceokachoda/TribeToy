@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight, FiSearch, FiUser } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiSearch, FiUser, FiArrowLeft } from "react-icons/fi";
 import { RevealField } from "@/components/admin/RevealField";
 import { maskEmail } from "@/utils/admin/mask";
 
@@ -40,9 +40,14 @@ export default async function AdminCustomersPage({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Customers</h1>
-          <p className="text-slate-500 mt-1">Manage your customer accounts and view their details safely.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+            <FiArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Customers</h1>
+            <p className="text-slate-500 mt-1">Manage your customer accounts and view their details safely.</p>
+          </div>
         </div>
       </div>
 

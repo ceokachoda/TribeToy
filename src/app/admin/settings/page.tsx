@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { FiSettings, FiImage, FiUploadCloud, FiCheck, FiLoader, FiX } from "react-icons/fi";
+import { FiSettings, FiImage, FiUploadCloud, FiCheck, FiLoader, FiX, FiArrowLeft } from "react-icons/fi";
 import { useToast } from "@/context/ToastContext";
 import Image from "next/image";
+import Link from "next/link";
 import { saveSettings } from "./actions";
 
 export default function SettingsPage() {
@@ -93,11 +94,16 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 w-full max-w-4xl">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-          <FiSettings className="text-emerald-500" /> Site Settings
-        </h1>
-        <p className="text-slate-500 mt-1 text-sm md:text-base">Manage global website settings and graphics.</p>
+      <div className="flex items-center gap-4">
+        <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+          <FiArrowLeft size={20} />
+        </Link>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+            <FiSettings className="text-emerald-500" /> Site Settings
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm md:text-base">Manage global website settings and graphics.</p>
+        </div>
       </div>
 
       <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">

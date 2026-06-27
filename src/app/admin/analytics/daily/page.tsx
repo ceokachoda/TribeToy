@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { FiTrendingUp, FiCalendar, FiDollarSign, FiShoppingBag } from "react-icons/fi";
+import { FiTrendingUp, FiCalendar, FiDollarSign, FiShoppingBag, FiArrowLeft } from "react-icons/fi";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -44,11 +44,16 @@ export default async function DailyAnalyticsPage() {
   return (
     <div className="space-y-6 w-full max-w-5xl">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-            <FiTrendingUp className="text-emerald-500" /> Day-Wise Sales
-          </h1>
-          <p className="text-slate-500 mt-1 text-sm md:text-base">Detailed daily breakdown of revenue and volume.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+            <FiArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+              <FiTrendingUp className="text-emerald-500" /> Day-Wise Sales
+            </h1>
+            <p className="text-slate-500 mt-1 text-sm md:text-base">Detailed daily breakdown of revenue and volume.</p>
+          </div>
         </div>
         <Link 
           href="/admin"

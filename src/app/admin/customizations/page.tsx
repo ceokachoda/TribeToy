@@ -1,6 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import CustomizationStatusSelect from "@/components/admin/CustomizationStatusSelect";
 import Image from "next/image";
+import Link from "next/link";
+import { FiArrowLeft } from "react-icons/fi";
 
 export const dynamic = "force-dynamic";
 
@@ -31,9 +33,14 @@ export default async function AdminCustomizationsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Customizations</h1>
-        <p className="text-slate-500 mt-1">Manage 3D toy customization requests.</p>
+      <div className="flex items-center gap-4">
+        <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+          <FiArrowLeft size={20} />
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Customizations</h1>
+          <p className="text-slate-500 mt-1">Manage 3D toy customization requests.</p>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

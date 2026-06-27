@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { FiBox, FiTrendingDown, FiPlusCircle, FiAlertTriangle, FiPlus } from "react-icons/fi";
+import { FiBox, FiTrendingDown, FiPlusCircle, FiAlertTriangle, FiPlus, FiArrowLeft } from "react-icons/fi";
 import Link from "next/link";
 import RawMaterialClient from "@/components/admin/inventory/RawMaterialClient";
 
@@ -24,11 +24,16 @@ export default async function InventoryPage() {
 
   return (
     <div className="space-y-8 w-full max-w-6xl">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-          <FiBox className="text-emerald-500" /> Inventory & Raw Materials
-        </h1>
-        <p className="text-slate-500 mt-1 text-sm md:text-base">Manage product stock and track 3D printing filament usage.</p>
+      <div className="flex items-center gap-4">
+        <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+          <FiArrowLeft size={20} />
+        </Link>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+            <FiBox className="text-emerald-500" /> Inventory & Raw Materials
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm md:text-base">Manage product stock and track 3D printing filament usage.</p>
+        </div>
       </div>
 
       {/* Raw Materials Section */}

@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight, FiEye, FiShoppingCart, FiDownloadCloud } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiEye, FiShoppingCart, FiDownloadCloud, FiArrowLeft } from "react-icons/fi";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 import { GenerateLabelAction } from "@/components/admin/GenerateLabelAction";
 import { type OrderStatus } from "@/utils/admin/orders";
@@ -38,11 +38,16 @@ export default async function AdminOrdersPage({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-            <FiShoppingCart className="text-emerald-500" /> Orders
-          </h1>
-          <p className="text-slate-500 mt-1 text-sm md:text-base">Manage customer orders and fulfillment.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+            <FiArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+              <FiShoppingCart className="text-emerald-500" /> Orders
+            </h1>
+            <p className="text-slate-500 mt-1 text-sm md:text-base">Manage customer orders and fulfillment.</p>
+          </div>
         </div>
         
         <Link 

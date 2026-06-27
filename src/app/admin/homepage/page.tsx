@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Product } from "@/data/products";
-import { FiSave, FiLoader, FiCheck, FiLayout } from "react-icons/fi";
+import { FiSave, FiLoader, FiCheck, FiLayout, FiArrowLeft } from "react-icons/fi";
 import { useToast } from "@/context/ToastContext";
 import Image from "next/image";
+import Link from "next/link";
+import { saveSettings } from "../settings/actions";
 
 type StorefrontConfig = {
   carousel: string[];
@@ -70,22 +72,15 @@ export default function HomepageSettings() {
 
   const handleSave = async () => {
     setSaving(true);
-    const supabase = createClient();
-
     try {
-      const { error } = await supabase
-        .from("site_settings")
-        .upsert({
-          key: "storefront_config",
-          value: config,
-          updated_at: new Date().toISOString()
-        }, { onConflict: "key" });
-
-      if (error) throw error;
+      const response = await saveSettings("storefront_config", config);
+      if (response?.error) {
+        throw new Error(response.error);
+      }
       showToast("Homepage layout updated successfully!", "success");
     } catch (error: any) {
       console.error("Save error:", error);
-      showToast("Error saving layout", "error");
+      showToast(error.message || "Error saving layout", "error");
     } finally {
       setSaving(false);
     }
@@ -116,12 +111,17 @@ export default function HomepageSettings() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <FiLayout className="text-emerald-500" />
-            Homepage Storefront
-          </h1>
-          <p className="text-slate-500 mt-1">Configure which products appear on your homepage hero sections.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+            <FiArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              <FiLayout className="text-emerald-500" />
+              Homepage Storefront
+            </h1>
+            <p className="text-slate-500 mt-1">Configure which products appear on your homepage hero sections.</p>
+          </div>
         </div>
         <button
           onClick={handleSave}

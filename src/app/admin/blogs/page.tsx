@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiImage } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiImage, FiArrowLeft } from "react-icons/fi";
 import Image from "next/image";
 
 export const dynamic = "force-dynamic";
@@ -32,9 +32,14 @@ export default async function AdminBlogsPage({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Blogs & Articles</h1>
-          <p className="text-slate-500 mt-1">Manage your content marketing and news updates.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+            <FiArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Blogs & Articles</h1>
+            <p className="text-slate-500 mt-1">Manage your content marketing and news updates.</p>
+          </div>
         </div>
         <Link
           href="/admin/blogs/new"

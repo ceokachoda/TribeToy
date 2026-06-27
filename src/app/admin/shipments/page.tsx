@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight, FiPackage } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiPackage, FiArrowLeft } from "react-icons/fi";
 import { LabelDownloadButton } from "@/components/admin/LabelDownloadButton";
 import { COURIER_LABEL, type CourierType } from "@/utils/admin/labels/courier";
 
@@ -32,9 +32,14 @@ export default async function AdminShipmentsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Shipments</h1>
-        <p className="text-slate-500 mt-1">Manage generated shipping labels and dispatch history.</p>
+      <div className="flex items-center gap-4">
+        <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+          <FiArrowLeft size={20} />
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Shipments</h1>
+          <p className="text-slate-500 mt-1">Manage generated shipping labels and dispatch history.</p>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

@@ -5,7 +5,9 @@ import { revalidatePath } from "next/cache";
 
 export async function addRawMaterial(data: { name: string; color: string; initial_stock: number }) {
   const supabase = await createClient();
-  const { data: profile } = await supabase.from("profiles").select("role").single();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
   
   if (profile?.role !== "admin") return { success: false, error: "Unauthorized" };
 
@@ -23,7 +25,9 @@ export async function addRawMaterial(data: { name: string; color: string; initia
 
 export async function logMaterialUsage(data: { raw_material_id: string; grams_used: number; date_used: string; notes?: string }) {
   const supabase = await createClient();
-  const { data: profile } = await supabase.from("profiles").select("role").single();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
   
   if (profile?.role !== "admin") return { success: false, error: "Unauthorized" };
 
@@ -54,7 +58,9 @@ export async function logMaterialUsage(data: { raw_material_id: string; grams_us
 
 export async function addMaterialStock(data: { raw_material_id: string; grams_added: number }) {
   const supabase = await createClient();
-  const { data: profile } = await supabase.from("profiles").select("role").single();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
   
   if (profile?.role !== "admin") return { success: false, error: "Unauthorized" };
 
