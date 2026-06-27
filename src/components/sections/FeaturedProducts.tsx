@@ -47,13 +47,14 @@ export default function FeaturedProducts({ products, title }: { products: Produc
   };
 
   const renderCard = (product: typeof featuredProducts[0], index: number) => {
-    const baseClasses = "group relative rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-foreground/10 transition-all duration-700 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] flex flex-col hover:border-primary/50 group-hover:-translate-y-2 transform-gpu cursor-pointer";
+    const baseClasses = "group relative rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-foreground/10 transition-colors transition-shadow duration-500 overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(121,152,122,0.25)] flex flex-col hover:border-primary/50 cursor-pointer";
 
     return (
       <motion.div
         key={product.id}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -8 }}
         viewport={{ once: true }}
         transition={{ delay: index * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={baseClasses}
