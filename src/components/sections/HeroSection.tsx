@@ -22,18 +22,22 @@ export default function HeroSection({ products, config }: { products: Product[],
 
   const configuredCarouselIds = config?.carousel?.filter((id: string) => id) || [];
   
+  const customSlides = config?.custom_slides?.filter((s: any) => s.image) || [];
+
   const carouselProducts = configuredCarouselIds.length > 0 
     ? configuredCarouselIds.map((id: string) => products.find(p => String(p.id) === String(id))).filter(Boolean) as Product[]
     : products.filter(p => p.is_hero && p.image);
 
-  const slides = carouselProducts.length > 0 
-    ? carouselProducts.map(p => ({
-        url: `/product/${p.id}`,
-        image: p.image,
-        subtitle: p.category,
-        title: p.name
-      }))
-    : [
+  const slides = customSlides.length > 0 
+    ? customSlides 
+    : (carouselProducts.length > 0 
+        ? carouselProducts.map(p => ({
+            url: `/product/${p.id}`,
+            image: p.image,
+            subtitle: p.category,
+            title: p.name
+          }))
+        : [
         {
           url: "/shop?category=Cultural",
           image: products.find(p => p.category === 'Cultural' && p.image)?.image,
@@ -52,7 +56,7 @@ export default function HeroSection({ products, config }: { products: Product[],
           subtitle: "Premium Figurines",
           title: "New Arrivals"
         }
-      ];
+      ]);
 
   const safeSlideCount = Math.max(1, slides.length);
 
@@ -386,7 +390,7 @@ export default function HeroSection({ products, config }: { products: Product[],
                       className="object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
                       priority
                     />
-                  ) : (
+                  ) : config?.video_url ? (
                     <video 
                       autoPlay 
                       loop 
@@ -394,9 +398,60 @@ export default function HeroSection({ products, config }: { products: Product[],
                       playsInline
                       className="w-full h-full object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
                     >
-                      <source src={config?.video_url || "/3D_printer_printing_glowing_heart.mp4"} type="video/mp4" />
+                      <source src={config.video_url} type="video/mp4" />
                     </video>
+                  ) : (
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentSlide}
+                        initial={{ opacity: 0, scale: 1.05 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="absolute inset-0"
+                      >
+                        <Link 
+                          href={slides[currentSlide % safeSlideCount]?.url || "#"} 
+                          className="absolute inset-0 block"
+                        >
+                          {slides[currentSlide % safeSlideCount]?.image && (
+                              <Image 
+                                src={slides[currentSlide % safeSlideCount].image!} 
+                                alt={slides[currentSlide % safeSlideCount].title || "Slide"} 
+                                fill 
+                                className="object-cover brightness-95 scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]" 
+                                sizes="(max-width: 1024px) 100vw, 50vw" 
+                                priority
+                                fetchPriority="high"
+                              />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          <div className="absolute bottom-6 left-6 right-6 flex flex-col">
+                            {slides[currentSlide % safeSlideCount]?.subtitle && (
+                              <span className="text-xs text-primary font-black uppercase tracking-widest mb-1.5 drop-shadow-md">
+                                {slides[currentSlide % safeSlideCount]?.subtitle}
+                              </span>
+                            )}
+                            <h3 className="text-3xl font-black text-white leading-tight drop-shadow-md">
+                              {slides[currentSlide % safeSlideCount]?.title}
+                            </h3>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    </AnimatePresence>
                   )
+                )}
+                
+                {/* Pagination Dots for Desktop Carousel */}
+                {isMounted && !isMobile && !config?.hero_image && !config?.video_url && (
+                  <div className="absolute bottom-6 right-6 flex gap-2 z-10">
+                    {slides.map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`h-2 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-6 bg-primary' : 'w-2 bg-white/40 backdrop-blur-md'}`} 
+                      />
+                    ))}
+                  </div>
                 )}
                 
                 {/* Subtle inner shadow for depth */}

@@ -98,8 +98,36 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                   <input type="file" accept="image/*" onChange={e => handleUpload(e, "new_arrivals_img")} className="w-full text-sm" />
                 </div>
               </div>
+              <div className="space-y-4 pt-4 border-t border-slate-100 mt-4">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-bold text-slate-700">Custom Hero Carousel Slides</label>
+                  <button onClick={() => setData({...data, custom_slides: [...(data.custom_slides || []), { image: "", title: "", subtitle: "", url: "" }]})} className="text-emerald-600 text-sm font-bold flex items-center gap-1"><FiPlus /> Add Slide</button>
+                </div>
+                <p className="text-xs text-slate-500">If you add custom slides, they will override the 'Carousel Products' selection below.</p>
+                {(data.custom_slides || []).map((slide: any, i: number) => (
+                  <div key={i} className="p-4 border rounded-xl space-y-2 relative bg-slate-50">
+                    <button onClick={() => setData({...data, custom_slides: data.custom_slides.filter((_: any, idx: number) => idx !== i)})} className="absolute top-2 right-2 text-red-500 z-10"><FiTrash2 /></button>
+                    <div className="pt-2">
+                      <label className="text-xs font-bold text-slate-500 block mb-1">Slide Image</label>
+                      {slide.image && <div className="w-full h-32 relative rounded-md overflow-hidden mb-2 border"><Image src={slide.image} alt="Slide" fill className="object-cover" /></div>}
+                      <input type="file" accept="image/*" onChange={e => handleArrayUpload(e, "custom_slides", i, "image")} className="w-full text-xs" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <input type="text" placeholder="Title (e.g. Heart Lamp)" value={slide.title} onChange={e => {
+                        const arr = [...data.custom_slides]; arr[i].title = e.target.value; setData({...data, custom_slides: arr});
+                      }} className="w-full p-2 border rounded-md text-sm font-bold" />
+                      <input type="text" placeholder="Subtitle (e.g. CUSTOM 3D PRINTS)" value={slide.subtitle} onChange={e => {
+                        const arr = [...data.custom_slides]; arr[i].subtitle = e.target.value; setData({...data, custom_slides: arr});
+                      }} className="w-full p-2 border rounded-md text-sm text-slate-600" />
+                    </div>
+                    <input type="text" placeholder="Link URL (e.g. /product/123)" value={slide.url} onChange={e => {
+                      const arr = [...data.custom_slides]; arr[i].url = e.target.value; setData({...data, custom_slides: arr});
+                    }} className="w-full p-2 border rounded-md text-sm" />
+                  </div>
+                ))}
+              </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Carousel Products (Top 3)</label>
+                <label className="text-sm font-bold text-slate-700">Or Select Carousel Products (Top 3)</label>
                 {[0, 1, 2].map(i => (
                   <select key={i} value={data.carousel?.[i] || ""} onChange={e => {
                     const c = [...(data.carousel || ["", "", ""])];
@@ -121,6 +149,35 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                 {data.marquee_image && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.marquee_image} alt="Marquee Banner" fill className="object-cover" /></div>}
                 <input type="file" accept="image/*" onChange={e => handleUpload(e, "marquee_image")} className="w-full text-sm" />
               </div>
+              
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-bold text-slate-700">Custom Marquee Item Images</label>
+                  <button onClick={() => setData({...data, custom_marquee: [...(data.custom_marquee || []), { image: "", title: "", subtitle: "", url: "" }]})} className="text-emerald-600 text-sm font-bold flex items-center gap-1"><FiPlus /> Add Item</button>
+                </div>
+                <p className="text-xs text-slate-500">If you add custom marquee items, they will override the 'Selected Products' below.</p>
+                {(data.custom_marquee || []).map((slide: any, i: number) => (
+                  <div key={i} className="p-4 border rounded-xl space-y-2 relative bg-slate-50">
+                    <button onClick={() => setData({...data, custom_marquee: data.custom_marquee.filter((_: any, idx: number) => idx !== i)})} className="absolute top-2 right-2 text-red-500 z-10"><FiTrash2 /></button>
+                    <div className="pt-2">
+                      {slide.image && <div className="w-24 h-32 relative rounded-md overflow-hidden mb-2 border"><Image src={slide.image} alt="Slide" fill className="object-cover" /></div>}
+                      <input type="file" accept="image/*" onChange={e => handleArrayUpload(e, "custom_marquee", i, "image")} className="w-full text-xs" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <input type="text" placeholder="Title" value={slide.title} onChange={e => {
+                        const arr = [...data.custom_marquee]; arr[i].title = e.target.value; setData({...data, custom_marquee: arr});
+                      }} className="w-full p-2 border rounded-md text-sm font-bold" />
+                      <input type="text" placeholder="Subtitle" value={slide.subtitle} onChange={e => {
+                        const arr = [...data.custom_marquee]; arr[i].subtitle = e.target.value; setData({...data, custom_marquee: arr});
+                      }} className="w-full p-2 border rounded-md text-sm text-slate-600" />
+                    </div>
+                    <input type="text" placeholder="Link URL" value={slide.url} onChange={e => {
+                      const arr = [...data.custom_marquee]; arr[i].url = e.target.value; setData({...data, custom_marquee: arr});
+                    }} className="w-full p-2 border rounded-md text-sm" />
+                  </div>
+                ))}
+              </div>
+
               <label className="text-sm font-bold text-slate-700">Or Selected Products (Auto-Scrolling)</label>
               <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                 {products.map(p => {
