@@ -131,9 +131,9 @@ export default async function AdminOrdersPage({
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex flex-col items-end gap-2">
-                      <button className="text-blue-600 hover:text-blue-800 p-1 flex items-center gap-1 justify-end" title="View Details">
+                      <Link href={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-800 p-1 flex items-center gap-1 justify-end" title="View Details">
                         <FiEye size={16} /> <span className="text-xs">View</span>
-                      </button>
+                      </Link>
                       <GenerateLabelAction orderId={order.id} currentStatus={order.status as OrderStatus} />
                     </div>
                   </td>
