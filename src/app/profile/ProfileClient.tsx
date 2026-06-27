@@ -37,9 +37,17 @@ function ProfileContent() {
 
   // Profile Form State
   const [fullName, setFullName] = useState("");
+  const [addressData, setAddressData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    streetAddress: "",
+    pincode: "",
+    city: "",
+    state: ""
+  });
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -72,8 +80,12 @@ function ProfileContent() {
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
-      await supabase.from("users").update({ address }).eq("id", session.user.id);
-      showToast("Address updated successfully!", "success");
+      try {
+        await supabase.from("users").update({ address: JSON.stringify(addressData) }).eq("id", session.user.id);
+        showToast("Address updated successfully!", "success");
+      } catch (error) {
+        console.error("Error saving address:", error);
+      }
     }
     setIsSavingAddress(false);
   };
@@ -192,7 +204,24 @@ function ProfileContent() {
           setIsAdmin(true);
         }
         if (userData?.address) {
-          setAddress(userData.address);
+          try {
+            const parsed = JSON.parse(userData.address);
+            if (parsed && typeof parsed === 'object') {
+              setAddressData({
+                firstName: parsed.firstName || "",
+                lastName: parsed.lastName || "",
+                phone: parsed.phone || "",
+                streetAddress: parsed.streetAddress || parsed.address || "",
+                pincode: parsed.pincode || "",
+                city: parsed.city || "",
+                state: parsed.state || ""
+              });
+            } else {
+              setAddressData(prev => ({ ...prev, streetAddress: userData.address }));
+            }
+          } catch (e) {
+            setAddressData(prev => ({ ...prev, streetAddress: userData.address }));
+          }
         }
         
         // Fetch real orders from database
@@ -239,8 +268,8 @@ function ProfileContent() {
     const savedWishlist = localStorage.getItem("tribetoy_wishlist");
     if (savedWishlist) {
       try {
-        const wishlistIds = JSON.parse(savedWishlist) as number[];
-        const items = products.filter(p => wishlistIds.includes(p.id));
+        const wishlistIds = JSON.parse(savedWishlist) as string[];
+        const items = products.filter(p => wishlistIds.includes(String(p.id)));
         setWishlistItems(items);
       } catch (e) {}
     }
@@ -494,24 +523,90 @@ function ProfileContent() {
 
           {activeTab === "addresses" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
-              <h2 className="text-2xl font-bold text-[#1a1a1a] mb-4">Saved Address</h2>
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Shipping Address</label>
-                <textarea 
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  rows={4}
-                  placeholder="Enter your full shipping address here..."
-                  className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all resize-none" 
-                />
+              <h2 className="text-2xl font-bold text-[#1a1a1a] mb-6">Saved Address</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
+                  <input 
+                    type="text" 
+                    value={addressData.firstName}
+                    onChange={(e) => setAddressData({...addressData, firstName: e.target.value})}
+                    placeholder="First Name"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Last Name</label>
+                  <input 
+                    type="text" 
+                    value={addressData.lastName}
+                    onChange={(e) => setAddressData({...addressData, lastName: e.target.value})}
+                    placeholder="Last Name"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Phone Number</label>
+                  <input 
+                    type="tel" 
+                    value={addressData.phone}
+                    onChange={(e) => setAddressData({...addressData, phone: e.target.value})}
+                    placeholder="10-digit mobile number"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Pincode</label>
+                  <input 
+                    type="text" 
+                    value={addressData.pincode}
+                    onChange={(e) => setAddressData({...addressData, pincode: e.target.value})}
+                    placeholder="6-digit pincode"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2 md:col-span-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Street Address</label>
+                  <textarea 
+                    value={addressData.streetAddress}
+                    onChange={(e) => setAddressData({...addressData, streetAddress: e.target.value})}
+                    rows={2}
+                    placeholder="House No, Building, Street, Area"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all resize-none" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">City</label>
+                  <input 
+                    type="text" 
+                    value={addressData.city}
+                    onChange={(e) => setAddressData({...addressData, city: e.target.value})}
+                    placeholder="City"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">State</label>
+                  <input 
+                    type="text" 
+                    value={addressData.state}
+                    onChange={(e) => setAddressData({...addressData, state: e.target.value})}
+                    placeholder="State"
+                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                  />
+                </div>
               </div>
-              <button 
-                onClick={handleSaveAddress}
-                disabled={isSavingAddress}
-                className="mt-6 px-8 py-4 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors flex items-center justify-center min-w-[200px] disabled:opacity-80 disabled:cursor-not-allowed"
-              >
-                {isSavingAddress ? <Loader2 size={18} className="animate-spin" /> : "Save Address"}
-              </button>
+
+              <div className="mt-8 flex justify-end">
+                <button 
+                  onClick={handleSaveAddress}
+                  disabled={isSavingAddress}
+                  className="px-8 py-4 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors flex items-center justify-center min-w-[200px] disabled:opacity-80 disabled:cursor-not-allowed"
+                >
+                  {isSavingAddress ? <Loader2 size={18} className="animate-spin" /> : "Save Address"}
+                </button>
+              </div>
             </motion.div>
           )}
 

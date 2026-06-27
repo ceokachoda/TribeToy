@@ -22,16 +22,43 @@ export default function CheckoutClient() {
   const [stateName, setStateName] = useState("");
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [phone, setPhone] = useState("");
+  const [savedAddressData, setSavedAddressData] = useState<any>(null);
 
   useEffect(() => {
-    const fetchUserPhone = async () => {
+    const fetchUserData = async () => {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.user_metadata?.phone) {
-        setPhone(session.user.user_metadata.phone);
+      
+      if (session?.user) {
+        if (session.user.user_metadata?.phone) {
+          setPhone(session.user.user_metadata.phone);
+        }
+        
+        const { data: userData } = await supabase
+          .from("users")
+          .select("phone, address")
+          .eq("id", session.user.id)
+          .single();
+          
+        if (userData?.phone && !session.user.user_metadata?.phone) {
+          setPhone(userData.phone);
+        }
+        
+        if (userData?.address) {
+          try {
+            const parsed = JSON.parse(userData.address);
+            if (parsed && typeof parsed === 'object') {
+              setSavedAddressData(parsed);
+              if (parsed.pincode) setPincode(parsed.pincode);
+              if (parsed.phone) setPhone(parsed.phone);
+            }
+          } catch (e) {
+            setSavedAddressData({ streetAddress: userData.address });
+          }
+        }
       }
     };
-    fetchUserPhone();
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -223,11 +250,11 @@ export default function CheckoutClient() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
-                    <input name="firstName" required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
+                    <input name="firstName" required type="text" defaultValue={savedAddressData?.firstName || ""} className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Last Name</label>
-                    <input name="lastName" required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
+                    <input name="lastName" required type="text" defaultValue={savedAddressData?.lastName || ""} className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
                   </div>
                   <div className="flex flex-col gap-2 lg:col-span-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Phone Number</label>
@@ -243,7 +270,7 @@ export default function CheckoutClient() {
                   </div>
                   <div className="flex flex-col gap-2 lg:col-span-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Address</label>
-                    <input name="address" required type="text" className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
+                    <input name="address" required type="text" defaultValue={savedAddressData?.streetAddress || savedAddressData?.address || ""} className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Postal Code</label>
