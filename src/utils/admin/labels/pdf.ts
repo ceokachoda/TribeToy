@@ -139,7 +139,7 @@ export async function generateLabel(
       pincode: shipPincode,
       phone: shipPhone,
     },
-    orderNo: order.id.split("-")[0],
+    orderNo: `TT-${order.id.split("-")[0].toUpperCase()}`,
     courierLabel: COURIER_LABEL[courier],
     awb,
     items: labelItems,

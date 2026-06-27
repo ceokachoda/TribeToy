@@ -105,7 +105,7 @@ export default async function AdminOrdersPage({
               {orders?.map((order) => (
                 <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-slate-500">
-                    {order.id.split("-")[0]}...
+                    {`TT-${order.id.split("-")[0].toUpperCase()}`}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {new Date(order.created_at).toLocaleDateString()}

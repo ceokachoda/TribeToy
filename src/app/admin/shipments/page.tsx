@@ -64,7 +64,7 @@ export default async function AdminShipmentsPage({
                       className="font-mono text-xs font-semibold text-emerald-600 hover:underline flex items-center gap-2"
                     >
                       <FiPackage className="text-emerald-500" />
-                      {s.orders?.id?.split("-")[0] ?? "—"}
+                      {s.orders?.id ? `TT-${s.orders.id.split("-")[0].toUpperCase()}` : "—"}
                     </Link>
                   </td>
                   <td className="px-6 py-4">

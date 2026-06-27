@@ -75,7 +75,7 @@ function OrderSuccessContent() {
             </div>
             <div className="text-left">
               <p className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase">Order ID</p>
-              <p className="font-bold font-mono text-lg line-clamp-1 break-all max-w-[200px] sm:max-w-none">{orderId || "Pending"}</p>
+              <p className="font-bold font-mono text-lg line-clamp-1 break-all max-w-[200px] sm:max-w-none">{orderId ? `TT-${orderId.split("-")[0].toUpperCase()}` : "Pending"}</p>
             </div>
           </div>
           {orderDetails && (

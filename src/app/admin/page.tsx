@@ -166,7 +166,7 @@ async function DashboardData() {
                       <tr key={order.id} className="hover:bg-amber-50/30">
                         <td className="px-4 py-2 font-mono text-xs">
                           <Link href="/admin/orders" className="hover:underline text-slate-900 font-semibold">
-                            {order.id.split("-")[0]}
+                            {`TT-${order.id.split("-")[0].toUpperCase()}`}
                           </Link>
                         </td>
                         <td className="px-4 py-2 truncate max-w-[100px]" title={(order.users as any)?.full_name || ""}>

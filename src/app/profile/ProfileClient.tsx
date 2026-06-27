@@ -474,7 +474,7 @@ function ProfileContent() {
                           )}
                         </div>
                         <div>
-                          <p className="font-bold text-[#1a1a1a]">Order #{order.id}</p>
+                          <p className="font-bold text-[#1a1a1a]">Order #{`TT-${order.id.split("-")[0].toUpperCase()}`}</p>
                           <p className="text-sm text-[#5a6b5e]">{order.items.length} items • ₹{order.total.toFixed(2)}</p>
                         </div>
                       </div>
@@ -660,7 +660,7 @@ function ProfileContent() {
                       <div className="flex justify-between items-end mb-8 border-b border-[rgba(0,0,0,0.1)] pb-4">
                         <div>
                           <h1 className="text-3xl font-black text-[#1a1a1a]">TribeToy Invoice</h1>
-                          <p className="text-sm text-[#8a958c] mt-1">Order #{selectedOrder?.id}</p>
+                          <p className="text-sm text-[#8a958c] mt-1">Order #{selectedOrder ? `TT-${selectedOrder.id.split("-")[0].toUpperCase()}` : ""}</p>
                         </div>
                         <div className="text-right text-sm text-[#5a6b5e]">
                           <p>{selectedOrder?.date}</p>
