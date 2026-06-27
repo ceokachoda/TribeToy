@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { FiArrowLeft, FiPackage, FiTruck, FiCreditCard, FiUser, FiMapPin } from "react-icons/fi";
-import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import OrderStatusBadge from "@/components/admin/OrderStatusBadge";
 import { GenerateLabelAction } from "@/components/admin/GenerateLabelAction";
 import { type OrderStatus } from "@/utils/admin/orders";
 
@@ -100,7 +100,7 @@ export default async function OrderDetailsPage({
             <div className="space-y-4">
               <div>
                 <label className="text-xs text-slate-500 font-semibold mb-2 block">Status</label>
-                <OrderStatusSelect orderId={order.id} currentStatus={order.status} isCOD={isCOD} />
+                <OrderStatusBadge orderId={order.id} status={order.status} interactive={true} />
               </div>
               <div className="pt-2">
                 <label className="text-xs text-slate-500 font-semibold mb-2 block">Shipping Label</label>
