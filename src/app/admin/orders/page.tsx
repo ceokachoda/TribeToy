@@ -10,24 +10,32 @@ export const dynamic = "force-dynamic";
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; tab?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const currentPage = parseInt(resolvedSearchParams.page || "1", 10);
+  const activeTab = resolvedSearchParams.tab || "all";
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
   const supabase = await createClient();
 
-  // Fetch orders with user details
-  const { data: orders, count, error } = await supabase
+  let query = supabase
     .from("orders")
     .select(`
       *,
       users:user_id (email, full_name)
     `, { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(offset, offset + itemsPerPage - 1);
+    .order("created_at", { ascending: false });
+
+  if (activeTab === "cod") {
+    query = query.is("razorpay_order_id", null);
+  } else if (activeTab === "paid") {
+    query = query.not("razorpay_order_id", "is", null);
+  }
+
+  // Fetch orders with user details
+  const { data: orders, count, error } = await query.range(offset, offset + itemsPerPage - 1);
 
   if (error) {
     console.error("Error fetching orders:", error);
@@ -55,6 +63,28 @@ export default async function AdminOrdersPage({
           className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-sm"
         >
           <FiDownloadCloud /> Import Amazon CSV
+        </Link>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex space-x-4 border-b border-slate-200">
+        <Link 
+          href="/admin/orders?tab=all"
+          className={`px-4 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'all' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          All Orders
+        </Link>
+        <Link 
+          href="/admin/orders?tab=paid"
+          className={`px-4 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'paid' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          Prepaid Orders
+        </Link>
+        <Link 
+          href="/admin/orders?tab=cod"
+          className={`px-4 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'cod' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          COD Orders
         </Link>
       </div>
 
@@ -87,7 +117,14 @@ export default async function AdminOrdersPage({
                     <div className="text-xs text-slate-500">{order.users?.email}</div>
                   </td>
                   <td className="px-6 py-4 font-medium text-slate-900">
-                    ₹{order.total_amount.toLocaleString("en-IN")}
+                    <div className="flex flex-col gap-1.5 items-start">
+                      <span>₹{order.total_amount.toLocaleString("en-IN")}</span>
+                      {order.razorpay_order_id ? (
+                        <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full w-max">Prepaid</span>
+                      ) : (
+                        <span className="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full w-max">COD</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
@@ -121,7 +158,7 @@ export default async function AdminOrdersPage({
             </span>
             <div className="flex items-center gap-2">
               <Link
-                href={`/admin/orders?page=${Math.max(1, currentPage - 1)}`}
+                href={`/admin/orders?page=${Math.max(1, currentPage - 1)}&tab=${activeTab}`}
                 className={`p-2 rounded border ${
                   currentPage === 1
                     ? "border-slate-200 text-slate-300 pointer-events-none"
@@ -131,7 +168,7 @@ export default async function AdminOrdersPage({
                 <FiChevronLeft />
               </Link>
               <Link
-                href={`/admin/orders?page=${Math.min(totalPages, currentPage + 1)}`}
+                href={`/admin/orders?page=${Math.min(totalPages, currentPage + 1)}&tab=${activeTab}`}
                 className={`p-2 rounded border ${
                   currentPage === totalPages
                     ? "border-slate-200 text-slate-300 pointer-events-none"
