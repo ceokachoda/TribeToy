@@ -289,7 +289,7 @@ export default function HeroSection({ products, config }: { products: Product[],
                 
                 {/* Pagination Dots */}
                 <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
-                  {slides.map((_, i) => (
+                  {slides.map((_: any, i: number) => (
                     <div 
                       key={i} 
                       className={`h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-5 bg-primary' : 'w-1.5 bg-white/40 backdrop-blur-md'}`} 
@@ -445,7 +445,7 @@ export default function HeroSection({ products, config }: { products: Product[],
                 {/* Pagination Dots for Desktop Carousel */}
                 {isMounted && !isMobile && !config?.hero_image && !config?.video_url && (
                   <div className="absolute bottom-6 right-6 flex gap-2 z-10">
-                    {slides.map((_, i) => (
+                    {slides.map((_: any, i: number) => (
                       <div 
                         key={i} 
                         className={`h-2 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-6 bg-primary' : 'w-2 bg-white/40 backdrop-blur-md'}`} 
