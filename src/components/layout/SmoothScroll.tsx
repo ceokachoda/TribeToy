@@ -15,6 +15,16 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     }
     window.scrollTo(0, 0);
 
+    // Detect if we are on a touch device and disable lenis to prevent jank
+    const isTouchDevice = 
+      "ontouchstart" in window || 
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia("(pointer: coarse)").matches;
+    
+    if (isTouchDevice) {
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
@@ -26,17 +36,6 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     });
 
     lenisRef.current = lenis;
-
-    // Detect if we are on a touch device and disable lenis to prevent jank
-    const isTouchDevice = 
-      "ontouchstart" in window || 
-      navigator.maxTouchPoints > 0;
-    
-    if (isTouchDevice) {
-      lenis.destroy();
-      lenisRef.current = null;
-      return;
-    }
 
     function raf(time: number) {
       lenis.raf(time);

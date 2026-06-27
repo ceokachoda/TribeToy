@@ -100,10 +100,17 @@ export default function Navbar({ announcementConfig }: { announcementConfig?: an
   }, [pathname]);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 20);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const checkWishlist = () => {
       const saved = localStorage.getItem("tribetoy_wishlist");
@@ -585,7 +592,7 @@ export default function Navbar({ announcementConfig }: { announcementConfig?: an
       </AnimatePresence>
 
       {/* Mobile Bottom Navigation Bar (App-like) */}
-      <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white/95 backdrop-blur-md border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)] transition-transform duration-300 ${
+      <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white border-t border-black/5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 px-2 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.05)] transition-transform duration-300 transform-gpu ${
         mobileMenuOpen || mobileCategoriesOpen ? "translate-y-full" : "translate-y-0"
       }`}>
         <Link href="/" prefetch={true} className={`flex flex-col items-center gap-1 flex-1 py-2 transition-colors ${pathname === '/' ? 'text-primary' : 'text-[#8a958c]'}`}>

@@ -170,9 +170,9 @@ export default function FeaturedProducts({ products, title }: { products: Produc
 
   return (
     <section className="py-12 md:py-24 bg-background relative overflow-hidden">
-      {/* Decorative Glow */}
-      <div className="absolute top-1/3 -right-64 w-[600px] h-[600px] bg-secondary/5 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 -left-64 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
+      {/* Decorative Glow - Hidden on mobile for performance */}
+      <div className="absolute top-1/3 -right-64 w-[600px] h-[600px] bg-secondary/5 blur-[150px] rounded-full pointer-events-none hidden md:block transform-gpu" />
+      <div className="absolute bottom-0 -left-64 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full pointer-events-none hidden md:block transform-gpu" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10 max-w-[1400px]">
         <div className="flex flex-col lg:flex-row justify-between items-start md:items-end mb-16 gap-6 border-b border-foreground/10 pb-8">
