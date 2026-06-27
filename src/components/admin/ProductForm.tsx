@@ -167,11 +167,10 @@ export default function ProductForm({ initialData }: ProductFormProps) {
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
             >
               <option value="">Select a category...</option>
-              <option value="Action Figures">Action Figures</option>
-              <option value="Educational Toys">Educational Toys</option>
-              <option value="Custom 3D Prints">Custom 3D Prints</option>
-              <option value="Collectibles">Collectibles</option>
-              <option value="Miniatures">Miniatures</option>
+              <option value="Toys & Figurines">Toys & Figurines</option>
+              <option value="Educational">Educational</option>
+              <option value="Utility Decor">Utility Decor</option>
+              <option value="Cultural Heritage">Cultural Heritage</option>
               <option value="Other">Other</option>
             </select>
           </div>
