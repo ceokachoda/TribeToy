@@ -5,7 +5,7 @@ import PwaRegister from "@/components/layout/PwaRegister";
 import { Viewport } from "next";
 import { ConditionalLayoutWrapper } from "@/components/layout/ConditionalLayoutWrapper";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
-import { createStaticClient } from "@/utils/supabase/static";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export const viewport: Viewport = {
   themeColor: "#79987A",
@@ -55,7 +55,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = createStaticClient();
+  const supabase = createAdminClient();
   const { data } = await supabase.from('site_settings').select('value').eq('key', 'homepage_cms_config').single();
   const announcementConfig = data?.value?.announcement_bar || null;
   return (

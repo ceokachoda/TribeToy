@@ -34,8 +34,7 @@ export async function saveSettings(key: string, value: any) {
     }
 
     revalidatePath("/admin/settings");
-    revalidatePath("/");
-    revalidatePath("/shop");
+    revalidatePath("/", "layout");
 
     return { success: true };
   } catch (err: any) {
