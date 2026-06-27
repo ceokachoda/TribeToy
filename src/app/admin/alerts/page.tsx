@@ -83,7 +83,7 @@ export default async function AlertsPage() {
                   <Link href={`/admin/orders/${order.id}`} className="font-bold text-slate-900 hover:text-blue-600">
                     {order.order_no || `TT-${order.id.split("-")[0].toUpperCase()}`}
                   </Link>
-                  <p className="text-xs text-slate-500 mt-0.5">{order.users?.full_name || "Guest"}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{(order.users as any)?.full_name || "Guest"}</p>
                 </div>
                 <div className="font-medium text-slate-700">₹{(order.total_amount || 0).toLocaleString("en-IN")}</div>
               </div>
