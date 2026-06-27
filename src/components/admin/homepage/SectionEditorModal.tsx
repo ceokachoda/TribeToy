@@ -99,8 +99,8 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
               <div className="space-y-4 pb-6 border-b border-slate-100">
                 <div className="flex justify-between items-center">
                   <div>
-                    <label className="text-base font-bold text-slate-800">Custom Hero Carousel Slides</label>
-                    <p className="text-xs text-slate-500 mt-1">If you add custom slides, they will override the 'Carousel Products' selection below.</p>
+                    <label className="text-base font-bold text-slate-800">Mobile & Desktop Carousel Slides</label>
+                    <p className="text-xs text-slate-500 mt-1">These slides will appear on the mobile carousel (and desktop if video is removed). If you add custom slides here, they will override the 'Selected Products' below.</p>
                   </div>
                   <button onClick={() => setData({...data, custom_slides: [...(data.custom_slides || []), { image: "", title: "", subtitle: "", url: "" }]})} className="text-emerald-600 text-sm font-bold flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-md hover:bg-emerald-100 transition-colors"><FiPlus /> Add Slide</button>
                 </div>
@@ -138,26 +138,30 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
               </div>
               <div className="space-y-3 pb-6 border-b border-slate-100">
                 <label className="text-base font-bold text-slate-800">Or Select Carousel Products (Top 3)</label>
+                <p className="text-xs text-slate-500">If you leave these blank, the website automatically pulls products marked as 'Hero' in the Products tab.</p>
                 <div className="grid grid-cols-3 gap-3">
-                  {[0, 1, 2].map(i => (
-                    <select key={i} value={data.carousel?.[i] || ""} onChange={e => {
-                      const c = [...(data.carousel || ["", "", ""])];
+                  {[0, 1, 2].map(i => {
+                    const fallbackHeroProducts = products.filter(p => p.is_hero && p.image);
+                    const defaultVal = data.carousel?.[i] || fallbackHeroProducts[i]?.id || "";
+                    return (
+                    <select key={i} value={defaultVal} onChange={e => {
+                      const c = [...(data.carousel || [fallbackHeroProducts[0]?.id||"", fallbackHeroProducts[1]?.id||"", fallbackHeroProducts[2]?.id||""])];
                       c[i] = e.target.value;
                       setData({...data, carousel: c});
                     }} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 focus:border-emerald-500 outline-none transition-colors">
                       <option value="">-- None --</option>
                       {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
-                  ))}
+                  )})}
                 </div>
               </div>
 
               <div className="space-y-3 pt-2">
-                <label className="text-base font-bold text-slate-800">Video Background URL</label>
+                <label className="text-base font-bold text-slate-800">Desktop Video Background URL</label>
                 <input type="text" value={data.video_url || ""} onChange={e => setData({...data, video_url: e.target.value})} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm focus:border-emerald-500 outline-none transition-colors" placeholder="/3D_printer_printing_glowing_heart.mp4" />
               </div>
               <div className="space-y-3 pt-4">
-                <label className="text-base font-bold text-slate-800">Hero Main Image <span className="text-sm font-normal text-slate-500">(Optional, replaces video)</span></label>
+                <label className="text-base font-bold text-slate-800">Desktop Hero Main Image <span className="text-sm font-normal text-slate-500">(Optional, replaces video)</span></label>
                 {data.hero_image && <div className="h-40 relative rounded-xl overflow-hidden border border-slate-200 shadow-sm"><Image src={data.hero_image} alt="Hero Main" fill className="object-cover" /></div>}
                 <input type="file" accept="image/*" onChange={e => handleUpload(e, "hero_image")} className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
               </div>
