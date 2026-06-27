@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
@@ -13,6 +14,25 @@ import BlogSection from "@/components/sections/BlogSection";
 
 export const dynamic = 'force-static';
 export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = createStaticClient();
+  const { data } = await supabase.from('site_settings').select('value').eq('key', 'homepage_cms_config').single();
+  const config = data?.value as HomepageConfig | undefined;
+  
+  if (config?.seo) {
+    return {
+      title: config.seo.title,
+      description: config.seo.description,
+      openGraph: {
+        title: config.seo.title,
+        description: config.seo.description,
+      }
+    };
+  }
+  
+  return {};
+}
 
 export default async function Home() {
   const supabase = createStaticClient();

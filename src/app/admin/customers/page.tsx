@@ -74,7 +74,7 @@ export default async function AdminCustomersPage({
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
+          <table className="w-full min-w-[800px] text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4">Customer</th>
@@ -114,8 +114,14 @@ export default async function AdminCustomersPage({
               ))}
               {(!customers || customers.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                    No customers found matching your criteria.
+                  <td colSpan={4} className="px-6 py-16 text-center bg-white">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4">
+                        <FiUser size={32} />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800">No Customers Found</h3>
+                      <p className="text-sm text-slate-500 mt-1 max-w-sm">We couldn't find any customers matching your criteria.</p>
+                    </div>
                   </td>
                 </tr>
               )}

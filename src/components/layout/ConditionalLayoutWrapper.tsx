@@ -11,8 +11,10 @@ const Footer = dynamic(() => import("@/components/layout/Footer"), {
 
 export function ConditionalLayoutWrapper({
   children,
+  announcementConfig,
 }: {
   children: React.ReactNode;
+  announcementConfig?: any;
 }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
@@ -21,7 +23,7 @@ export function ConditionalLayoutWrapper({
     <>
       {!isAdminRoute && (
         <Suspense fallback={null}>
-          <Navbar />
+          <Navbar announcementConfig={announcementConfig} />
         </Suspense>
       )}
       <main className="flex-1 flex flex-col">{children}</main>

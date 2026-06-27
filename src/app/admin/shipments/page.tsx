@@ -40,7 +40,7 @@ export default async function AdminShipmentsPage() {
       {/* Main Shipments Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[800px] text-left text-sm">
             <thead className="bg-[#FAF8F5] text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-100">
               <tr>
                 <th className="px-6 py-4">Order #</th>

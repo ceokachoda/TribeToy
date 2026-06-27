@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiPackage } from "react-icons/fi";
 import OrderStatusBadge from "@/components/admin/OrderStatusBadge";
 import { GenerateLabelAction } from "@/components/admin/GenerateLabelAction";
 
@@ -65,7 +65,7 @@ export default async function AdminOrdersPage({
             <p className="text-sm text-slate-500">Orders waiting to dispatch for 3+ days.</p>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[800px] text-left text-sm">
               <thead className="bg-[#FAF8F5] text-slate-500 text-xs uppercase tracking-wider font-semibold border-y border-slate-100">
                 <tr>
                   <th className="px-6 py-4">Order</th>
@@ -110,7 +110,7 @@ export default async function AdminOrdersPage({
       {/* Main Orders Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-[#FAF8F5] text-slate-500 text-xs uppercase tracking-wider font-semibold border-b border-slate-100">
               <tr>
                 <th className="px-6 py-4">Order #</th>
@@ -163,8 +163,14 @@ export default async function AdminOrdersPage({
               })}
               {(!orders || orders.length === 0) && (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
-                    No orders found.
+                  <td colSpan={8} className="px-6 py-16 text-center bg-white">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4">
+                        <FiPackage size={32} />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800">No Orders Found</h3>
+                      <p className="text-sm text-slate-500 mt-1 max-w-sm">We couldn't find any orders matching your current filters. Try adjusting your search or filter criteria.</p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -186,6 +192,7 @@ export default async function AdminOrdersPage({
                     ? "border-slate-100 text-slate-300 pointer-events-none"
                     : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
+                title="Previous page"
               >
                 <FiChevronLeft />
               </Link>
@@ -196,6 +203,7 @@ export default async function AdminOrdersPage({
                     ? "border-slate-100 text-slate-300 pointer-events-none"
                     : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
+                title="Next page"
               >
                 <FiChevronRight />
               </Link>

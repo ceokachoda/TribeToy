@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { cookies } from "next/headers";
-import { getActorId, logAudit } from "@/utils/admin/audit";
+import { getActorId, verifyAdminActor, logAudit } from "@/utils/admin/audit";
 import { updateOrderStatus } from "@/utils/admin/orders";
 import { makeQrDataUrl } from "./qr";
 import { LabelDocument, type LabelItem } from "./label";
@@ -45,7 +45,7 @@ export async function generateLabel(
     }
   );
 
-  const actorId = await getActorId(supabase);
+  const actorId = await verifyAdminActor(supabase);
   if (!actorId) return { ok: false, error: "Unauthorized" };
 
   const adminSupabase = createAdminClient();
@@ -240,6 +240,9 @@ export async function getLabelSignedUrl(
       },
     }
   );
+
+  const actorId = await verifyAdminActor(supabase);
+  if (!actorId) return { ok: false, error: "Unauthorized" };
 
   const adminSupabase = createAdminClient();
 

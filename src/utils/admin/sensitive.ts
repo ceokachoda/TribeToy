@@ -2,7 +2,7 @@
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { getActorId, logAudit } from "@/utils/admin/audit";
+import { getActorId, verifyAdminActor, logAudit } from "@/utils/admin/audit";
 
 export type RevealKey =
   | "customer.email"
@@ -27,8 +27,8 @@ export async function revealSensitive(
     }
   );
   
-  const actorId = await getActorId(supabase);
-  if (!actorId) return null; // Must be authenticated
+  const actorId = await verifyAdminActor(supabase);
+  if (!actorId) return null; // Must be authenticated AND admin
 
   let value: string | null = null;
   let entity: string;

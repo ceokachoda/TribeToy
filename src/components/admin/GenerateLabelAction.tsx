@@ -5,6 +5,7 @@ import { generateLabel, GenerateLabelInput } from "@/utils/admin/labels/pdf";
 import { FiFileText, FiCheckCircle, FiX, FiPackage } from "react-icons/fi";
 import { type OrderStatus } from "@/utils/admin/orders";
 import { COURIER_LABEL, CourierType } from "@/utils/admin/labels/courier";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function GenerateLabelAction({
   orderId,
@@ -68,9 +69,21 @@ export function GenerateLabelAction({
         <span>Create Shipping Label</span>
       </button>
       
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            >
             <div className="flex justify-between items-center p-5 border-b border-slate-100">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2"><FiPackage className="text-blue-500" /> Generate Label</h2>
               <button onClick={() => setShowModal(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"><FiX size={20} /></button>
@@ -120,9 +133,10 @@ export function GenerateLabelAction({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

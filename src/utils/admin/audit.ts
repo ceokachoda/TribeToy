@@ -6,6 +6,14 @@ export async function getActorId(supabase: SupabaseClient): Promise<string | nul
   return user?.id ?? null;
 }
 
+export async function verifyAdminActor(supabase: SupabaseClient): Promise<string | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
+  if (profile?.role !== "admin") return null;
+  return user.id;
+}
+
 type AuditEvent = {
   actorId: string | null;
   action: string;

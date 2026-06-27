@@ -115,7 +115,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 space-y-6 overflow-hidden">
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm">
           {error}
@@ -128,7 +128,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           <input
             required
             type="text"
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-lg font-medium"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm font-medium"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Amazing Blog Post Title"
@@ -140,7 +140,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
             <label className="text-sm font-medium text-slate-700">Slug</label>
             <input
               type="text"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               placeholder="Leave blank to auto-generate"
@@ -150,7 +150,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
             <label className="text-sm font-medium text-slate-700">Author</label>
             <input
               type="text"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm"
               value={formData.author_name}
               onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
             />
@@ -161,7 +161,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           <label className="text-sm font-medium text-slate-700">Excerpt</label>
           <textarea
             rows={2}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm"
             value={formData.excerpt}
             onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
             placeholder="A short summary of the blog post..."
@@ -176,7 +176,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           <textarea
             required
             rows={15}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono text-sm"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono text-base sm:text-sm"
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
             placeholder="# Markdown Heading\n\nStart writing your amazing content here..."
@@ -187,7 +187,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           <label className="text-sm font-medium text-slate-700">Tags</label>
           <input
             type="text"
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm"
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
             placeholder="toys, education, fun (comma separated)"
@@ -221,7 +221,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
         )}
       </div>
 
-      <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
+      <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 sticky bottom-0 bg-white/90 backdrop-blur-md pb-safe p-4 -mx-4 sm:mx-0 sm:px-0 sm:bg-transparent sm:border-t-0 sm:pb-0 z-20">
         <button
           type="button"
           onClick={() => router.push("/admin/blogs")}

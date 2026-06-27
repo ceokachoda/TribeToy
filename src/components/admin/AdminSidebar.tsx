@@ -10,10 +10,12 @@ import {
 
 export default function AdminSidebar({
   lowStockCount,
-  pendingOrdersCount
+  pendingOrdersCount,
+  onClose,
 }: {
   lowStockCount: number;
   pendingOrdersCount: number;
+  onClose?: () => void;
 }) {
   const pathname = usePathname();
 
@@ -32,9 +34,9 @@ export default function AdminSidebar({
   ];
 
   return (
-    <aside className="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 md:min-h-screen flex flex-col">
-      <div className="p-6 pb-8 border-b border-slate-100 flex-shrink-0">
-        <Link href="/admin" className="flex items-center gap-3">
+    <aside className="w-full h-full bg-white border-r border-slate-200 flex-shrink-0 flex flex-col relative">
+      <div className="p-6 pb-8 border-b border-slate-100 flex-shrink-0 flex justify-between items-start">
+        <Link href="/admin" className="flex items-center gap-3" onClick={onClose}>
           <div className="relative w-12 h-12 rounded-lg border border-slate-200 overflow-hidden shadow-sm flex-shrink-0">
             <Image src="/logo-new.jpg" alt="Logo" fill className="object-cover" />
           </div>
@@ -45,6 +47,15 @@ export default function AdminSidebar({
             <span className="text-[10px] font-bold text-[#D94167] uppercase tracking-wide">Commerce Dashboard</span>
           </div>
         </Link>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="lg:hidden p-2 -mr-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50"
+            aria-label="Close sidebar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        )}
       </div>
       <nav className="mt-6 flex flex-col gap-1 px-4 overflow-y-auto hide-scrollbar flex-1 pb-10">
         {navItems.map((item) => {
@@ -57,6 +68,7 @@ export default function AdminSidebar({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`flex items-center justify-between gap-3 px-4 py-3 rounded-full transition-all ${
                 isActive 
                   ? "bg-[#66A34A] text-white shadow-md shadow-green-900/10" 

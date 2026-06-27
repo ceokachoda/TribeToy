@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiSearch, FiArrowLeft } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiChevronLeft, FiChevronRight, FiSearch, FiArrowLeft, FiBox } from "react-icons/fi";
 import Image from "next/image";
 import DeleteButton from "./DeleteButton";
 
@@ -79,7 +79,7 @@ export default async function AdminProductsPage({
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
+          <table className="w-full min-w-[800px] text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4">Product</th>
@@ -155,8 +155,17 @@ export default async function AdminProductsPage({
               })}
               {(!products || products.length === 0) && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                    No products found. Add a new product to get started!
+                  <td colSpan={5} className="px-6 py-16 text-center bg-white">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4">
+                        <FiBox size={32} />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800">No Products Found</h3>
+                      <p className="text-sm text-slate-500 mt-1 max-w-sm">We couldn't find any products. Add a new product to your catalog to get started!</p>
+                      <Link href="/admin/products/new" className="mt-4 px-4 py-2 bg-emerald-50 text-emerald-700 font-bold text-sm rounded-lg hover:bg-emerald-100 transition-colors">
+                        + Add Product
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               )}

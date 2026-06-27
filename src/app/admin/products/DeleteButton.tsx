@@ -3,6 +3,7 @@
 import { FiTrash2, FiAlertTriangle, FiX } from "react-icons/fi";
 import { useState } from "react";
 import { deleteProduct } from "./actions";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DeleteButton({ productId }: { productId: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,10 +35,22 @@ export default function DeleteButton({ productId }: { productId: string }) {
         <FiTrash2 size={18} className={isDeleting ? "animate-pulse" : ""} />
       </button>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
-            <div className="p-6">
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all"
+            >
+              <div className="p-6">
               <div className="flex items-start justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
@@ -83,10 +96,11 @@ export default function DeleteButton({ productId }: { productId: string }) {
                   )}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

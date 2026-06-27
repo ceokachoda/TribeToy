@@ -5,6 +5,7 @@ import PwaRegister from "@/components/layout/PwaRegister";
 import { Viewport } from "next";
 import { ConditionalLayoutWrapper } from "@/components/layout/ConditionalLayoutWrapper";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { createStaticClient } from "@/utils/supabase/static";
 
 export const viewport: Viewport = {
   themeColor: "#79987A",
@@ -49,18 +50,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createStaticClient();
+  const { data } = await supabase.from('site_settings').select('value').eq('key', 'homepage_cms_config').single();
+  const announcementConfig = data?.value?.announcement_bar || null;
   return (
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/30 pb-20 lg:pb-0">
         <SmoothScroll>
           <PwaRegister />
           <Providers>
-            <ConditionalLayoutWrapper>
+            <ConditionalLayoutWrapper announcementConfig={announcementConfig}>
               {children}
             </ConditionalLayoutWrapper>
           </Providers>

@@ -65,6 +65,7 @@ export default function OrderStatusBadge({
         value={status}
         onChange={handleStatusChange}
         disabled={loading}
+        title="Change Order Status"
         className={`${baseClasses} outline-none cursor-pointer appearance-none z-10 relative bg-transparent`}
       >
         {Object.entries(STATUS_STYLES).map(([key, val]) => (

@@ -44,7 +44,7 @@ async function DashboardData() {
   return (
     <>
       {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <KpiCard 
           title="Revenue (30d)" 
           value={`₹${kpis.revenue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`} 
@@ -107,8 +107,8 @@ async function DashboardData() {
                 {lowStock?.length || 0}
               </span>
             </div>
-            <div className="overflow-y-auto max-h-[300px]">
-              <table className="w-full text-left text-sm text-slate-600">
+            <div className="overflow-auto max-h-[300px]">
+              <table className="w-full min-w-[300px] text-left text-sm text-slate-600">
                 <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 sticky top-0">
                   <tr>
                     <th className="px-4 py-2">Product</th>
@@ -150,8 +150,8 @@ async function DashboardData() {
                 {backlog?.length || 0}
               </span>
             </div>
-            <div className="overflow-y-auto max-h-[300px]">
-              <table className="w-full text-left text-sm text-slate-600">
+            <div className="overflow-auto max-h-[300px]">
+              <table className="w-full min-w-[400px] text-left text-sm text-slate-600">
                 <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 sticky top-0">
                   <tr>
                     <th className="px-4 py-2">Order #</th>

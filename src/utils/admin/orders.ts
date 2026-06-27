@@ -3,7 +3,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { getActorId, logAudit } from "@/utils/admin/audit";
+import { getActorId, verifyAdminActor, logAudit } from "@/utils/admin/audit";
 
 export type OrderStatus = 
   | "pending" 
@@ -42,7 +42,7 @@ export async function updateOrderStatus(
     }
   );
 
-  const actorId = await getActorId(supabase);
+  const actorId = await verifyAdminActor(supabase);
   if (!actorId) return { ok: false, error: "Unauthorized" };
 
   const { data: order, error: orderErr } = await supabase

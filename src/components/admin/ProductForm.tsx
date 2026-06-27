@@ -140,7 +140,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
       )}
 
       {/* Basic Information Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
           <FiBox className="text-emerald-600" size={20} />
           <h3 className="text-lg font-semibold text-slate-800">Basic Information</h3>
@@ -153,7 +153,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
               required
               type="text"
               placeholder="e.g. 3D Printed Dragon"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm text-slate-900"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
@@ -162,7 +162,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
           <div className="space-y-2 md:col-span-2">
             <label className="text-sm font-medium text-slate-700">Category</label>
             <select
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-white text-slate-900"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-white text-base sm:text-sm text-slate-900"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
             >
@@ -181,7 +181,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
             <textarea
               rows={4}
               placeholder="Describe the product, its features, and dimensions..."
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm text-slate-900"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
@@ -190,7 +190,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
       </div>
 
       {/* Pricing & Inventory Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
           <FiTag className="text-emerald-600" size={20} />
           <h3 className="text-lg font-semibold text-slate-800">Pricing & Inventory</h3>
@@ -204,7 +204,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
               type="number"
               step="0.01"
               placeholder="0.00"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm text-slate-900"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             />
@@ -216,7 +216,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
               type="number"
               step="0.01"
               placeholder="0.00"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm text-slate-900"
               value={formData.original_price}
               onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
             />
@@ -228,7 +228,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
             <input
               type="number"
               min="0"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-slate-900"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-base sm:text-sm text-slate-900"
               value={formData.stock_quantity}
               onChange={(e) => setFormData({ ...formData, stock_quantity: parseInt(e.target.value) || 0 })}
             />
@@ -237,7 +237,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
       </div>
 
       {/* Product Flags Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
           <FiStar className="text-emerald-600" size={20} />
           <h3 className="text-lg font-semibold text-slate-800">Product Features</h3>
@@ -296,7 +296,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
       </div>
 
       {/* Media Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
           <FiImage className="text-emerald-600" size={20} />
           <h3 className="text-lg font-semibold text-slate-800">Product Images</h3>
@@ -371,7 +371,7 @@ export default function ProductForm({ initialData }: ProductFormProps) {
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-4">
+      <div className="flex justify-end gap-4 pt-4 sticky bottom-0 bg-white/90 backdrop-blur-md pb-safe border-t border-slate-200 z-20 p-4 sm:px-0 sm:bg-transparent sm:border-t-0 sm:pb-0">
         <button
           type="button"
           onClick={() => router.push("/admin/products")}

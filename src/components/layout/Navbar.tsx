@@ -20,7 +20,9 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-export default function Navbar() {
+import AnnouncementBar from "./AnnouncementBar";
+
+export default function Navbar({ announcementConfig }: { announcementConfig?: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -141,10 +143,15 @@ export default function Navbar() {
     <>
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "glass py-4" : "bg-transparent py-6"
+        isScrolled ? "glass" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+      {announcementConfig?.enabled && (
+        <AnnouncementBar config={announcementConfig} />
+      )}
+      <div className={`container mx-auto px-6 md:px-12 flex justify-between items-center transition-all duration-300 ${
+        isScrolled ? "py-4" : "pb-6 pt-2"
+      }`}>
         {/* Left Section: Back Button & Logo */}
         <div className="flex items-center gap-3">
           {/* Back Button (Only on deep pages) */}
