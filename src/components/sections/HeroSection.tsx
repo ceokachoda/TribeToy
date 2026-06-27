@@ -378,15 +378,25 @@ export default function HeroSection({ products, config }: { products: Product[],
                 <div className="absolute inset-0 z-10 bg-gradient-to-tr from-black/30 via-transparent to-white/20 pointer-events-none" />
                 
                 {isMounted && !isMobile && (
-                  <video 
-                    autoPlay 
-                    loop 
-                    muted 
-                    playsInline
-                    className="w-full h-full object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
-                  >
-                    <source src={config?.video_url || "/3D_printer_printing_glowing_heart.mp4"} type="video/mp4" />
-                  </video>
+                  config?.hero_image ? (
+                    <Image
+                      src={config.hero_image}
+                      alt="Hero"
+                      fill
+                      className="object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
+                      priority
+                    />
+                  ) : (
+                    <video 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline
+                      className="w-full h-full object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
+                    >
+                      <source src={config?.video_url || "/3D_printer_printing_glowing_heart.mp4"} type="video/mp4" />
+                    </video>
+                  )
                 )}
                 
                 {/* Subtle inner shadow for depth */}

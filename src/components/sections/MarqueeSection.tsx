@@ -12,6 +12,16 @@ export default function MarqueeSection({ products, data }: { products: Product[]
     ? configuredMarqueeIds.map((id: string) => products.find(p => String(p.id) === String(id))).filter(Boolean) as Product[]
     : (products.filter(p => p.is_hero && p.image).length > 0 ? products.filter(p => p.is_hero && p.image) : products.filter(p => p.image).slice(0, 5));
   
+  if (data?.marquee_image) {
+    return (
+      <div className="w-full relative overflow-hidden -mx-6 px-6 pb-2">
+        <div className="relative w-full aspect-[21/9] md:aspect-[32/9] rounded-[2rem] overflow-hidden shadow-sm">
+          <Image src={data.marquee_image} alt="Marquee Banner" fill className="object-cover" priority />
+        </div>
+      </div>
+    );
+  }
+
   if (marqueeItems.length === 0) return null;
 
   const duplicatedItems = [...marqueeItems, ...marqueeItems, ...marqueeItems].slice(0, 10);

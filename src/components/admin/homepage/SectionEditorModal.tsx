@@ -81,6 +81,11 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                 <label className="text-sm font-bold text-slate-700">Video Background URL</label>
                 <input type="text" value={data.video_url || ""} onChange={e => setData({...data, video_url: e.target.value})} className="w-full p-2 border rounded-md" placeholder="/3D_printer_printing_glowing_heart.mp4" />
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Hero Main Image (Optional, replaces video)</label>
+                {data.hero_image && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.hero_image} alt="Hero Main" fill className="object-cover" /></div>}
+                <input type="file" accept="image/*" onChange={e => handleUpload(e, "hero_image")} className="w-full text-sm" />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700">Custom Prints Image</label>
@@ -111,7 +116,12 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
 
           {section.type === "marquee" && (
             <div className="space-y-4">
-              <label className="text-sm font-bold text-slate-700">Selected Products</label>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Custom Marquee Banner Image (Optional)</label>
+                {data.marquee_image && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.marquee_image} alt="Marquee Banner" fill className="object-cover" /></div>}
+                <input type="file" accept="image/*" onChange={e => handleUpload(e, "marquee_image")} className="w-full text-sm" />
+              </div>
+              <label className="text-sm font-bold text-slate-700">Or Selected Products (Auto-Scrolling)</label>
               <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                 {products.map(p => {
                   const selected = (data.products || []).includes(String(p.id));
