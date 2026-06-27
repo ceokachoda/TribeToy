@@ -98,10 +98,6 @@ export default function HeroSection({ products, config }: { products: Product[],
   return (
     <section 
       className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-20 md:pt-28 pb-4 md:pb-8"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={() => setIsHovered(true)}
-      onTouchEnd={() => setIsHovered(false)}
     >
       
       {/* Refined Decorative Light Background Elements */}
@@ -247,7 +243,13 @@ export default function HeroSection({ products, config }: { products: Product[],
             {/* Bento Box Grid */}
             <div className="grid grid-cols-2 gap-3 mt-2 mb-4">
               {/* Large Hero Carousel spanning full width */}
-              <div className="col-span-2 relative h-48 rounded-[2rem] overflow-hidden shadow-sm">
+              <div 
+                className="col-span-2 relative h-48 rounded-[2rem] overflow-hidden shadow-sm"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onTouchStart={() => setIsHovered(true)}
+                onTouchEnd={() => setIsHovered(false)}
+              >
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentSlide}
@@ -387,7 +389,13 @@ export default function HeroSection({ products, config }: { products: Product[],
               <div className="absolute top-0 -left-[150%] h-full w-[150%] z-20 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-1000 group-hover:left-[150%] ease-in-out pointer-events-none" />
 
               {/* Inner Video Container */}
-              <div className="relative w-full h-[350px] md:h-[480px] rounded-[1.8rem] sm:rounded-[2.2rem] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] bg-black/5 border border-white/30">
+              <div 
+                className="relative w-full h-[350px] md:h-[480px] rounded-[1.8rem] sm:rounded-[2.2rem] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] bg-black/5 border border-white/30"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onTouchStart={() => setIsHovered(true)}
+                onTouchEnd={() => setIsHovered(false)}
+              >
                 <div className="absolute inset-0 z-10 bg-gradient-to-tr from-black/30 via-transparent to-white/20 pointer-events-none" />
                 
                 {isMounted && !isMobile && (
