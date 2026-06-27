@@ -370,7 +370,7 @@ function ProfileContent() {
               setIsMobileMenu(true);
               router.push('/profile', { scroll: false });
             }}
-            className="flex lg:hidden items-center gap-2 text-[#8a958c] font-bold mb-6 hover:text-[#1a1a1a] transition-colors"
+            className="flex lg:hidden items-center gap-2 text-[#8a958c] font-bold mb-8 mt-4 hover:text-[#1a1a1a] transition-colors"
           >
             <ChevronLeft size={20} /> Back to Menu
           </button>
