@@ -82,7 +82,7 @@ export async function generateLabel(
 
   // 2. resolve shipment
   const reprint = !!existingShipment;
-  const courier: CourierType = input.courier ?? existingShipment?.courier ?? "dhl";
+  const courier: CourierType = input.courier ?? existingShipment?.courier ?? "speedpost";
   const awb = (input.awb?.trim() || null) ?? existingShipment?.awb ?? null;
   const dispatchDate = input.dispatchDate || existingShipment?.dispatch_date || null;
 

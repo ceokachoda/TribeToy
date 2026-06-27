@@ -1,11 +1,9 @@
-export type CourierType = "dhl" | "fedex" | "delhivery" | "bluedart" | "other";
+export type CourierType = "speedpost" | "delhivery" | "other";
 
 export const COURIER_LABEL: Record<CourierType, string> = {
-  dhl: "DHL Express",
-  fedex: "FedEx",
+  speedpost: "India Post (Speed Post)",
   delhivery: "Delhivery",
-  bluedart: "Blue Dart",
   other: "Other",
 };
 
-export const DEFAULT_LABEL_TEMPLATE = "standard_a4";
+export const DEFAULT_LABEL_TEMPLATE = "speedpost_a4";
