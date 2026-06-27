@@ -14,11 +14,10 @@ export default async function InventoryPage() {
     .select("*")
     .order("color", { ascending: true });
 
-  // 2. Fetch products (regular inventory)
   const { data: products } = await supabase
     .from("products")
-    .select("id, name, stock, category")
-    .order("stock", { ascending: true });
+    .select("id, name, stock_quantity, reserved, incoming, damaged, category")
+    .order("stock_quantity", { ascending: true });
 
   const lowStockProducts = products?.filter(p => p.stock < 10) || [];
 
@@ -66,45 +65,66 @@ export default async function InventoryPage() {
               <tr>
                 <th className="px-6 py-4">Product Name</th>
                 <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4 text-right">Stock Level</th>
+                <th className="px-6 py-4 text-right">Available</th>
+                <th className="px-6 py-4 text-right">Reserved</th>
+                <th className="px-6 py-4 text-right">Total Stock</th>
+                <th className="px-6 py-4 text-right">Incoming</th>
+                <th className="px-6 py-4 text-right">Damaged</th>
                 <th className="px-6 py-4 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {products?.map(product => (
+              {products?.map(product => {
+                const totalStock = product.stock_quantity || product.stock || 0;
+                const reserved = product.reserved || 0;
+                const available = Math.max(0, totalStock - reserved);
+                const incoming = product.incoming || 0;
+                const damaged = product.damaged || 0;
+
+                return (
                 <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 font-medium text-slate-900">
-                    <Link href={`/admin/products/${product.id}/edit`} className="hover:text-emerald-600 transition-colors">
+                    <Link href={`/admin/products/${product.id}/edit`} className="hover:text-emerald-600 transition-colors line-clamp-1">
                       {product.name}
                     </Link>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium">
+                    <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
                       {product.category}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className={`font-bold ${product.stock < 10 ? 'text-red-600' : 'text-slate-900'}`}>
-                      {product.stock}
-                    </span>
+                  <td className="px-6 py-4 text-right font-bold text-emerald-600">
+                    {available}
+                  </td>
+                  <td className="px-6 py-4 text-right text-amber-600 font-medium">
+                    {reserved > 0 ? reserved : "-"}
+                  </td>
+                  <td className="px-6 py-4 text-right font-bold text-slate-900">
+                    {totalStock}
+                  </td>
+                  <td className="px-6 py-4 text-right text-blue-600 font-medium">
+                    {incoming > 0 ? incoming : "-"}
+                  </td>
+                  <td className="px-6 py-4 text-right text-red-600 font-medium">
+                    {damaged > 0 ? damaged : "-"}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {product.stock === 0 ? (
-                      <span className="inline-flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded-md">
-                        <FiAlertTriangle /> Out of Stock
+                    {available === 0 ? (
+                      <span className="inline-flex items-center gap-1 text-red-600 text-[10px] uppercase font-black bg-red-50 px-2 py-1 rounded-md">
+                        Out of Stock
                       </span>
-                    ) : product.stock < 10 ? (
-                      <span className="inline-flex items-center gap-1 text-amber-600 text-xs font-bold bg-amber-50 px-2 py-1 rounded-md">
+                    ) : available < 10 ? (
+                      <span className="inline-flex items-center gap-1 text-amber-600 text-[10px] uppercase font-black bg-amber-50 px-2 py-1 rounded-md">
                         Low Stock
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-md">
+                      <span className="inline-flex items-center gap-1 text-emerald-600 text-[10px] uppercase font-black bg-emerald-50 px-2 py-1 rounded-md">
                         In Stock
                       </span>
                     )}
                   </td>
                 </tr>
-              ))}
+              )})}
               {(!products || products.length === 0) && (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-slate-500">

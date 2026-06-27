@@ -2,218 +2,217 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { Product } from "@/data/products";
-import { FiSave, FiLoader, FiCheck, FiLayout, FiArrowLeft } from "react-icons/fi";
+import { FiSave, FiLoader, FiLayout, FiArrowLeft, FiPlus } from "react-icons/fi";
 import { useToast } from "@/context/ToastContext";
-import Image from "next/image";
 import Link from "next/link";
 import { saveSettings } from "../settings/actions";
+import { HomepageConfig, HomepageSection, SectionType } from "@/types/homepage";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import SortableSectionItem from "@/components/admin/homepage/SortableSectionItem";
+import SectionEditorModal from "@/components/admin/homepage/SectionEditorModal";
+import { Product } from "@/data/products";
 
-type StorefrontConfig = {
-  carousel: string[];
-  marquee: string[];
+const DEFAULT_CONFIG: HomepageConfig = {
+  seo: { title: "TribeToy - Eco-Friendly Toys", description: "Sustainable 3D-printed toys" },
+  announcement_bar: { enabled: true, text: "Free shipping on all orders over ₹1000", link: "/shop" },
+  sections: [
+    { id: "hero-1", type: "hero", enabled: true, order: 0, data: { carousel: [], video_url: "/3D_printer_printing_glowing_heart.mp4", custom_prints_img: "/ghibli_hero_v2.png", new_arrivals_img: "/ghibli_new_arrivals_v2.png" } },
+    { id: "marquee-1", type: "marquee", enabled: true, order: 1, data: { products: [] } },
+    { id: "categories-1", type: "categories", enabled: true, order: 2, data: {} },
+    { id: "featured-1", type: "featured_products", enabled: true, order: 3, data: {} },
+    { id: "about-1", type: "about", enabled: true, order: 4, data: {} }
+  ]
 };
 
 export default function HomepageSettings() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [config, setConfig] = useState<HomepageConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [config, setConfig] = useState<StorefrontConfig>({
-    carousel: ["", "", ""],
-    marquee: []
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [editingSection, setEditingSection] = useState<HomepageSection | null>(null);
   const { showToast } = useToast();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
       try {
-        // Fetch all products
-        const { data: productsData } = await supabase
-          .from("products")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data: pData } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+        if (pData) setProducts(pData as Product[]);
 
-        if (productsData) {
-          const mapped = productsData.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            category: p.category,
-            price: p.price,
-            image: p.image_url,
-            is_hero: p.is_hero
-          }));
-          setProducts(mapped as Product[]);
-        }
-
-        // Fetch config
-        const { data: configData } = await supabase
-          .from("site_settings")
-          .select("value")
-          .eq("key", "storefront_config")
-          .single();
-
+        const { data: configData } = await supabase.from("site_settings").select("value").eq("key", "homepage_cms_config").single();
         if (configData?.value) {
-          setConfig({
-            carousel: configData.value.carousel || ["", "", ""],
-            marquee: configData.value.marquee || []
-          });
+          setConfig(configData.value as HomepageConfig);
+        } else {
+          // Attempt to migrate old storefront_config if new one doesn't exist
+          const { data: oldData } = await supabase.from("site_settings").select("value").eq("key", "storefront_config").single();
+          if (oldData?.value) {
+            const migrated = { ...DEFAULT_CONFIG };
+            migrated.sections[0].data.carousel = oldData.value.carousel || [];
+            migrated.sections[1].data.products = oldData.value.marquee || [];
+            setConfig(migrated);
+          }
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
-        showToast("Failed to load settings", "error");
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    
     fetchData();
-  }, [showToast]);
+  }, []);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setConfig((prev) => {
+        const oldIndex = prev.sections.findIndex((s) => s.id === active.id);
+        const newIndex = prev.sections.findIndex((s) => s.id === over.id);
+        const newSections = arrayMove(prev.sections, oldIndex, newIndex);
+        return { ...prev, sections: newSections.map((s, i) => ({ ...s, order: i })) };
+      });
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const response = await saveSettings("storefront_config", config);
-      if (response?.error) {
-        throw new Error(response.error);
-      }
+      const res = await saveSettings("homepage_cms_config", config);
+      if (res?.error) throw new Error(res.error);
       showToast("Homepage layout updated successfully!", "success");
-    } catch (error: any) {
-      console.error("Save error:", error);
-      showToast(error.message || "Error saving layout", "error");
+    } catch (e: any) {
+      showToast(e.message, "error");
     } finally {
       setSaving(false);
     }
   };
 
-  const toggleMarqueeProduct = (productId: string) => {
-    setConfig(prev => {
-      const isSelected = prev.marquee.includes(productId);
-      if (isSelected) {
-        return { ...prev, marquee: prev.marquee.filter(id => id !== productId) };
-      } else {
-        return { ...prev, marquee: [...prev.marquee, productId] };
-      }
-    });
+  const addSection = (type: SectionType) => {
+    const newSection: HomepageSection = {
+      id: `${type}-${Date.now()}`,
+      type,
+      enabled: true,
+      order: config.sections.length,
+      data: type === 'offers' ? { banners: [] } : type === 'testimonials' ? { items: [] } : type === 'faq' ? { items: [] } : {}
+    };
+    setConfig(prev => ({ ...prev, sections: [...prev.sections, newSection] }));
+  };
+
+  const updateSection = (updated: HomepageSection) => {
+    setConfig(prev => ({
+      ...prev,
+      sections: prev.sections.map(s => s.id === updated.id ? updated : s)
+    }));
+    setEditingSection(null);
+  };
+
+  const deleteSection = (id: string) => {
+    setConfig(prev => ({
+      ...prev,
+      sections: prev.sections.filter(s => s.id !== id)
+    }));
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <FiLoader className="w-8 h-8 animate-spin text-emerald-500" />
-          <p className="text-slate-500 font-medium">Loading layout settings...</p>
-        </div>
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-[60vh]"><FiLoader className="w-8 h-8 animate-spin text-emerald-500" /></div>;
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+    <div className="space-y-6 pb-20">
+      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100 sticky top-0 z-30">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
-            <FiArrowLeft size={20} />
-          </Link>
+          <Link href="/admin" className="p-2 text-slate-500 hover:bg-slate-100 rounded-full"><FiArrowLeft size={20} /></Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <FiLayout className="text-emerald-500" />
-              Homepage Storefront
-            </h1>
-            <p className="text-slate-500 mt-1">Configure which products appear on your homepage hero sections.</p>
+            <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2"><FiLayout className="text-emerald-500" /> Homepage Builder</h1>
+            <p className="text-slate-500 mt-1">Drag and drop sections to reorganize your storefront.</p>
           </div>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white rounded-lg transition-colors font-medium shadow-sm shadow-emerald-200"
-        >
-          {saving ? <FiLoader className="animate-spin" /> : <FiSave />}
-          {saving ? "Saving..." : "Save Layout"}
+        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm shadow-emerald-200">
+          {saving ? <FiLoader className="animate-spin" /> : <FiSave />} {saving ? "Saving..." : "Save Layout"}
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {/* Carousel Configuration */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <h2 className="text-lg font-bold text-slate-800 mb-4">Hero Carousel (Top)</h2>
-          <p className="text-sm text-slate-500 mb-6">Select up to 3 products to feature in the main scrolling carousel.</p>
-          
-          <div className="space-y-4">
-            {[0, 1, 2].map(index => (
-              <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 border border-slate-100 rounded-xl bg-slate-50/50">
-                <span className="font-bold text-slate-400 w-24 shrink-0">Slide {index + 1}</span>
-                <select
-                  value={config.carousel[index] || ""}
-                  onChange={(e) => {
-                    const newCarousel = [...config.carousel];
-                    newCarousel[index] = e.target.value;
-                    setConfig({ ...config, carousel: newCarousel });
-                  }}
-                  className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-sm"
-                >
-                  <option value="">-- No product selected (Fallback to default) --</option>
-                  {products.filter(p => p.image).map(p => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.category})</option>
-                  ))}
-                </select>
-                {config.carousel[index] && (
-                  <div className="w-10 h-10 rounded-md overflow-hidden bg-slate-100 relative shrink-0 border border-slate-200">
-                    {(() => {
-                      const selectedProduct = products.find(p => String(p.id) === String(config.carousel[index]));
-                      return selectedProduct?.image ? (
-                        <Image src={selectedProduct.image} alt="" fill className="object-cover" />
-                      ) : null;
-                    })()}
-                  </div>
-                )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Announcement Bar & SEO */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+            <h2 className="text-lg font-bold text-slate-800 border-b pb-2">Global Settings</h2>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">SEO Title</label>
+              <input type="text" value={config.seo.title} onChange={e => setConfig({...config, seo: {...config.seo, title: e.target.value}})} className="w-full p-2 border rounded-md" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700">SEO Description</label>
+              <textarea value={config.seo.description} onChange={e => setConfig({...config, seo: {...config.seo, description: e.target.value}})} className="w-full p-2 border rounded-md" rows={2} />
+            </div>
+
+            <div className="pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-bold text-slate-700">Announcement Bar</label>
+                <input type="checkbox" checked={config.announcement_bar.enabled} onChange={e => setConfig({...config, announcement_bar: {...config.announcement_bar, enabled: e.target.checked}})} className="w-4 h-4 text-emerald-600" />
               </div>
-            ))}
+              {config.announcement_bar.enabled && (
+                <div className="grid grid-cols-2 gap-4">
+                  <input type="text" placeholder="Text" value={config.announcement_bar.text} onChange={e => setConfig({...config, announcement_bar: {...config.announcement_bar, text: e.target.value}})} className="p-2 border rounded-md" />
+                  <input type="text" placeholder="Link" value={config.announcement_bar.link} onChange={e => setConfig({...config, announcement_bar: {...config.announcement_bar, link: e.target.value}})} className="p-2 border rounded-md" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Draggable Sections */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 className="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Page Sections</h2>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={config.sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {config.sections.map((section) => (
+                    <SortableSectionItem 
+                      key={section.id} 
+                      section={section} 
+                      onEdit={() => setEditingSection(section)}
+                      onDelete={() => deleteSection(section.id)}
+                      onToggle={(enabled) => updateSection({...section, enabled})}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
         </div>
 
-        {/* Marquee Configuration */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">Featured Marquee (Bottom)</h2>
-              <p className="text-sm text-slate-500 mt-1">Select products to scroll horizontally below the carousel on mobile.</p>
-            </div>
-            <span className="text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">
-              {config.marquee.length} Selected
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-[400px] overflow-y-auto p-2 hide-scrollbar">
-            {products.filter(p => p.image).map(product => {
-              const productIdStr = String(product.id);
-              const isSelected = config.marquee.includes(productIdStr);
-              return (
-                <div 
-                  key={productIdStr}
-                  onClick={() => toggleMarqueeProduct(productIdStr)}
-                  className={`relative flex flex-col gap-2 p-2 border-2 rounded-xl cursor-pointer transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-transparent hover:border-slate-200 bg-slate-50'}`}
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-200 relative">
-                    <Image src={product.image!} alt={product.name} fill className="object-cover" />
-                    {isSelected && (
-                      <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center backdrop-blur-[1px]">
-                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm">
-                          <FiCheck className="text-emerald-600 text-xl" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="px-1">
-                    <p className="text-xs font-bold text-slate-800 line-clamp-1">{product.name}</p>
-                    <p className="text-[10px] text-slate-500 uppercase">{product.category}</p>
-                  </div>
-                </div>
-              );
-            })}
+        {/* Add Sections Sidebar */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit sticky top-28">
+          <h2 className="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Add Section</h2>
+          <div className="flex flex-col gap-2">
+            {(["hero", "marquee", "categories", "featured_products", "offers", "testimonials", "faq", "about"] as SectionType[]).map(type => (
+              <button 
+                key={type} 
+                onClick={() => addSection(type)}
+                className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors text-sm font-medium text-slate-700 capitalize"
+              >
+                {type.replace("_", " ")}
+                <FiPlus className="text-emerald-500" />
+              </button>
+            ))}
           </div>
         </div>
       </div>
+
+      {editingSection && (
+        <SectionEditorModal 
+          section={editingSection} 
+          products={products}
+          onSave={updateSection} 
+          onClose={() => setEditingSection(null)} 
+        />
+      )}
     </div>
   );
 }

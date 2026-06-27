@@ -79,8 +79,12 @@ export default function AdminSidebar({
         })}
       </nav>
       
-      <div className="p-4 mt-auto border-t border-slate-100 hidden md:block">
-        <div className="text-xs text-slate-400 text-center mb-2">TIC · IIT Guwahati</div>
+      <div className="p-4 mt-auto border-t border-slate-100 hidden md:block space-y-4">
+        <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-900 px-4 py-2 rounded-lg transition-colors border border-slate-200">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Back to Storefront
+        </Link>
+        <div className="text-xs text-slate-400 text-center font-medium">TribeToy Admin v2.0<br/>TIC · IIT Guwahati</div>
       </div>
     </aside>
   );

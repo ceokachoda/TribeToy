@@ -83,9 +83,24 @@ export default async function AdminBlogsPage({
                       <div className="text-xs text-slate-500">/{blog.slug}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">{blog.author_name || "Unknown"}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {new Date(blog.created_at).toLocaleDateString()}
+                  <td className="px-6 py-4">
+                    <div className="font-medium text-slate-800">{blog.author_name || "Unknown"}</div>
+                    {blog.tags && blog.tags.length > 0 && (
+                      <div className="flex gap-1 mt-1">
+                        {blog.tags.slice(0,2).map((t: string) => (
+                          <span key={t} className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">{t}</span>
+                        ))}
+                        {blog.tags.length > 2 && <span className="text-[9px] text-slate-400">+{blog.tags.length - 2}</span>}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap flex flex-col gap-1 items-start">
+                    <span className="text-sm text-slate-700">{new Date(blog.created_at).toLocaleDateString()}</span>
+                    {blog.is_published ? (
+                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Published</span>
+                    ) : (
+                       <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">Draft</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-3">

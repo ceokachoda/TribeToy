@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Product } from "@/data/products";
 
-export default function HeroSection({ products, heroImages, storefrontConfig }: { products: Product[], heroImages?: any, storefrontConfig?: any }) {
+export default function HeroSection({ products, config }: { products: Product[], config?: any }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -20,9 +20,8 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const configuredCarouselIds = storefrontConfig?.carousel?.filter((id: string) => id) || [];
-  const configuredMarqueeIds = storefrontConfig?.marquee?.filter((id: string) => id) || [];
-
+  const configuredCarouselIds = config?.carousel?.filter((id: string) => id) || [];
+  
   const carouselProducts = configuredCarouselIds.length > 0 
     ? configuredCarouselIds.map((id: string) => products.find(p => String(p.id) === String(id))).filter(Boolean) as Product[]
     : products.filter(p => p.is_hero && p.image);
@@ -297,7 +296,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
               
               {/* Two Square Cards */}
               <Link href="/customization" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
-                <Image src={heroImages?.custom_prints || "/ghibli_hero_v2.png"} alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" priority fetchPriority="high" />
+                <Image src={config?.custom_prints_img || "/ghibli_hero_v2.png"} alt="Custom 3D Prints" fill className="object-cover brightness-95" sizes="50vw" priority fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex flex-col">
                   <span className="text-[10px] text-accent font-black uppercase tracking-widest mb-0.5">Your Design</span>
@@ -306,7 +305,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
               </Link>
               
               <Link href="/shop" className="relative h-40 rounded-[2rem] overflow-hidden shadow-sm active:scale-[0.98] transition-transform block">
-                <Image src={heroImages?.new_arrivals || "/ghibli_new_arrivals_v2.png"} alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" priority fetchPriority="high" />
+                <Image src={config?.new_arrivals_img || "/ghibli_new_arrivals_v2.png"} alt="New Arrivals" fill className="object-cover brightness-95" sizes="50vw" priority fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
                 <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-sm z-10">
@@ -320,38 +319,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
             </div>
           </motion.div>
 
-          {/* Mobile Only: Featured Products Marquee */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 1 }}
-            className="w-full lg:hidden relative overflow-hidden -mx-6 px-6 mt-4 pb-2"
-          >
-            <div className="flex gap-3 w-max animate-[marquee_15s_linear_infinite] hover:[animation-play-state:paused]">
-              {(() => {
-                const marqueeItems = configuredMarqueeIds.length > 0 
-                  ? configuredMarqueeIds.map((id: string) => products.find(p => String(p.id) === String(id))).filter(Boolean) as Product[]
-                  : (products.filter(p => p.is_hero && p.image).length > 0 ? products.filter(p => p.is_hero && p.image) : products.filter(p => p.image).slice(0, 5));
-                
-                // Duplicate items to ensure enough scrolling content
-                const duplicatedItems = [...marqueeItems, ...marqueeItems, ...marqueeItems].slice(0, 10);
-                return duplicatedItems.map((product, i) => (
-                  <Link href={`/product/${product.id}`} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95">
-                    <Image src={product.image!} alt={product.name} fill className="object-cover brightness-105" sizes="144px" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute bottom-3 left-3 right-3 flex flex-col">
-                      <span className="text-[10px] text-primary font-black uppercase tracking-widest line-clamp-1 mb-0.5">{product.category}</span>
-                      <p className="text-xs font-bold text-white line-clamp-1 leading-tight">{product.name}</p>
-                    </div>
-                  </Link>
-                ));
-              })()}
-            </div>
-            
-            {/* Fade Edges for Marquee */}
-            <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-          </motion.div>
+          {/* Mobile Only: Featured Products Marquee is now a separate section */}
 
           {/* Mobile Only: Brand Mission Statement (Moved below fold) */}
           <motion.div 
@@ -417,7 +385,7 @@ export default function HeroSection({ products, heroImages, storefrontConfig }: 
                     playsInline
                     className="w-full h-full object-cover object-center scale-[1.02] transform transition-transform duration-700 group-hover:scale-[1.05]"
                   >
-                    <source src="/3D_printer_printing_glowing_heart.mp4" type="video/mp4" />
+                    <source src={config?.video_url || "/3D_printer_printing_glowing_heart.mp4"} type="video/mp4" />
                   </video>
                 )}
                 

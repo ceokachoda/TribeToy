@@ -24,6 +24,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
     content: initialData?.content || "",
     author_name: initialData?.author_name || "",
     tags: initialData?.tags?.join(", ") || "",
+    is_published: initialData?.is_published ?? true,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -85,6 +86,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
         author_name: formData.author_name,
         tags: formData.tags.split(",").map((t: string) => t.trim()).filter((t: string) => t.length > 0),
         cover_image_url: imageUrl,
+        is_published: formData.is_published,
       };
 
       if (initialData?.id) {
@@ -228,11 +230,28 @@ export default function BlogForm({ initialData }: BlogFormProps) {
           Cancel
         </button>
         <button
+          type="button"
+          disabled={loading}
+          onClick={(e) => {
+             const form = e.currentTarget.form;
+             if (form?.checkValidity()) {
+                setFormData({ ...formData, is_published: false });
+                handleSubmit(e as any);
+             } else {
+                form?.reportValidity();
+             }
+          }}
+          className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50"
+        >
+          Save as Draft
+        </button>
+        <button
           type="submit"
           disabled={loading}
+          onClick={() => setFormData({ ...formData, is_published: true })}
           className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving..." : initialData ? "Update Blog" : "Publish Blog"}
+          {loading ? "Saving..." : initialData ? "Update & Publish" : "Publish Blog"}
         </button>
       </div>
     </form>
