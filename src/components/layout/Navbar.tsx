@@ -144,16 +144,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Left Section: Back Button & Logo */}
-        <div className="flex items-center gap-2 md:gap-4">
-          {pathname !== '/' && (
-            <button 
-              onClick={() => router.back()}
-              className="lg:hidden w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-white/60 backdrop-blur-md border border-black/5 hover:bg-black/5 text-foreground hover:text-primary transition-colors shadow-sm -ml-2 md:ml-0"
-              aria-label="Go back"
-            >
-              <ArrowLeft size={20} />
-            </button>
-          )}
+        <div className="flex flex-col items-start gap-1">
           {/* Logo */}
           <Link href="/" prefetch={true} className="relative flex items-center gap-2 group transition-all duration-500">
             <div className="relative z-10 w-10 h-10 rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.1)] overflow-hidden transform transition-all duration-500 group-hover:scale-[1.02] flex items-center justify-center ring-2 ring-transparent group-hover:ring-primary/20 group-hover:shadow-[0_0_15px_rgba(121,152,122,0.3)]">
@@ -170,6 +161,17 @@ export default function Navbar() {
               </span>
             </div>
           </Link>
+          {pathname !== '/' && (
+            <button 
+              onClick={() => router.back()}
+              className="lg:hidden flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-foreground/50 hover:text-primary transition-colors pl-2"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={12} />
+              <span>Back</span>
+            </button>
+          )}
+        </div>
         </div>
 
         {/* Desktop Nav */}
