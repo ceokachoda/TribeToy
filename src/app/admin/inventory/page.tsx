@@ -19,7 +19,7 @@ export default async function InventoryPage() {
     .select("id, name, stock_quantity, reserved, incoming, damaged, category")
     .order("stock_quantity", { ascending: true });
 
-  const lowStockProducts = products?.filter(p => p.stock < 10) || [];
+  const lowStockProducts = products?.filter(p => (p.stock_quantity ?? (p as any).stock ?? 0) < 10) || [];
 
   return (
     <div className="space-y-8 w-full max-w-6xl">
