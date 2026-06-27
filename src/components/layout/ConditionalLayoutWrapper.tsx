@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
+import { Suspense } from "react";
 import dynamic from "next/dynamic";
 
 const Footer = dynamic(() => import("@/components/layout/Footer"), {
@@ -18,7 +19,11 @@ export function ConditionalLayoutWrapper({
 
   return (
     <>
-      {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && (
+        <Suspense fallback={null}>
+          <Navbar />
+        </Suspense>
+      )}
       <main className="flex-1 flex flex-col">{children}</main>
       {!isAdminRoute && <Footer />}
     </>
