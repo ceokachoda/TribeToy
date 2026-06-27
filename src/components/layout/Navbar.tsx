@@ -172,7 +172,6 @@ export default function Navbar() {
             </button>
           )}
         </div>
-        </div>
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8">
