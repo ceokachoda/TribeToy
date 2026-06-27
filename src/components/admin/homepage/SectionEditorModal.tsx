@@ -22,8 +22,15 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
   useEffect(() => {
     // Lock body scroll when modal is open
     document.body.style.overflow = "hidden";
+    const mainEl = document.getElementById('admin-main-scroll');
+    if (mainEl) {
+      mainEl.style.overflow = "hidden";
+    }
     return () => {
       document.body.style.overflow = "unset";
+      if (mainEl) {
+        mainEl.style.overflow = "";
+      }
     };
   }, []);
 

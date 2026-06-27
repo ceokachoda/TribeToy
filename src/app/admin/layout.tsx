@@ -59,7 +59,7 @@ export default async function AdminLayout({
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main id="admin-main-scroll" className="flex-1 p-4 md:p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
