@@ -100,18 +100,20 @@ export default function HeroSection({ products, config }: { products: Product[],
       className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-20 md:pt-28 pb-4 md:pb-8"
     >
       
-      {/* Refined Decorative Light Background Elements */}
+      {/* Refined Decorative Light Background Elements - Using radial gradients instead of heavy CSS blur to fix GPU rendering bugs and lag */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.15, scale: 1 }}
+        animate={{ opacity: 0.08, scale: 1 }}
         transition={{ duration: 2, ease: "easeOut" }}
-        className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#79987A] blur-[120px] pointer-events-none" 
+        className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full pointer-events-none" 
+        style={{ background: "radial-gradient(circle, #79987A 0%, rgba(121,152,122,0) 70%)" }}
       />
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.15, scale: 1 }}
+        animate={{ opacity: 0.08, scale: 1 }}
         transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
-        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#D87D8A] blur-[120px] pointer-events-none" 
+        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full pointer-events-none" 
+        style={{ background: "radial-gradient(circle, #D87D8A 0%, rgba(216,125,138,0) 70%)" }}
       />
 
       {/* Content Container */}
@@ -386,7 +388,7 @@ export default function HeroSection({ products, config }: { products: Product[],
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-accent/10 opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
               
               {/* Sweeping Light Reflection (Triggers on Hover) */}
-              <div className="absolute top-0 -left-[150%] h-full w-[150%] z-20 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-1000 group-hover:left-[150%] ease-in-out pointer-events-none" />
+              <div className="absolute top-0 left-0 h-full w-[150%] z-20 block transform -skew-x-12 -translate-x-[150%] group-hover:translate-x-[100%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none" />
 
               {/* Inner Video Container */}
               <div 
