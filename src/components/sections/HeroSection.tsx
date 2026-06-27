@@ -97,7 +97,7 @@ export default function HeroSection({ products, config }: { products: Product[],
 
   return (
     <section 
-      className="relative min-h-[calc(100vh-80px)] flex flex-col justify-center bg-background overflow-hidden pt-28 md:pt-32 pb-12 md:pb-16"
+      className="relative min-h-[calc(100vh-80px)] flex items-center bg-background overflow-hidden pt-20 md:pt-28 pb-4 md:pb-8"
     >
       
       {/* Refined Decorative Light Background Elements - Using radial gradients instead of heavy CSS blur to fix GPU rendering bugs and lag */}
@@ -117,8 +117,8 @@ export default function HeroSection({ products, config }: { products: Product[],
       />
 
       {/* Content Container */}
-      <div className="container mx-auto px-6 md:px-12 relative z-10 w-full my-auto">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+      <div className="container mx-auto px-6 md:px-12 relative z-10 w-full h-full">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16 h-full">
           
           {/* Left Side: Typography - Desktop Only */}
           <motion.div 
