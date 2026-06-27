@@ -11,7 +11,7 @@ import { useCart } from "@/context/CartContext";
 import { QuickViewModal } from "@/components/ui/QuickViewModal";
 import { useToast } from "@/context/ToastContext";
 
-export default function FeaturedProducts({ products }: { products: Product[] }) {
+export default function FeaturedProducts({ products, title }: { products: Product[], title?: string }) {
   const featuredProducts = products.filter(p => p.image).slice(0, 4);
   const router = useRouter();
   const { addToCart } = useCart();
@@ -181,7 +181,9 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
               transition={{ delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl font-heading font-black tracking-tight text-foreground"
             >
-              Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Creations</span>
+              {title ? title : (
+                <>Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Creations</span></>
+              )}
             </motion.h2>
           </div>
           <Link href="/shop" className="group flex items-center gap-4 transition-all duration-500 mb-2 md:mb-0">
