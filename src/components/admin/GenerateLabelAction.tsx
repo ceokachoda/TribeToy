@@ -16,8 +16,8 @@ export function GenerateLabelAction({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Can only generate labels for confirmed, ready_to_pack, packed, or already label_generated
-  const canGenerate = ["payment_successful", "confirmed", "ready_to_pack", "packed", "label_generated", "picked_up", "in_transit"].includes(currentStatus);
+  // Can only generate labels for processing, shipped, delivered
+  const canGenerate = ["processing", "shipped", "delivered"].includes(currentStatus);
 
   async function handleGenerate() {
     if (!canGenerate) return;

@@ -24,8 +24,6 @@ export default function AdminSidebar({
     { href: "/admin/customers", icon: <FiUsers size={20} />, label: "Customers" },
     { href: "/admin/inventory", icon: <FiPackage size={20} />, label: "Inventory" },
     { href: "/admin/shipments", icon: <FiTruck size={20} />, label: "Shipments" },
-    { href: "/admin/homepage", icon: <FiClipboard size={20} />, label: "Homepage CMS" },
-    { href: "/admin/blogs", icon: <FiClipboard size={20} />, label: "Blogs CMS" },
     { href: "/admin/alerts", icon: <FiBell size={20} />, label: "Alerts", badge: lowStockCount + pendingOrdersCount },
     { href: "/admin/audit", icon: <FiClipboard size={20} />, label: "Audit log" },
     { href: "/admin/settings", icon: <FiSettings size={20} />, label: "Settings" },

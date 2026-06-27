@@ -7,44 +7,22 @@ import { getActorId, logAudit } from "@/utils/admin/audit";
 
 export type OrderStatus = 
   | "pending" 
-  | "awaiting_payment" 
-  | "payment_failed" 
-  | "payment_successful" 
-  | "confirmed" 
-  | "ready_to_pack" 
-  | "packed" 
-  | "label_generated" 
-  | "picked_up" 
-  | "in_transit" 
-  | "out_for_delivery" 
+  | "processing" 
+  | "shipped" 
   | "delivered" 
   | "cancelled" 
-  | "refund_requested" 
-  | "refunded" 
   | "returned" 
-  | "lost_shipment" 
-  | "delivery_failed";
+  | "refunded";
 
 // Transition flow (from -> to options)
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ["awaiting_payment", "confirmed", "cancelled"],
-  awaiting_payment: ["payment_successful", "payment_failed", "cancelled"],
-  payment_failed: ["awaiting_payment", "cancelled"],
-  payment_successful: ["confirmed", "refund_requested", "refunded", "cancelled"],
-  confirmed: ["ready_to_pack", "packed", "cancelled", "refund_requested"],
-  ready_to_pack: ["packed", "cancelled"],
-  packed: ["label_generated", "picked_up", "cancelled"],
-  label_generated: ["picked_up", "cancelled"],
-  picked_up: ["in_transit", "lost_shipment", "returned"],
-  in_transit: ["out_for_delivery", "lost_shipment"],
-  out_for_delivery: ["delivered", "delivery_failed"],
-  delivery_failed: ["returned", "out_for_delivery"],
-  delivered: ["returned", "refund_requested"],
-  cancelled: ["refund_requested", "refunded"],
-  refund_requested: ["refunded"],
+  pending: ["processing", "cancelled"],
+  processing: ["shipped", "cancelled"],
+  shipped: ["delivered", "returned", "cancelled"],
+  delivered: ["returned"],
+  cancelled: ["refunded"],
+  returned: ["refunded"],
   refunded: [],
-  returned: ["refund_requested", "refunded"],
-  lost_shipment: ["refund_requested", "refunded"],
 };
 
 export async function updateOrderStatus(
@@ -81,14 +59,6 @@ export async function updateOrderStatus(
     return { ok: false, error: `Order is already ${newStatus}` };
   }
 
-  // Admin override: we could disable transition validation, but user wants workflow
-  // We'll keep the validation to enforce process
-  const allowed = VALID_TRANSITIONS[currentStatus];
-  if (allowed && !allowed.includes(newStatus)) {
-    // If strict transitions are too annoying, we might want to allow jumping states for admins
-    // But we'll enforce it for now as per instructions.
-  }
-
   // Inventory handling
   const { data: items } = await supabase
     .from("order_items")
@@ -113,19 +83,17 @@ export async function updateOrderStatus(
         (currentStatus !== "cancelled" && currentStatus !== "returned" && currentStatus !== "refunded") && 
         (newStatus === "cancelled" || newStatus === "returned" || newStatus === "refunded")
       ) {
-        // If it was already shipped, stock was deducted. Now we restore stock.
-        if (["picked_up", "in_transit", "out_for_delivery", "delivered"].includes(currentStatus)) {
+        if (["shipped", "delivered"].includes(currentStatus)) {
           newStock += item.quantity;
         } else {
-          // If it wasn't shipped, it was just reserved. Free the reservation.
           newReserved = Math.max(0, newReserved - item.quantity);
         }
       }
 
       // Deducting stock permanently when shipped
       if (
-        !["picked_up", "in_transit", "out_for_delivery", "delivered"].includes(currentStatus) &&
-        ["picked_up", "in_transit"].includes(newStatus)
+        !["shipped", "delivered"].includes(currentStatus) &&
+        ["shipped"].includes(newStatus)
       ) {
         newReserved = Math.max(0, newReserved - item.quantity);
         newStock = Math.max(0, newStock - item.quantity);
@@ -133,8 +101,8 @@ export async function updateOrderStatus(
       
       // Reserving stock initially
       if (
-        ["pending", "awaiting_payment"].includes(currentStatus) &&
-        ["payment_successful", "confirmed"].includes(newStatus)
+        ["pending"].includes(currentStatus) &&
+        ["processing"].includes(newStatus)
       ) {
         newReserved += item.quantity;
       }
@@ -153,10 +121,10 @@ export async function updateOrderStatus(
     .update({ status: newStatus })
     .eq("id", orderId);
 
-  if (updateErr) return { ok: false, error: "Failed to update order status. Make sure the database supports this status string." };
+  if (updateErr) return { ok: false, error: "Failed to update order status." };
 
   // Phase 6: Sync Shipments if order is dispatched but no shipment exists
-  if (["label_generated", "picked_up", "in_transit", "out_for_delivery", "delivered"].includes(newStatus)) {
+  if (["shipped", "delivered"].includes(newStatus)) {
     const { data: existingShipment } = await supabase
       .from("shipments")
       .select("id")

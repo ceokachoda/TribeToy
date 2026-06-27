@@ -70,8 +70,8 @@ export async function generateLabel(
 
   // Wait, in our DB, we have 18 statuses.
   // The label can only be generated if status is at least confirmed or paid.
-  if (["pending", "awaiting_payment", "payment_failed", "cancelled", "refund_requested", "refunded"].includes(order.status)) {
-    return { ok: false, error: "Order must be confirmed or paid to generate a label." };
+  if (["pending", "cancelled", "returned", "refunded"].includes(order.status)) {
+    return { ok: false, error: "Order must be processing, shipped, or delivered to generate a label." };
   }
 
   const { data: items } = await supabase
@@ -197,9 +197,9 @@ export async function generateLabel(
     if (insErr) return { ok: false, error: insErr.message };
   }
 
-  // 5. advance the order if it's prior to label_generated
-  if (["payment_successful", "confirmed", "ready_to_pack", "packed"].includes(order.status)) {
-    await updateOrderStatus(orderId, "label_generated");
+  // 5. advance the order if it's prior to shipped
+  if (["processing"].includes(order.status)) {
+    await updateOrderStatus(orderId, "shipped");
   }
 
   // 6. audit

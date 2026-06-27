@@ -9,6 +9,7 @@ import { createStaticClient } from "@/utils/supabase/static";
 import { HomepageConfig, HomepageSection } from "@/types/homepage";
 
 import MarqueeSection from "@/components/sections/MarqueeSection";
+import BlogSection from "@/components/sections/BlogSection";
 
 export const dynamic = 'force-static';
 export const revalidate = 3600;
@@ -40,7 +41,8 @@ export default async function Home() {
       { id: "hero", type: "hero", enabled: true, order: 0, data: {} },
       { id: "categories", type: "categories", enabled: true, order: 1, data: {} },
       { id: "featured", type: "featured_products", enabled: true, order: 2, data: {} },
-      { id: "about", type: "about", enabled: true, order: 3, data: {} }
+      { id: "blog", type: "blog", enabled: true, order: 3, data: {} },
+      { id: "about", type: "about", enabled: true, order: 4, data: {} }
     ]
   }) as HomepageConfig;
 
@@ -67,6 +69,8 @@ export default async function Home() {
         return <OffersSection key={section.id} data={section.data} />;
       case "about":
         return <AboutSection key={section.id} />;
+      case "blog":
+        return <BlogSection key={section.id} />;
       default:
         return null;
     }

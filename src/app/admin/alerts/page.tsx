@@ -16,21 +16,21 @@ export default async function AlertsPage() {
     .order("stock_quantity", { ascending: true })
     .limit(20);
 
-  // 2. Unfulfilled Old Orders (created > 48 hours ago, and status in pending/paid/confirmed/ready_to_pack)
+  // 2. Unfulfilled Old Orders (created > 48 hours ago, and status in pending/processing)
   const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
   const { data: oldOrders } = await supabase
     .from("orders")
     .select("id, order_no, created_at, status")
-    .in("status", ["pending", "awaiting_payment", "payment_successful", "confirmed", "ready_to_pack", "packed"])
+    .in("status", ["pending", "processing"])
     .lt("created_at", fortyEightHoursAgo)
     .order("created_at", { ascending: true })
     .limit(20);
 
-  // 3. Failed Payments
+  // 3. Cancelled Orders
   const { data: failedPayments } = await supabase
     .from("orders")
     .select("id, order_no, created_at, status, total_amount, users(full_name)")
-    .eq("status", "payment_failed")
+    .eq("status", "cancelled")
     .order("created_at", { ascending: false })
     .limit(20);
 
@@ -69,14 +69,14 @@ export default async function AlertsPage() {
           </div>
         </div>
 
-        {/* Failed Payments */}
+        {/* Cancelled Orders */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-5 border-b border-slate-100 flex items-center gap-2 bg-red-50/50">
             <FiCreditCard className="text-red-500" size={20} />
-            <h2 className="font-bold text-slate-800">Failed Payments ({failedPayments?.length || 0})</h2>
+            <h2 className="font-bold text-slate-800">Cancelled Orders ({failedPayments?.length || 0})</h2>
           </div>
           <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
-            {failedPayments?.length === 0 && <div className="p-8 text-center text-slate-500">No failed payments recently.</div>}
+            {failedPayments?.length === 0 && <div className="p-8 text-center text-slate-500">No cancelled orders recently.</div>}
             {failedPayments?.map((order) => (
               <div key={order.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
                 <div>
