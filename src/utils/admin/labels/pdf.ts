@@ -4,6 +4,7 @@ import { createElement } from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { cookies } from "next/headers";
 import { getActorId, logAudit } from "@/utils/admin/audit";
 import { updateOrderStatus } from "@/utils/admin/orders";
@@ -46,6 +47,8 @@ export async function generateLabel(
 
   const actorId = await getActorId(supabase);
   if (!actorId) return { ok: false, error: "Unauthorized" };
+
+  const adminSupabase = createAdminClient();
 
   // 1. load order
   const { data: order, error: orderErr } = await supabase
@@ -156,7 +159,7 @@ export async function generateLabel(
 
   // 4. upload + persist shipment
   // Note: We assume 'labels' bucket exists. If not, the upload will fail.
-  const { error: uploadErr } = await supabase.storage
+  const { error: uploadErr } = await adminSupabase.storage
     .from(BUCKET)
     .upload(path, buffer, { contentType: "application/pdf", upsert: true });
 
@@ -198,7 +201,7 @@ export async function generateLabel(
     after: { order_no: order.id, courier, awb, version, path },
   });
 
-  const { data: signed } = await supabase.storage
+  const { data: signed } = await adminSupabase.storage
     .from(BUCKET)
     .createSignedUrl(path, 3600);
 
@@ -228,6 +231,8 @@ export async function getLabelSignedUrl(
     }
   );
 
+  const adminSupabase = createAdminClient();
+
   const { data: shipment, error } = await supabase
     .from("shipments")
     .select("label_pdf_url")
@@ -237,7 +242,7 @@ export async function getLabelSignedUrl(
   if (error || !shipment) return { ok: false, error: "Shipment not found." };
   if (!shipment.label_pdf_url) return { ok: false, error: "No label has been generated." };
 
-  const { data, error: signErr } = await supabase.storage
+  const { data, error: signErr } = await adminSupabase.storage
     .from(BUCKET)
     .createSignedUrl(shipment.label_pdf_url, 3600);
     
