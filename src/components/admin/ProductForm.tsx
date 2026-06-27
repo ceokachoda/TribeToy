@@ -123,7 +123,11 @@ export default function ProductForm({ initialData }: ProductFormProps) {
         location: formData.location,
       };
 
-      await upsertProduct(productData, initialData?.id);
+      const response = await upsertProduct(productData, initialData?.id);
+      
+      if (response?.error) {
+        throw new Error(response.error);
+      }
 
       showToast(initialData?.id ? "Product updated successfully!" : "Product created successfully!", "success");
       router.push("/admin/products");

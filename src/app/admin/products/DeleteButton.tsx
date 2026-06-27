@@ -11,11 +11,14 @@ export default function DeleteButton({ productId }: { productId: string }) {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await deleteProduct(productId);
+      const response = await deleteProduct(productId);
+      if (response?.error) {
+        throw new Error(response.error);
+      }
       setShowModal(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete product:", error);
-      alert("Failed to delete product. Please try again.");
+      alert(error.message || "Failed to delete product. Please try again.");
       setIsDeleting(false);
     }
   };

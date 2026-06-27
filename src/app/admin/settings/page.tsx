@@ -73,7 +73,12 @@ export default function SettingsPage() {
     setIsSaving(true);
     
     try {
-      await saveSettings("hero_images", images);
+      const response = await saveSettings("hero_images", images);
+      
+      if (response?.error) {
+        throw new Error(response.error);
+      }
+      
       showToast("Settings saved successfully!", "success");
     } catch (err: any) {
       showToast(err.message || "Failed to save settings", "error");
