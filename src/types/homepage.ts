@@ -6,7 +6,8 @@ export type SectionType =
   | "offers" 
   | "testimonials" 
   | "faq" 
-  | "about";
+  | "about"
+  | "blog";
 
 export interface HomepageSection {
   id: string;
