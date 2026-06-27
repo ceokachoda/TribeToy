@@ -25,7 +25,14 @@ export default function MarqueeSection({ products, data }: { products: Product[]
 
   if (marqueeItems.length === 0) return null;
 
-  const duplicatedItems = [...marqueeItems, ...marqueeItems, ...marqueeItems].slice(0, 10);
+  // Ensure we have enough items to fill a wide screen for a continuous loop
+  let baseItems = [...marqueeItems];
+  while (baseItems.length < 15) {
+    baseItems = [...baseItems, ...marqueeItems];
+  }
+  
+  // To make a perfect loop with translateX(-50%), we need exactly two identical halves.
+  const duplicatedItems = [...baseItems, ...baseItems];
 
   return (
     <motion.div 
