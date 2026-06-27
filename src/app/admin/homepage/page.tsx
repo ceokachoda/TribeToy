@@ -17,7 +17,7 @@ const DEFAULT_CONFIG: HomepageConfig = {
   seo: { title: "TribeToy - Eco-Friendly Toys", description: "Sustainable 3D-printed toys" },
   announcement_bar: { enabled: true, text: "Free shipping on all orders over ₹1000", link: "/shop" },
   sections: [
-    { id: "hero-1", type: "hero", enabled: true, order: 0, data: { carousel: [], video_url: "/3D_printer_printing_glowing_heart.mp4", custom_prints_img: "/ghibli_hero_v2.png", new_arrivals_img: "/ghibli_new_arrivals_v2.png" } },
+    { id: "hero-1", type: "hero", enabled: true, order: 0, data: { carousel: [], video_url: "", custom_prints_img: "/ghibli_hero_v2.png", new_arrivals_img: "/ghibli_new_arrivals_v2.png" } },
     { id: "marquee-1", type: "marquee", enabled: true, order: 1, data: { products: [] } },
     { id: "categories-1", type: "categories", enabled: true, order: 2, data: {} },
     { id: "featured-1", type: "featured_products", enabled: true, order: 3, data: {} },
