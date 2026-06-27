@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { updateOrderStatus, type OrderStatus } from "@/utils/admin/orders";
+import { useToast } from "@/context/ToastContext";
 
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ["paid", "cancelled"],
-  paid: ["shipped", "cancelled"],
-  shipped: ["delivered", "cancelled"],
-  delivered: [],
+  pending: ["paid", "shipped", "cancelled"],
+  paid: ["shipped", "delivered", "cancelled"],
+  shipped: ["delivered", "paid", "cancelled"],
+  delivered: ["paid"],
   cancelled: [],
 };
 
@@ -20,6 +21,7 @@ export default function OrderStatusSelect({
 }) {
   const [status, setStatus] = useState<OrderStatus>(currentStatus as OrderStatus);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as OrderStatus;
@@ -33,10 +35,10 @@ export default function OrderStatusSelect({
       if (!res.ok) {
         throw new Error(res.error || "Failed to update order status");
       }
-      alert(`Order updated to ${newStatus}`);
+      showToast(`Order updated to ${newStatus}`, "success");
     } catch (err: any) {
       console.error("Error updating order status:", err);
-      alert(err.message || "Failed to update order status");
+      showToast(err.message || "Failed to update order status", "error");
       setStatus(oldStatus);
     } finally {
       setLoading(false);
