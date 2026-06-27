@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ShoppingCart, Menu, X, User, Heart, Package, LogOut, Home, Store, Search, ArrowLeft, Shield, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -31,6 +31,8 @@ export default function Navbar() {
   const [wishlistCount, setWishlistCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasCategory = searchParams.has('category');
   const { totalItems } = useCart();
   const { showToast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -146,7 +148,7 @@ export default function Navbar() {
         {/* Left Section: Back Button & Logo */}
         <div className="flex items-center gap-3">
           {/* Back Button (Only on deep pages) */}
-          {!['/', '/shop', '/categories', '/cart', '/profile', '/auth', '/admin'].includes(pathname) && (
+          {(!['/', '/shop', '/categories', '/cart', '/profile', '/auth', '/admin'].includes(pathname) || (pathname === '/shop' && hasCategory)) && (
             <button 
               onClick={() => router.back()}
               className="lg:hidden flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
