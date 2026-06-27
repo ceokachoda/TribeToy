@@ -264,15 +264,34 @@ function ProfileContent() {
     
     fetchUserData();
 
-    // Load wishlist from localStorage
-    const savedWishlist = localStorage.getItem("tribetoy_wishlist");
-    if (savedWishlist) {
-      try {
-        const wishlistIds = JSON.parse(savedWishlist) as string[];
-        const items = products.filter(p => wishlistIds.includes(String(p.id)));
-        setWishlistItems(items);
-      } catch (e) {}
-    }
+    const fetchWishlist = async () => {
+      const savedWishlist = localStorage.getItem("tribetoy_wishlist");
+      if (savedWishlist) {
+        try {
+          const wishlistIds = JSON.parse(savedWishlist) as string[];
+          if (wishlistIds.length > 0) {
+            const supabase = createClient();
+            const { data } = await supabase.from('products').select('*').in('id', wishlistIds);
+            if (data) {
+              setWishlistItems(data.map(p => ({
+                id: p.id,
+                name: p.name,
+                price: `₹${parseFloat(p.price).toFixed(2)}`,
+                originalPrice: p.original_price ? `₹${parseFloat(p.original_price).toFixed(2)}` : undefined,
+                image: p.image_url,
+                category: p.category,
+                isNew: p.is_new,
+                isSale: p.is_sale,
+                isPremium: p.is_premium
+              })));
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load wishlist", e);
+        }
+      }
+    };
+    fetchWishlist();
   }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: string) => {
