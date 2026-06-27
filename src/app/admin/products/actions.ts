@@ -34,6 +34,7 @@ export async function deleteProduct(productId: string) {
     // Revalidate to update the UI
     revalidatePath("/admin/products");
     revalidatePath("/shop");
+    revalidatePath("/");
 
     return { success: true };
   } catch (err: any) {
@@ -74,6 +75,7 @@ export async function upsertProduct(productData: any, id?: string) {
 
     revalidatePath("/admin/products");
     revalidatePath("/shop");
+    revalidatePath("/");
     if (id) revalidatePath(`/product/${id}`);
 
     return { success: true };
