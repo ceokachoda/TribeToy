@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { HomepageSection } from "@/types/homepage";
-import { FiX, FiUpload, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiX, FiUpload, FiPlus, FiTrash2, FiImage } from "react-icons/fi";
 import { Product } from "@/data/products";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
@@ -77,28 +77,7 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {section.type === "hero" && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Video Background URL</label>
-                <input type="text" value={data.video_url || ""} onChange={e => setData({...data, video_url: e.target.value})} className="w-full p-2 border rounded-md" placeholder="/3D_printer_printing_glowing_heart.mp4" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Hero Main Image (Optional, replaces video)</label>
-                {data.hero_image && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.hero_image} alt="Hero Main" fill className="object-cover" /></div>}
-                <input type="file" accept="image/*" onChange={e => handleUpload(e, "hero_image")} className="w-full text-sm" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Custom Prints Image</label>
-                  {data.custom_prints_img && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.custom_prints_img} alt="Custom Prints" fill className="object-cover" /></div>}
-                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "custom_prints_img")} className="w-full text-sm" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">New Arrivals Image</label>
-                  {data.new_arrivals_img && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.new_arrivals_img} alt="New Arrivals" fill className="object-cover" /></div>}
-                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "new_arrivals_img")} className="w-full text-sm" />
-                </div>
-              </div>
-              <div className="space-y-4 pt-4 border-t border-slate-100 mt-4">
+              <div className="space-y-4 pb-4 border-b border-slate-100">
                 <div className="flex justify-between items-center">
                   <label className="text-sm font-bold text-slate-700">Custom Hero Carousel Slides</label>
                   <button onClick={() => setData({...data, custom_slides: [...(data.custom_slides || []), { image: "", title: "", subtitle: "", url: "" }]})} className="text-emerald-600 text-sm font-bold flex items-center gap-1"><FiPlus /> Add Slide</button>
@@ -126,7 +105,7 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                   </div>
                 ))}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 pb-4 border-b border-slate-100">
                 <label className="text-sm font-bold text-slate-700">Or Select Carousel Products (Top 3)</label>
                 {[0, 1, 2].map(i => (
                   <select key={i} value={data.carousel?.[i] || ""} onChange={e => {
@@ -138,6 +117,28 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                     {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 ))}
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <label className="text-sm font-bold text-slate-700">Video Background URL</label>
+                <input type="text" value={data.video_url || ""} onChange={e => setData({...data, video_url: e.target.value})} className="w-full p-2 border rounded-md" placeholder="/3D_printer_printing_glowing_heart.mp4" />
+              </div>
+              <div className="space-y-2 pt-2">
+                <label className="text-sm font-bold text-slate-700">Hero Main Image (Optional, replaces video)</label>
+                {data.hero_image && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.hero_image} alt="Hero Main" fill className="object-cover" /></div>}
+                <input type="file" accept="image/*" onChange={e => handleUpload(e, "hero_image")} className="w-full text-sm" />
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">Custom Prints Image</label>
+                  {data.custom_prints_img && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.custom_prints_img} alt="Custom Prints" fill className="object-cover" /></div>}
+                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "custom_prints_img")} className="w-full text-sm" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">New Arrivals Image</label>
+                  {data.new_arrivals_img && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.new_arrivals_img} alt="New Arrivals" fill className="object-cover" /></div>}
+                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "new_arrivals_img")} className="w-full text-sm" />
+                </div>
               </div>
             </div>
           )}
@@ -179,7 +180,7 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
               </div>
 
               <label className="text-sm font-bold text-slate-700">Or Selected Products (Auto-Scrolling)</label>
-              <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+              <div className="grid grid-cols-3 gap-3 max-h-80 overflow-y-auto p-1">
                 {products.map(p => {
                   const selected = (data.products || []).includes(String(p.id));
                   return (
@@ -188,8 +189,15 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                       if (selected) c.delete(String(p.id));
                       else c.add(String(p.id));
                       setData({...data, products: Array.from(c)});
-                    }} className={`p-2 border rounded-md text-xs cursor-pointer ${selected ? 'bg-emerald-100 border-emerald-500' : 'bg-slate-50'}`}>
-                      {p.name}
+                    }} className={`border rounded-lg text-xs cursor-pointer overflow-hidden transition-all ${selected ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20' : 'bg-white hover:border-slate-300'}`}>
+                      <div className="h-20 relative w-full bg-slate-100 flex items-center justify-center">
+                        {p.image ? (
+                          <Image src={p.image} alt={p.name} fill className="object-cover" />
+                        ) : (
+                          <FiImage size={24} className="text-slate-300" />
+                        )}
+                      </div>
+                      <div className="p-2 font-medium truncate" title={p.name}>{p.name}</div>
                     </div>
                   )
                 })}
