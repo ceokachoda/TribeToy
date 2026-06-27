@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HomepageSection } from "@/types/homepage";
 import { FiX, FiUpload, FiPlus, FiTrash2, FiImage } from "react-icons/fi";
 import { Product } from "@/data/products";
@@ -18,6 +18,14 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
   const [data, setData] = useState<any>(JSON.parse(JSON.stringify(section.data || {})));
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    // Lock body scroll when modal is open
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     if (!e.target.files || !e.target.files[0]) return;
@@ -76,68 +84,82 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
 
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {section.type === "hero" && (
-            <div className="space-y-4">
-              <div className="space-y-4 pb-4 border-b border-slate-100">
+            <div className="space-y-6">
+              <div className="space-y-4 pb-6 border-b border-slate-100">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-bold text-slate-700">Custom Hero Carousel Slides</label>
-                  <button onClick={() => setData({...data, custom_slides: [...(data.custom_slides || []), { image: "", title: "", subtitle: "", url: "" }]})} className="text-emerald-600 text-sm font-bold flex items-center gap-1"><FiPlus /> Add Slide</button>
+                  <div>
+                    <label className="text-base font-bold text-slate-800">Custom Hero Carousel Slides</label>
+                    <p className="text-xs text-slate-500 mt-1">If you add custom slides, they will override the 'Carousel Products' selection below.</p>
+                  </div>
+                  <button onClick={() => setData({...data, custom_slides: [...(data.custom_slides || []), { image: "", title: "", subtitle: "", url: "" }]})} className="text-emerald-600 text-sm font-bold flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-md hover:bg-emerald-100 transition-colors"><FiPlus /> Add Slide</button>
                 </div>
-                <p className="text-xs text-slate-500">If you add custom slides, they will override the 'Carousel Products' selection below.</p>
+                
                 {(data.custom_slides || []).map((slide: any, i: number) => (
-                  <div key={i} className="p-4 border rounded-xl space-y-2 relative bg-slate-50">
-                    <button onClick={() => setData({...data, custom_slides: data.custom_slides.filter((_: any, idx: number) => idx !== i)})} className="absolute top-2 right-2 text-red-500 z-10"><FiTrash2 /></button>
-                    <div className="pt-2">
-                      <label className="text-xs font-bold text-slate-500 block mb-1">Slide Image</label>
-                      {slide.image && <div className="w-full h-32 relative rounded-md overflow-hidden mb-2 border"><Image src={slide.image} alt="Slide" fill className="object-cover" /></div>}
-                      <input type="file" accept="image/*" onChange={e => handleArrayUpload(e, "custom_slides", i, "image")} className="w-full text-xs" />
+                  <div key={i} className="p-4 border border-slate-200 rounded-xl space-y-3 relative bg-slate-50/50 shadow-sm">
+                    <button onClick={() => setData({...data, custom_slides: data.custom_slides.filter((_: any, idx: number) => idx !== i)})} className="absolute top-3 right-3 text-red-500 hover:text-red-700 bg-white p-1.5 rounded-full shadow-sm border border-slate-100 z-10 transition-colors"><FiTrash2 size={16} /></button>
+                    <div>
+                      <label className="text-xs font-bold text-slate-600 block mb-2">Slide Image</label>
+                      {slide.image && <div className="w-full h-32 relative rounded-lg overflow-hidden mb-3 border border-slate-200"><Image src={slide.image} alt="Slide" fill className="object-cover" /></div>}
+                      <input type="file" accept="image/*" onChange={e => handleArrayUpload(e, "custom_slides", i, "image")} className="w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
                     </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <input type="text" placeholder="Title (e.g. Heart Lamp)" value={slide.title} onChange={e => {
-                        const arr = [...data.custom_slides]; arr[i].title = e.target.value; setData({...data, custom_slides: arr});
-                      }} className="w-full p-2 border rounded-md text-sm font-bold" />
-                      <input type="text" placeholder="Subtitle (e.g. CUSTOM 3D PRINTS)" value={slide.subtitle} onChange={e => {
-                        const arr = [...data.custom_slides]; arr[i].subtitle = e.target.value; setData({...data, custom_slides: arr});
-                      }} className="w-full p-2 border rounded-md text-sm text-slate-600" />
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Title</label>
+                         <input type="text" placeholder="e.g. Heart Lamp" value={slide.title} onChange={e => {
+                           const arr = [...data.custom_slides]; arr[i].title = e.target.value; setData({...data, custom_slides: arr});
+                         }} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm font-bold text-slate-800 focus:border-emerald-500 outline-none transition-colors" />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Subtitle</label>
+                         <input type="text" placeholder="e.g. CUSTOM 3D PRINTS" value={slide.subtitle} onChange={e => {
+                           const arr = [...data.custom_slides]; arr[i].subtitle = e.target.value; setData({...data, custom_slides: arr});
+                         }} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-600 focus:border-emerald-500 outline-none transition-colors" />
+                      </div>
                     </div>
-                    <input type="text" placeholder="Link URL (e.g. /product/123)" value={slide.url} onChange={e => {
-                      const arr = [...data.custom_slides]; arr[i].url = e.target.value; setData({...data, custom_slides: arr});
-                    }} className="w-full p-2 border rounded-md text-sm" />
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Link URL</label>
+                      <input type="text" placeholder="e.g. /product/123" value={slide.url} onChange={e => {
+                        const arr = [...data.custom_slides]; arr[i].url = e.target.value; setData({...data, custom_slides: arr});
+                      }} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 focus:border-emerald-500 outline-none transition-colors" />
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="space-y-2 pb-4 border-b border-slate-100">
-                <label className="text-sm font-bold text-slate-700">Or Select Carousel Products (Top 3)</label>
-                {[0, 1, 2].map(i => (
-                  <select key={i} value={data.carousel?.[i] || ""} onChange={e => {
-                    const c = [...(data.carousel || ["", "", ""])];
-                    c[i] = e.target.value;
-                    setData({...data, carousel: c});
-                  }} className="w-full p-2 border rounded-md mb-2">
-                    <option value="">-- None --</option>
-                    {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                ))}
+              <div className="space-y-3 pb-6 border-b border-slate-100">
+                <label className="text-base font-bold text-slate-800">Or Select Carousel Products (Top 3)</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[0, 1, 2].map(i => (
+                    <select key={i} value={data.carousel?.[i] || ""} onChange={e => {
+                      const c = [...(data.carousel || ["", "", ""])];
+                      c[i] = e.target.value;
+                      setData({...data, carousel: c});
+                    }} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 focus:border-emerald-500 outline-none transition-colors">
+                      <option value="">-- None --</option>
+                      {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-2 pt-2">
-                <label className="text-sm font-bold text-slate-700">Video Background URL</label>
-                <input type="text" value={data.video_url || ""} onChange={e => setData({...data, video_url: e.target.value})} className="w-full p-2 border rounded-md" placeholder="/3D_printer_printing_glowing_heart.mp4" />
+              <div className="space-y-3 pt-2">
+                <label className="text-base font-bold text-slate-800">Video Background URL</label>
+                <input type="text" value={data.video_url || ""} onChange={e => setData({...data, video_url: e.target.value})} className="w-full p-2.5 border border-slate-200 rounded-lg text-sm focus:border-emerald-500 outline-none transition-colors" placeholder="/3D_printer_printing_glowing_heart.mp4" />
               </div>
-              <div className="space-y-2 pt-2">
-                <label className="text-sm font-bold text-slate-700">Hero Main Image (Optional, replaces video)</label>
-                {data.hero_image && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.hero_image} alt="Hero Main" fill className="object-cover" /></div>}
-                <input type="file" accept="image/*" onChange={e => handleUpload(e, "hero_image")} className="w-full text-sm" />
+              <div className="space-y-3 pt-4">
+                <label className="text-base font-bold text-slate-800">Hero Main Image <span className="text-sm font-normal text-slate-500">(Optional, replaces video)</span></label>
+                {data.hero_image && <div className="h-40 relative rounded-xl overflow-hidden border border-slate-200 shadow-sm"><Image src={data.hero_image} alt="Hero Main" fill className="object-cover" /></div>}
+                <input type="file" accept="image/*" onChange={e => handleUpload(e, "hero_image")} className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Custom Prints Image</label>
-                  {data.custom_prints_img && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.custom_prints_img} alt="Custom Prints" fill className="object-cover" /></div>}
-                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "custom_prints_img")} className="w-full text-sm" />
+              <div className="grid grid-cols-2 gap-6 pt-6">
+                <div className="space-y-3">
+                  <label className="text-base font-bold text-slate-800">Custom Prints Image</label>
+                  {data.custom_prints_img && <div className="h-32 relative rounded-xl overflow-hidden border border-slate-200 shadow-sm"><Image src={data.custom_prints_img} alt="Custom Prints" fill className="object-cover" /></div>}
+                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "custom_prints_img")} className="w-full text-xs text-slate-600 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">New Arrivals Image</label>
-                  {data.new_arrivals_img && <div className="h-32 relative rounded-lg overflow-hidden border"><Image src={data.new_arrivals_img} alt="New Arrivals" fill className="object-cover" /></div>}
-                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "new_arrivals_img")} className="w-full text-sm" />
+                <div className="space-y-3">
+                  <label className="text-base font-bold text-slate-800">New Arrivals Image</label>
+                  {data.new_arrivals_img && <div className="h-32 relative rounded-xl overflow-hidden border border-slate-200 shadow-sm"><Image src={data.new_arrivals_img} alt="New Arrivals" fill className="object-cover" /></div>}
+                  <input type="file" accept="image/*" onChange={e => handleUpload(e, "new_arrivals_img")} className="w-full text-xs text-slate-600 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
                 </div>
               </div>
             </div>
