@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { FiSettings, FiImage, FiUploadCloud, FiCheck, FiLoader, FiX } from "react-icons/fi";
 import { useToast } from "@/context/ToastContext";
 import Image from "next/image";
+import { saveSettings } from "./actions";
 
 export default function SettingsPage() {
   const [images, setImages] = useState({ custom_prints: "", new_arrivals: "" });
@@ -70,18 +71,9 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    const supabase = createClient();
     
     try {
-      const { error } = await supabase
-        .from("site_settings")
-        .upsert({ 
-          key: "hero_images", 
-          value: images,
-          updated_at: new Date().toISOString()
-        }, { onConflict: "key" });
-
-      if (error) throw error;
+      await saveSettings("hero_images", images);
       showToast("Settings saved successfully!", "success");
     } catch (err: any) {
       showToast(err.message || "Failed to save settings", "error");

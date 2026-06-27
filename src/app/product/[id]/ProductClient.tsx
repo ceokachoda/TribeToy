@@ -18,12 +18,11 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
 
-  // Mocking multiple angles for the carousel
-  const images = [
-    product.image,
-    product.image, // Placeholder for angle 2
-    product.image  // Placeholder for angle 3
-  ];
+  // Use actual additional images from the product, plus the main image
+  const images = [product.image];
+  if (product.additional_images && product.additional_images.length > 0) {
+    images.push(...product.additional_images);
+  }
 
   // Mock reviews
   const [reviews, setReviews] = useState([
@@ -129,7 +128,7 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
       <div className="max-w-7xl mx-auto md:px-8 flex flex-col lg:flex-row gap-0 md:gap-12 lg:gap-16 items-start">
         {/* Left Side: Image Carousel */}
         <div className="w-full lg:w-1/2 flex-shrink-0">
-          <div className="relative w-full aspect-square md:rounded-3xl bg-[#f4f5f4] mt-16 md:mt-0 overflow-hidden lg:border md:border-black/5 md:shadow-lg">
+          <div className="group relative w-full aspect-square md:rounded-3xl bg-[#f4f5f4] mt-16 md:mt-0 overflow-hidden lg:border md:border-black/5 md:shadow-lg">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentImageIndex}
@@ -160,12 +159,30 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
               </motion.div>
             </AnimatePresence>
             
-            {/* Pagination Dots */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+            {/* Pagination Dots for Mobile */}
+            <div className="absolute bottom-4 left-0 right-0 flex md:hidden justify-center gap-2 z-10">
               {images.map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 md:w-6 bg-primary' : 'w-1.5 md:w-2 bg-black/20 md:bg-black/30'}`} />
+                <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-black/20'}`} />
               ))}
             </div>
+            
+            {/* Desktop Navigation Arrows (if multiple images) */}
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length); }}
+                  className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-sm items-center justify-center rounded-full shadow-md text-slate-800 transition-all opacity-0 group-hover:opacity-100 z-20"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev + 1) % images.length); }}
+                  className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-sm items-center justify-center rounded-full shadow-md text-slate-800 transition-all opacity-0 group-hover:opacity-100 z-20"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </>
+            )}
             
             {/* Badges */}
             <div className="absolute top-20 md:top-6 left-4 md:left-6 flex flex-col gap-2 z-10">

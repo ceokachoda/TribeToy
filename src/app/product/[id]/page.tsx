@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createStaticClient();
-  const { data: product } = await supabase.from('products').select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium, description, stock_quantity').eq('id', id).single();
+  const { data: product } = await supabase.from('products').select('id, name, category, price, original_price, image_url, additional_images, is_new, is_sale, is_premium, description, stock_quantity').eq('id', id).single();
   
   if (!product) return { title: 'Product Not Found' };
   
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createStaticClient();
-  const { data: product, error } = await supabase.from('products').select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium, description, stock_quantity').eq('id', id).single();
+  const { data: product, error } = await supabase.from('products').select('id, name, category, price, original_price, image_url, additional_images, is_new, is_sale, is_premium, description, stock_quantity').eq('id', id).single();
   
   if (!product) {
     notFound();
@@ -28,7 +28,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   const { data: relatedProductsData } = await supabase
     .from('products')
-    .select('id, name, category, price, original_price, image_url, is_new, is_sale, is_premium, description, stock_quantity')
+    .select('id, name, category, price, original_price, image_url, additional_images, is_new, is_sale, is_premium, description, stock_quantity')
     .eq('category', product.category)
     .neq('id', product.id)
     .limit(4);
@@ -40,6 +40,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     price: `₹${parseFloat(product.price).toFixed(2)}`,
     originalPrice: product.original_price ? `₹${parseFloat(product.original_price).toFixed(2)}` : undefined,
     image: product.image_url || "",
+    additional_images: product.additional_images || [],
     isNew: product.is_new,
     isSale: product.is_sale,
     isPremium: product.is_premium,
@@ -52,6 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     price: `₹${parseFloat(p.price).toFixed(2)}`,
     originalPrice: p.original_price ? `₹${parseFloat(p.original_price).toFixed(2)}` : undefined,
     image: p.image_url || "",
+    additional_images: p.additional_images || [],
     isNew: p.is_new,
     isSale: p.is_sale,
     isPremium: p.is_premium,
