@@ -168,9 +168,10 @@ export default function ProductForm({ initialData }: ProductFormProps) {
             >
               <option value="">Select a category...</option>
               <option value="Toys & Figurines">Toys & Figurines</option>
+              <option value="Utility & Decor">Utility & Decor</option>
+              <option value="Cultural">Cultural</option>
               <option value="Educational">Educational</option>
-              <option value="Utility Decor">Utility Decor</option>
-              <option value="Cultural Heritage">Cultural Heritage</option>
+              <option value="Statues">Statues</option>
               <option value="Other">Other</option>
             </select>
           </div>
