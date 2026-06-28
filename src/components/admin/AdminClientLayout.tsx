@@ -20,7 +20,7 @@ export default function AdminClientLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] flex font-sans overflow-hidden">
+    <div className="h-[100dvh] bg-[#FAF8F5] flex font-sans overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
@@ -29,9 +29,9 @@ export default function AdminClientLayout({
         />
       )}
 
-      {/* Sidebar - Mobile Drawer & Desktop Fixed */}
+      {/* Sidebar — its own scroll container */}
       <div 
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex-shrink-0 ${
           isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
@@ -42,9 +42,9 @@ export default function AdminClientLayout({
         />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-md sm:px-6 shadow-sm flex-shrink-0">
+      {/* Main Content — its own scroll container */}
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-md sm:px-6 shadow-sm flex-shrink-0 z-10">
           <div className="flex min-w-0 items-center gap-3">
             <button 
               onClick={() => setIsSidebarOpen(true)}
@@ -74,7 +74,7 @@ export default function AdminClientLayout({
           </div>
         </header>
 
-        <main id="admin-main-scroll" className="flex-1 p-4 md:p-8 overflow-y-auto w-full">
+        <main id="admin-main-scroll" className="flex-1 overflow-y-auto p-4 md:p-8 w-full">
           <div className="max-w-7xl mx-auto pb-safe">
             {children}
           </div>

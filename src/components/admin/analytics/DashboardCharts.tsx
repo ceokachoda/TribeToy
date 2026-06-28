@@ -19,13 +19,17 @@ import type { DailyTrend, CategorySplit } from "@/utils/admin/analytics";
 
 export function RevenueTrendChart({ data }: { data: DailyTrend[] }) {
   // format date to short format e.g. "Jun 20"
-  const formattedData = data.map((d) => ({
-    ...d,
-    displayDate: new Date(d.date).toLocaleDateString("en-IN", {
-      month: "short",
-      day: "numeric",
-    }),
-  }));
+  const formattedData = data.map((d) => {
+    const [year, month, day] = d.date.split('-');
+    const dateObj = new Date(Number(year), Number(month) - 1, Number(day));
+    return {
+      ...d,
+      displayDate: dateObj.toLocaleDateString("en-IN", {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
 
   return (
     <div className="h-64 w-full">
@@ -53,7 +57,12 @@ export function RevenueTrendChart({ data }: { data: DailyTrend[] }) {
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: "#64748b" }}
-            tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+            tickFormatter={(value) => {
+              if (value >= 1000) {
+                return `₹${(value / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+              }
+              return `₹${value}`;
+            }}
             dx={-10}
           />
           <Tooltip
@@ -76,13 +85,17 @@ export function RevenueTrendChart({ data }: { data: DailyTrend[] }) {
 }
 
 export function OrdersTrendChart({ data }: { data: DailyTrend[] }) {
-  const formattedData = data.map((d) => ({
-    ...d,
-    displayDate: new Date(d.date).toLocaleDateString("en-IN", {
-      month: "short",
-      day: "numeric",
-    }),
-  }));
+  const formattedData = data.map((d) => {
+    const [year, month, day] = d.date.split('-');
+    const dateObj = new Date(Number(year), Number(month) - 1, Number(day));
+    return {
+      ...d,
+      displayDate: dateObj.toLocaleDateString("en-IN", {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
 
   return (
     <div className="h-64 w-full">

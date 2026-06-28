@@ -19,21 +19,23 @@ const CartItemRow = memo(({ item, updateQuantity, removeFromCart }: { item: any,
       className="bg-white rounded-3xl p-4 md:p-6 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row gap-6 items-center sm:items-stretch"
     >
       {/* Image */}
-      <div className="w-32 h-32 rounded-2xl bg-[#f4f5f4] flex-shrink-0 relative overflow-hidden border border-black/5">
+      <Link href={`/product/${item.id}`} className="w-32 h-32 rounded-2xl bg-[#f4f5f4] flex-shrink-0 relative overflow-hidden border border-black/5 block cursor-pointer group">
         {item.image ? (
-          <Image src={item.image} alt={item.name} fill className="object-cover" />
+          <Image src={item.image} alt={item.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
             <ShoppingBag className="text-black/10 w-8 h-8" />
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Details */}
       <div className="flex flex-col flex-grow w-full text-center sm:text-left justify-between py-1">
         <div>
           <span className="text-[9px] font-bold tracking-[0.2em] text-[#4a5d4e] uppercase mb-2 block">{item.category}</span>
-          <h3 className="text-lg font-bold text-[#1a1a1a] leading-tight mb-2 line-clamp-2">{item.name}</h3>
+          <Link href={`/product/${item.id}`} className="hover:underline">
+            <h3 className="text-lg font-bold text-[#1a1a1a] leading-tight mb-2 line-clamp-2 cursor-pointer">{item.name}</h3>
+          </Link>
           <p className="text-lg font-black text-[#1a1a1a]">{item.price}</p>
         </div>
         

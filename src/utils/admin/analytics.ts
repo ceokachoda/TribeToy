@@ -26,9 +26,17 @@ export type AnalyticsKpis = {
 };
 
 export async function getAnalyticsData(supabase: SupabaseClient) {
+  const getISTDateString = (date: Date | string) => {
+    const d = new Date(date);
+    const options: Intl.DateTimeFormatOptions = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+    const str = new Intl.DateTimeFormat('en-GB', options).format(d);
+    const [day, month, year] = str.split('/');
+    return `${year}-${month}-${day}`;
+  };
+
   // Fetch orders in the last 30 days
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgoIso = thirtyDaysAgo.toISOString();
 
   // 1. Get all active orders (paid, shipped, delivered)
@@ -60,14 +68,15 @@ export async function getAnalyticsData(supabase: SupabaseClient) {
   
   // Initialize last 30 days with 0
   for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
-    trendMap.set(dateStr, { revenue: 0, orders: 0 });
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = getISTDateString(d);
+    if (!trendMap.has(dateStr)) {
+      trendMap.set(dateStr, { revenue: 0, orders: 0 });
+    }
   }
 
   activeOrders.forEach(o => {
-    const dateStr = o.created_at.split("T")[0];
+    const dateStr = getISTDateString(o.created_at);
     if (trendMap.has(dateStr)) {
       const current = trendMap.get(dateStr)!;
       current.revenue += Number(o.total_amount);
