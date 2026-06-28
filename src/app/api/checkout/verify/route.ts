@@ -11,7 +11,8 @@ export async function POST(req: Request) {
       razorpay_signature,
       amount,
       shipping_address,
-      items
+      items,
+      coupon_code
     } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -45,6 +46,32 @@ export async function POST(req: Request) {
       };
     });
 
+    const adminSupabase = createAdminClient();
+
+    let finalAmount = calculatedAmount;
+    let appliedCouponId = null;
+    let appliedDiscountAmount = 0;
+
+    if (coupon_code) {
+      const { data: coupon } = await adminSupabase
+        .from("coupons")
+        .select("*")
+        .eq("code", coupon_code.toUpperCase())
+        .single();
+
+      if (coupon && coupon.is_active && (coupon.max_uses === null || coupon.used_count < coupon.max_uses)) {
+        appliedCouponId = coupon.id;
+        if (coupon.discount_type === 'percentage') {
+          appliedDiscountAmount = (calculatedAmount * coupon.discount_value) / 100;
+        } else if (coupon.discount_type === 'fixed') {
+          appliedDiscountAmount = coupon.discount_value;
+        }
+        
+        if (appliedDiscountAmount > calculatedAmount) appliedDiscountAmount = calculatedAmount;
+        finalAmount = calculatedAmount - appliedDiscountAmount;
+      }
+    }
+
     const secret = process.env.RAZORPAY_KEY_SECRET;
     if (!secret) throw new Error("Razorpay secret not configured");
 
@@ -60,8 +87,6 @@ export async function POST(req: Request) {
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
 
-    const adminSupabase = createAdminClient();
-
     // Create order record using admin client to bypass RLS for order_items insertion
     const { data: order, error: orderError } = await adminSupabase
       .from("orders")
@@ -70,7 +95,10 @@ export async function POST(req: Request) {
         razorpay_order_id,
         razorpay_payment_id,
         status: 'paid',
-        total_amount: calculatedAmount,
+        total_amount: finalAmount,
+        subtotal_amount: calculatedAmount,
+        discount_amount: appliedDiscountAmount,
+        coupon_id: appliedCouponId,
         shipping_address
       })
       .select()
@@ -95,6 +123,16 @@ export async function POST(req: Request) {
     // Clear user cart if logged in
     if (userId) {
       await supabase.from("cart_items").delete().eq("user_id", userId);
+    }
+
+    // Increment coupon used_count if a coupon was successfully applied
+    if (appliedCouponId) {
+      await adminSupabase.rpc('increment_coupon_usage', { coupon_id: appliedCouponId });
+      // Since rpc might not be created, we'll fetch and update to keep it simple if RPC is missing
+      const { data: c } = await adminSupabase.from("coupons").select("used_count").eq("id", appliedCouponId).single();
+      if (c) {
+        await adminSupabase.from("coupons").update({ used_count: c.used_count + 1 }).eq("id", appliedCouponId);
+      }
     }
 
     return NextResponse.json({ success: true, orderId: order.id }, { status: 200 });

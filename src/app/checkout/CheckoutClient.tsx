@@ -16,6 +16,11 @@ export default function CheckoutClient() {
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
   const [pincode, setPincode] = useState("");
   const [cityOptions, setCityOptions] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState("");
@@ -104,6 +109,32 @@ export default function CheckoutClient() {
     );
   }
 
+  const finalAmount = appliedCoupon ? appliedCoupon.final_amount : totalPrice;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, subtotal: totalPrice })
+      });
+      const data = await res.json();
+      if (data.error) {
+        setCouponError(data.error);
+        setAppliedCoupon(null);
+      } else {
+        setAppliedCoupon(data);
+      }
+    } catch (err) {
+      setCouponError("Failed to apply coupon");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
   const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -129,9 +160,10 @@ export default function CheckoutClient() {
     }
 
     const payload = {
-      amount: totalPrice,
+      amount: finalAmount,
       shipping_address,
-      items: cart
+      items: cart,
+      coupon_code: appliedCoupon ? couponCode : undefined
     };
 
     if (paymentMethod === "cod") {
@@ -183,9 +215,10 @@ export default function CheckoutClient() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                amount: totalPrice,
+                amount: finalAmount,
                 shipping_address,
-                items: cart
+                items: cart,
+                coupon_code: appliedCoupon ? couponCode : undefined
               })
             });
             const verifyData = await verifyRes.json();
@@ -405,11 +438,57 @@ export default function CheckoutClient() {
 
               <div className="w-full h-px bg-black/10 my-6" />
 
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-[#1a1a1a] mb-3">Discount Code</h4>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Enter coupon code"
+                    disabled={!!appliedCoupon || isApplyingCoupon}
+                    className="flex-grow px-4 py-3 rounded-xl bg-white border border-black/10 focus:border-[#4a5d4e] outline-none font-medium text-sm"
+                  />
+                  {appliedCoupon ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppliedCoupon(null);
+                        setCouponCode("");
+                        setCouponError("");
+                      }}
+                      className="px-4 py-3 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-colors border border-red-100"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={!couponCode || isApplyingCoupon}
+                      className="px-6 py-3 rounded-xl bg-[#4a5d4e] text-white font-bold text-sm hover:bg-[#38463b] transition-colors disabled:opacity-50"
+                    >
+                      {isApplyingCoupon ? 'Applying...' : 'Apply'}
+                    </button>
+                  )}
+                </div>
+                {couponError && <p className="text-red-500 text-xs font-medium mt-2">{couponError}</p>}
+                {appliedCoupon && <p className="text-[#4a5d4e] text-xs font-bold mt-2 flex items-center gap-1"><CheckCircle2 size={12} /> Coupon applied successfully!</p>}
+              </div>
+
+              <div className="w-full h-px bg-black/10 my-6" />
+
               <div className="flex flex-col gap-3 text-[#5a6b5e] font-medium mb-8">
                 <div className="flex justify-between items-center">
                   <span>Subtotal ({totalItems} items)</span>
                   <span className="font-bold text-[#1a1a1a]">₹{totalPrice.toFixed(2)}</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between items-center text-[#4a5d4e]">
+                    <span>Discount ({appliedCoupon.discount_type === 'percentage' ? `${appliedCoupon.discount_value}%` : `₹${appliedCoupon.discount_value}`})</span>
+                    <span className="font-bold">-₹{appliedCoupon.discount_amount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span>Shipping</span>
                   <span className="text-[#4a5d4e] font-bold">Free</span>
@@ -417,7 +496,7 @@ export default function CheckoutClient() {
                 <div className="w-full h-px bg-black/10 my-2" />
                 <div className="flex justify-between items-center text-2xl">
                   <span className="font-black text-[#1a1a1a]">Total</span>
-                  <span className="font-black text-[#1a1a1a]">₹{totalPrice.toFixed(2)}</span>
+                  <span className="font-black text-[#1a1a1a]">₹{finalAmount.toFixed(2)}</span>
                 </div>
               </div>
 

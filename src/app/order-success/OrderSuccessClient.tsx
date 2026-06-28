@@ -79,9 +79,21 @@ function OrderSuccessContent() {
             </div>
           </div>
           {orderDetails && (
-            <div className="w-full border-t border-black/10 pt-4 flex justify-between items-center px-4">
-              <span className="text-sm font-bold text-[#5a6b5e]">Total Amount:</span>
-              <span className="text-lg font-black text-[#1a1a1a]">₹{orderDetails.total_amount}</span>
+            <div className="w-full flex flex-col gap-2">
+              <div className="w-full border-t border-black/10 pt-4 flex justify-between items-center px-4">
+                <span className="text-sm font-bold text-[#5a6b5e]">Subtotal:</span>
+                <span className="text-sm font-bold text-[#1a1a1a]">₹{orderDetails.subtotal_amount || orderDetails.total_amount}</span>
+              </div>
+              {orderDetails.discount_amount > 0 && (
+                <div className="w-full flex justify-between items-center px-4 text-emerald-600">
+                  <span className="text-sm font-bold">Discount Applied:</span>
+                  <span className="text-sm font-bold">-₹{orderDetails.discount_amount}</span>
+                </div>
+              )}
+              <div className="w-full flex justify-between items-center px-4 mt-2">
+                <span className="text-base font-bold text-[#1a1a1a]">Final Total:</span>
+                <span className="text-xl font-black text-[#1a1a1a]">₹{orderDetails.total_amount}</span>
+              </div>
             </div>
           )}
         </div>

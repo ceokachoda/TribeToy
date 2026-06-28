@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const { data: { session } } = await supabase.auth.getSession();
 
-    const { items } = await req.json();
+    const { items, coupon_code } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Invalid items" }, { status: 400 });
@@ -37,13 +37,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
+    let finalAmount = calculatedAmount;
+    
+    // Apply coupon if provided
+    if (coupon_code) {
+      const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+      const adminSupabase = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      const { data: coupon } = await adminSupabase
+        .from("coupons")
+        .select("*")
+        .eq("code", coupon_code.toUpperCase())
+        .single();
+
+      if (coupon && coupon.is_active && (coupon.max_uses === null || coupon.used_count < coupon.max_uses)) {
+        let discountAmount = 0;
+        if (coupon.discount_type === 'percentage') {
+          discountAmount = (calculatedAmount * coupon.discount_value) / 100;
+        } else if (coupon.discount_type === 'fixed') {
+          discountAmount = coupon.discount_value;
+        }
+        
+        if (discountAmount > calculatedAmount) discountAmount = calculatedAmount;
+        finalAmount = calculatedAmount - discountAmount;
+      }
+    }
+
     const razorpay = new Razorpay({
       key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
       key_secret: process.env.RAZORPAY_KEY_SECRET!,
     });
 
     const options = {
-      amount: Math.round(calculatedAmount * 100), // amount in the smallest currency unit (paise)
+      amount: Math.round(finalAmount * 100), // amount in the smallest currency unit (paise)
       currency: "INR",
       receipt: `rcpt_${Date.now()}`,
     };

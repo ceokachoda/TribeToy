@@ -145,7 +145,14 @@ export default async function AdminOrdersPage({
                       {order.users?.full_name || "Guest"}
                     </td>
                     <td className="px-6 py-5 text-slate-700 font-medium">
-                      ₹{order.total_amount.toLocaleString("en-IN")}
+                      <div className="flex flex-col">
+                        <span>₹{order.total_amount.toLocaleString("en-IN")}</span>
+                        {order.discount_amount > 0 && (
+                          <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mt-1">
+                            -₹{Number(order.discount_amount).toLocaleString("en-IN")} (Coupon)
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-5">
                       <OrderStatusBadge status={order.status} orderId={order.id} interactive={true} />
