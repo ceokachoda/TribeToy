@@ -50,5 +50,61 @@ export const products: Product[] = [
     "image": "/products/owl.jpeg",
     "isNew": true,
     "isSale": false
+  },
+  {
+    "id": 5,
+    "name": "New Item 1 (Hexagon Shelf)",
+    "category": "Utility & Decor",
+    "price": "₹0.00",
+    "image": "/products/item-1-1.png",
+    "additional_images": ["/products/item-1-2.png"]
+  },
+  {
+    "id": 6,
+    "name": "New Item 2 (Teddy Bear)",
+    "category": "Toys & Figurines",
+    "price": "₹0.00",
+    "image": "/products/item-2-1.png",
+    "additional_images": ["/products/item-2-2.png", "/products/item-2-3.png"]
+  },
+  {
+    "id": 7,
+    "name": "New Item 3 (Godzilla Red)",
+    "category": "Toys & Figurines",
+    "price": "₹0.00",
+    "image": "/products/item-3-1.png",
+    "additional_images": ["/products/item-3-2.png", "/products/item-3-3.png"]
+  },
+  {
+    "id": 8,
+    "name": "New Item 4 (Pikachu)",
+    "category": "Toys & Figurines",
+    "price": "₹0.00",
+    "image": "/products/item-4-1.png",
+    "additional_images": ["/products/item-4-2.png"]
+  },
+  {
+    "id": 9,
+    "name": "New Item 5 (Squid Game Guard)",
+    "category": "Toys & Figurines",
+    "price": "₹0.00",
+    "image": "/products/item-5-1.png",
+    "additional_images": ["/products/item-5-2.png", "/products/item-5-3.png"]
+  },
+  {
+    "id": 10,
+    "name": "New Item 6 (Elephant)",
+    "category": "Toys & Figurines",
+    "price": "₹0.00",
+    "image": "/products/item-6-1.png",
+    "additional_images": ["/products/item-6-2.png"]
+  },
+  {
+    "id": 11,
+    "name": "New Item 7 (Spongebob)",
+    "category": "Toys & Figurines",
+    "price": "₹0.00",
+    "image": "/products/item-7-1.png",
+    "additional_images": ["/products/item-7-2.png"]
   }
 ];
