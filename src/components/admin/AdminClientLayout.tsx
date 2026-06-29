@@ -74,7 +74,7 @@ export default function AdminClientLayout({
           </div>
         </header>
 
-        <main id="admin-main-scroll" className="flex-1 overflow-y-auto p-4 md:p-8 w-full">
+        <main id="admin-main-scroll" className="flex-1 overflow-y-auto p-4 md:p-8 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="max-w-7xl mx-auto pb-safe">
             {children}
           </div>

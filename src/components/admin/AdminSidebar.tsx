@@ -35,7 +35,7 @@ export default function AdminSidebar({
   ];
 
   return (
-    <aside className="w-full h-full bg-white border-r border-slate-200 flex-shrink-0 flex flex-col overflow-y-auto custom-scrollbar">
+    <aside className="w-full h-full bg-white border-r border-slate-200 flex-shrink-0 flex flex-col overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="p-6 pb-8 border-b border-slate-100 flex-shrink-0 flex justify-between items-start">
         <Link href="/admin" className="flex items-center gap-3" onClick={onClose}>
           <div className="relative w-12 h-12 rounded-lg border border-slate-200 overflow-hidden shadow-sm flex-shrink-0">
@@ -58,7 +58,7 @@ export default function AdminSidebar({
           </button>
         )}
       </div>
-      <nav className="mt-6 flex flex-col gap-1 px-4 flex-1 pb-4">
+      <nav className="mt-6 flex flex-col gap-1 px-4 flex-1 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {navItems.map((item) => {
           // Exact match for dashboard, prefix match for others
           const isActive = item.href === "/admin" 

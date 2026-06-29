@@ -41,9 +41,9 @@ export default function MarqueeSection({ products, data }: { products: Product[]
       transition={{ delay: 0.8, duration: 1 }}
       className="w-full relative overflow-hidden -mx-6 px-6 pb-2"
     >
-      <div className="flex gap-3 w-max animate-[marquee_50s_linear_infinite] hover:[animation-play-state:paused] active:[animation-play-state:paused]">
+      <div className="flex gap-3 w-max animate-[marquee_150s_linear_infinite] will-change-transform hover:[animation-play-state:paused] active:[animation-play-state:paused]">
         {duplicatedItems.map((item, i) => (
-          <Link href={item.url || "#"} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95">
+          <Link href={item.url || "#"} key={i} className="relative w-36 h-48 rounded-[1.5rem] overflow-hidden shrink-0 border border-foreground/10 shadow-[0_8px_20px_rgba(0,0,0,0.06)] transform-gpu transition-transform active:scale-95 will-change-transform">
             <Image src={item.image!} alt={item.title || "Marquee Image"} fill className="object-cover brightness-105" sizes="144px" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="absolute bottom-3 left-3 right-3 flex flex-col">
