@@ -35,7 +35,7 @@ export default function AdminSidebar({
   ];
 
   return (
-    <aside className="w-full h-full bg-white border-r border-slate-200 flex-shrink-0 flex flex-col overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <aside data-lenis-prevent className="w-full h-full bg-white border-r border-slate-200 flex-shrink-0 flex flex-col overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="p-6 pb-8 border-b border-slate-100 flex-shrink-0 flex justify-between items-start">
         <Link href="/admin" className="flex items-center gap-3" onClick={onClose}>
           <div className="relative w-12 h-12 rounded-lg border border-slate-200 overflow-hidden shadow-sm flex-shrink-0">

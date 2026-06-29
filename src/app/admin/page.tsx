@@ -107,7 +107,7 @@ async function DashboardData() {
                 {lowStock?.length || 0}
               </span>
             </div>
-            <div className="overflow-auto max-h-[300px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div data-lenis-prevent className="overflow-auto max-h-[300px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <table className="w-full min-w-[300px] text-left text-sm text-slate-600">
                 <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 sticky top-0">
                   <tr>
@@ -150,7 +150,7 @@ async function DashboardData() {
                 {backlog?.length || 0}
               </span>
             </div>
-            <div className="overflow-auto max-h-[300px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div data-lenis-prevent className="overflow-auto max-h-[300px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <table className="w-full min-w-[400px] text-left text-sm text-slate-600">
                 <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 sticky top-0">
                   <tr>
