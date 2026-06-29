@@ -9,14 +9,35 @@ export default function ContactClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!res.ok) throw new Error("Failed to send message");
+      
       setSubmitted(true);
-    }, 1500);
+      setFormData({ firstName: "", lastName: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error(error);
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -110,6 +131,8 @@ export default function ContactClient() {
                       <input 
                         required
                         type="text" 
+                        value={formData.firstName}
+                        onChange={e => setFormData({...formData, firstName: e.target.value})}
                         placeholder="John" 
                         className="w-full px-6 py-4 rounded-3xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] placeholder:text-[#8a958c]/60"
                       />
@@ -119,6 +142,8 @@ export default function ContactClient() {
                       <input 
                         required
                         type="text" 
+                        value={formData.lastName}
+                        onChange={e => setFormData({...formData, lastName: e.target.value})}
                         placeholder="Doe" 
                         className="w-full px-6 py-4 rounded-3xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] placeholder:text-[#8a958c]/60"
                       />
@@ -130,6 +155,8 @@ export default function ContactClient() {
                     <input 
                       required
                       type="email" 
+                      value={formData.email}
+                      onChange={e => setFormData({...formData, email: e.target.value})}
                       placeholder="john@example.com" 
                       className="w-full px-6 py-4 rounded-full bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] placeholder:text-[#8a958c]/60"
                     />
@@ -139,7 +166,8 @@ export default function ContactClient() {
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Subject</label>
                     <select 
                       required
-                      defaultValue=""
+                      value={formData.subject}
+                      onChange={e => setFormData({...formData, subject: e.target.value})}
                       className="w-full px-6 py-4 rounded-full bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] appearance-none"
                     >
                       <option value="" disabled>Select an option</option>
@@ -155,6 +183,8 @@ export default function ContactClient() {
                     <textarea 
                       required
                       rows={6}
+                      value={formData.message}
+                      onChange={e => setFormData({...formData, message: e.target.value})}
                       placeholder="Tell us about your project..." 
                       className="w-full px-6 py-5 rounded-[2rem] bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white focus:ring-4 focus:ring-[#4a5d4e]/10 transition-all outline-none font-medium text-[#1a1a1a] placeholder:text-[#8a958c]/60 resize-none"
                     />

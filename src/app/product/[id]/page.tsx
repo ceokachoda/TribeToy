@@ -60,6 +60,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     .neq('id', product.id)
     .limit(4);
 
+  const { data: reviewsData } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('product_id', product.id)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false });
+
   const mappedProduct = {
     id: product.id,
     name: product.name,
@@ -109,7 +116,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductClient product={mappedProduct} relatedProducts={mappedRelatedProducts as any} />
+      <ProductClient product={mappedProduct} relatedProducts={mappedRelatedProducts as any} initialReviews={reviewsData || []} />
     </main>
   );
 }

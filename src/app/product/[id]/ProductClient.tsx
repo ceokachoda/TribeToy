@@ -9,7 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
 
-export default function ProductClient({ product, relatedProducts = [] }: { product: Product, relatedProducts?: Product[] }) {
+export default function ProductClient({ product, relatedProducts = [], initialReviews = [] }: { product: Product, relatedProducts?: Product[], initialReviews?: any[] }) {
   const router = useRouter();
   const { addToCart, totalItems } = useCart();
   const { showToast } = useToast();
@@ -24,12 +24,7 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
     images.push(...product.additional_images);
   }
 
-  // Mock reviews
-  const [reviews, setReviews] = useState([
-    { id: 1, name: "Rahul S.", rating: 5, text: "Amazing quality! Looks perfect on my desk. Highly recommended.", date: "Oct 12, 2026" },
-    { id: 2, name: "Sneha P.", rating: 4, text: "Very detailed. Delivery took a bit long but the product is definitely worth the wait.", date: "Sep 28, 2026" },
-    { id: 3, name: "Arjun M.", rating: 5, text: "Exceeded my expectations. The 3D printing is flawless.", date: "Aug 15, 2026" }
-  ]);
+  const [reviews, setReviews] = useState(initialReviews);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [newReview, setNewReview] = useState({ name: "", text: "", rating: 5 });
@@ -39,22 +34,30 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
     e.preventDefault();
     if (!newReview.name || !newReview.text) return;
     setIsSubmittingReview(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
     
-    const submittedReview = {
-      id: Date.now(),
-      name: newReview.name,
-      rating: newReview.rating,
-      text: newReview.text,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    };
-    
-    setReviews([submittedReview, ...reviews]);
-    setShowReviewModal(false);
-    setNewReview({ name: "", text: "", rating: 5 });
-    setIsSubmittingReview(false);
-    showToast("Review submitted successfully!", "success");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          name: newReview.name,
+          rating: newReview.rating,
+          text: newReview.text
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to submit review");
+      
+      showToast("Review submitted successfully! It will appear once approved.", "success");
+      setShowReviewModal(false);
+      setNewReview({ name: "", text: "", rating: 5 });
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to submit review", "error");
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   useEffect(() => {
@@ -311,7 +314,7 @@ export default function ProductClient({ product, relatedProducts = [] }: { produ
                       </div>
                       <div>
                         <p className="text-sm md:text-base font-bold">{review.name}</p>
-                        <p className="text-[10px] md:text-xs text-foreground/40 font-bold uppercase tracking-wider">{review.date}</p>
+                        <p className="text-[10px] md:text-xs text-foreground/40 font-bold uppercase tracking-wider">{new Date(review.created_at || review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                       </div>
                     </div>
                     <div className="flex">

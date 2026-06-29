@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { 
   FiHome, FiBox, FiShoppingCart, FiUsers, FiSettings, 
-  FiPackage, FiTruck, FiBell, FiClipboard, FiPercent
+  FiPackage, FiTruck, FiBell, FiClipboard, FiPercent, FiPenTool,
+  FiMessageSquare, FiStar
 } from "react-icons/fi";
 
 export default function AdminSidebar({
@@ -23,6 +24,9 @@ export default function AdminSidebar({
     { href: "/admin", icon: <FiHome size={20} />, label: "Dashboard" },
     { href: "/admin/orders", icon: <FiShoppingCart size={20} />, label: "Orders" },
     { href: "/admin/products", icon: <FiBox size={20} />, label: "Products" },
+    { href: "/admin/customizations", icon: <FiPenTool size={20} />, label: "Customizations" },
+    { href: "/admin/messages", icon: <FiMessageSquare size={20} />, label: "Messages" },
+    { href: "/admin/reviews", icon: <FiStar size={20} />, label: "Reviews" },
     { href: "/admin/customers", icon: <FiUsers size={20} />, label: "Customers" },
     { href: "/admin/inventory", icon: <FiPackage size={20} />, label: "Inventory" },
     { href: "/admin/shipments", icon: <FiTruck size={20} />, label: "Shipments" },

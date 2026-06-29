@@ -37,57 +37,32 @@ export default function CustomizationClient() {
 
     setIsSubmitting(true);
     const supabase = createClient();
-    let reference_image_url = null;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
 
-      // Upload file if exists
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("description", description);
       if (file) {
-        const fileExt = file.name.split('.').pop();
-        // The bucket user-uploads expects the file to be under user's id folder if we follow typical RLS.
-        // Wait, the RLS policy for user-uploads says:
-        // CREATE POLICY "Users can upload their own files" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'user-uploads' AND auth.uid()::text = (storage.foldername(name))[1]);
-        // So the folder must be the user's uid. Let's use anonymous approach if not logged in.
-        // Wait, if not logged in, they can't upload to user-uploads if RLS enforces auth.uid().
-        // Let me check if user is logged in.
-        
-        let filePath = "";
-        if (userId) {
-          filePath = `${userId}/${Date.now()}.${fileExt}`;
-        } else {
-          // If no user, maybe we put in an anonymous folder? But RLS requires auth.uid()
-          showToast("You must be logged in to upload images.", "error");
-          setIsSubmitting(false);
-          return;
-        }
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("user-uploads")
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabase.storage
-          .from("user-uploads")
-          .getPublicUrl(filePath);
-
-        reference_image_url = urlData.publicUrl;
+        formData.append("file", file);
+      }
+      if (userId) {
+        formData.append("userId", userId);
       }
 
-      // Insert into customizations
-      const { error: insertError } = await supabase
-        .from("customizations")
-        .insert({
-          user_id: userId || null,
-          name,
-          email,
-          description,
-          reference_image_url
-        });
+      const response = await fetch("/api/customization", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (insertError) throw insertError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to submit request");
+      }
 
       setSubmitted(true);
       showToast("Custom request submitted successfully!", "success");
