@@ -150,15 +150,15 @@ export default function SectionEditorModal({ section, products, onSave, onClose 
                 ))}
               </div>
               <div className="space-y-3 pb-6 border-b border-slate-100">
-                <label className="text-base font-bold text-slate-800">Or Select Carousel Products (Top 3)</label>
+                <label className="text-base font-bold text-slate-800">Or Select Carousel Products (Top 4)</label>
                 <p className="text-xs text-slate-500">If you leave these blank, the website automatically pulls products marked as 'Hero' in the Products tab.</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[0, 1, 2].map(i => {
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[0, 1, 2, 3].map(i => {
                     const fallbackHeroProducts = products.filter(p => p.is_hero && p.image);
                     const defaultVal = data.carousel?.[i] || fallbackHeroProducts[i]?.id || "";
                     return (
                     <select key={i} value={defaultVal} onChange={e => {
-                      const c = [...(data.carousel || [fallbackHeroProducts[0]?.id||"", fallbackHeroProducts[1]?.id||"", fallbackHeroProducts[2]?.id||""])];
+                      const c = [...(data.carousel || [fallbackHeroProducts[0]?.id||"", fallbackHeroProducts[1]?.id||"", fallbackHeroProducts[2]?.id||"", fallbackHeroProducts[3]?.id||""])];
                       c[i] = e.target.value;
                       setData({...data, carousel: c});
                     }} className="w-full p-2.5 border border-slate-200 rounded-lg text-base sm:text-sm text-slate-700 focus:border-emerald-500 outline-none transition-colors">
