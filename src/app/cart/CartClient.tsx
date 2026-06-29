@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 
 const CartItemRow = memo(({ item, updateQuantity, removeFromCart }: { item: any, updateQuantity: any, removeFromCart: any }) => {
   return (
@@ -76,6 +76,27 @@ export default function CartClient() {
   const router = useRouter();
 
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+  const [gstPercentage, setGstPercentage] = useState(0);
+  const [shippingFlatRate, setShippingFlatRate] = useState(0);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const supabase = createClient();
+      const { data: globalSettingsData } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "global_settings")
+        .single();
+        
+      if (globalSettingsData?.value) {
+        setGstPercentage(globalSettingsData.value.gst_percentage || 0);
+        setShippingFlatRate(globalSettingsData.value.shipping_flat_rate || 0);
+        setFreeShippingThreshold(globalSettingsData.value.free_shipping_threshold || 0);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleCheckout = async () => {
     setIsProcessingCheckout(true);
@@ -134,15 +155,34 @@ export default function CartClient() {
                 <span>Subtotal</span>
                 <span className="font-bold text-[#1a1a1a]">₹{totalPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span>Shipping</span>
-                <span className="text-[#4a5d4e] font-bold bg-[#4a5d4e]/10 px-2 py-0.5 rounded-md text-xs uppercase tracking-wider">Free</span>
-              </div>
-              <div className="w-full h-px bg-black/10 my-2" />
-              <div className="flex justify-between items-center text-xl">
-                <span className="font-bold text-[#1a1a1a]">Total</span>
-                <span className="font-black text-[#1a1a1a]">₹{totalPrice.toFixed(2)}</span>
-              </div>
+              
+              {(() => {
+                const shippingCost = totalPrice < freeShippingThreshold ? shippingFlatRate : 0;
+                const gstAmount = (totalPrice * gstPercentage) / 100;
+                const finalAmount = totalPrice + shippingCost + gstAmount;
+                
+                return (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span>Shipping</span>
+                      <span className={shippingCost === 0 ? "text-[#4a5d4e] font-bold bg-[#4a5d4e]/10 px-2 py-0.5 rounded-md text-xs uppercase tracking-wider" : "font-bold text-[#1a1a1a]"}>
+                        {shippingCost === 0 ? "Free" : `₹${shippingCost.toFixed(2)}`}
+                      </span>
+                    </div>
+                    {gstPercentage > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span>GST ({gstPercentage}%)</span>
+                        <span className="font-bold text-[#1a1a1a]">₹{gstAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="w-full h-px bg-black/10 my-2" />
+                    <div className="flex justify-between items-center text-xl">
+                      <span className="font-bold text-[#1a1a1a]">Total</span>
+                      <span className="font-black text-[#1a1a1a]">₹{finalAmount.toFixed(2)}</span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             <button 

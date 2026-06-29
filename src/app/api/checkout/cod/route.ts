@@ -62,8 +62,33 @@ export async function POST(req: Request) {
           appliedDiscountAmount = coupon.discount_value;
         }
         if (appliedDiscountAmount > calculatedAmount) appliedDiscountAmount = calculatedAmount;
-        finalAmount = calculatedAmount - appliedDiscountAmount;
       }
+    }
+    
+    const discountedSubtotal = calculatedAmount - appliedDiscountAmount;
+    finalAmount = discountedSubtotal;
+
+    // Fetch Global Settings for GST and Shipping
+    let shippingCost = 0;
+    let gstAmount = 0;
+    const { data: globalSettingsData } = await adminSupabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "global_settings")
+      .single();
+
+    if (globalSettingsData?.value) {
+      const settings = globalSettingsData.value;
+      const gstPercentage = settings.gst_percentage || 0;
+      const flatShippingRate = settings.shipping_flat_rate || 0;
+      const freeShippingThreshold = settings.free_shipping_threshold || 0;
+
+      if (discountedSubtotal < freeShippingThreshold) {
+        shippingCost = flatShippingRate;
+      }
+      
+      gstAmount = (discountedSubtotal * gstPercentage) / 100;
+      finalAmount = finalAmount + shippingCost + gstAmount;
     }
 
     // Create order record

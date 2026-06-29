@@ -29,9 +29,29 @@ export default function CheckoutClient() {
   const [phone, setPhone] = useState("");
   const [savedAddressData, setSavedAddressData] = useState<any>(null);
 
+  // Global settings state
+  const [gstPercentage, setGstPercentage] = useState(0);
+  const [shippingFlatRate, setShippingFlatRate] = useState(0);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserDataAndSettings = async () => {
       const supabase = createClient();
+      
+      // Fetch global settings
+      const { data: globalSettingsData } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "global_settings")
+        .single();
+        
+      if (globalSettingsData?.value) {
+        setGstPercentage(globalSettingsData.value.gst_percentage || 0);
+        setShippingFlatRate(globalSettingsData.value.shipping_flat_rate || 0);
+        setFreeShippingThreshold(globalSettingsData.value.free_shipping_threshold || 0);
+      }
+
+      // Fetch user data
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
@@ -63,7 +83,7 @@ export default function CheckoutClient() {
         }
       }
     };
-    fetchUserData();
+    fetchUserDataAndSettings();
   }, []);
 
   useEffect(() => {
@@ -109,7 +129,13 @@ export default function CheckoutClient() {
     );
   }
 
-  const finalAmount = appliedCoupon ? appliedCoupon.final_amount : totalPrice;
+  const discountAmount = appliedCoupon ? appliedCoupon.discount_amount : 0;
+  const discountedSubtotal = totalPrice - discountAmount;
+  
+  const shippingCost = (discountedSubtotal < freeShippingThreshold) ? shippingFlatRate : 0;
+  const gstAmount = (discountedSubtotal * gstPercentage) / 100;
+  
+  const finalAmount = discountedSubtotal + shippingCost + gstAmount;
 
   const handleApplyCoupon = async () => {
     if (!couponCode) return;
@@ -491,8 +517,16 @@ export default function CheckoutClient() {
                 )}
                 <div className="flex justify-between items-center">
                   <span>Shipping</span>
-                  <span className="text-[#4a5d4e] font-bold">Free</span>
+                  <span className={shippingCost === 0 ? "text-[#4a5d4e] font-bold" : "font-bold text-[#1a1a1a]"}>
+                    {shippingCost === 0 ? "Free" : `₹${shippingCost.toFixed(2)}`}
+                  </span>
                 </div>
+                {gstPercentage > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span>GST ({gstPercentage}%)</span>
+                    <span className="font-bold text-[#1a1a1a]">₹{gstAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="w-full h-px bg-black/10 my-2" />
                 <div className="flex justify-between items-center text-2xl">
                   <span className="font-black text-[#1a1a1a]">Total</span>

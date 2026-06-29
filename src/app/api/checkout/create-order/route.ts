@@ -40,13 +40,14 @@ export async function POST(req: Request) {
     let finalAmount = calculatedAmount;
     
     // Apply coupon if provided
-    if (coupon_code) {
-      const { createClient: createAdminClient } = await import("@supabase/supabase-js");
-      const adminSupabase = createAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-      );
+    let discountAmount = 0;
+    const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+    const adminSupabase = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
+    if (coupon_code) {
       const { data: coupon } = await adminSupabase
         .from("coupons")
         .select("*")
@@ -54,7 +55,6 @@ export async function POST(req: Request) {
         .single();
 
       if (coupon && coupon.is_active && (coupon.max_uses === null || coupon.used_count < coupon.max_uses)) {
-        let discountAmount = 0;
         if (coupon.discount_type === 'percentage') {
           discountAmount = (calculatedAmount * coupon.discount_value) / 100;
         } else if (coupon.discount_type === 'fixed') {
@@ -62,8 +62,35 @@ export async function POST(req: Request) {
         }
         
         if (discountAmount > calculatedAmount) discountAmount = calculatedAmount;
-        finalAmount = calculatedAmount - discountAmount;
       }
+    }
+    
+    const discountedSubtotal = calculatedAmount - discountAmount;
+    finalAmount = discountedSubtotal;
+
+    // Fetch Global Settings for GST and Shipping
+    const { data: globalSettingsData } = await adminSupabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "global_settings")
+      .single();
+
+    if (globalSettingsData?.value) {
+      const settings = globalSettingsData.value;
+      const gstPercentage = settings.gst_percentage || 0;
+      const flatShippingRate = settings.shipping_flat_rate || 0;
+      const freeShippingThreshold = settings.free_shipping_threshold || 0;
+
+      // Add Shipping
+      let shippingCost = 0;
+      if (discountedSubtotal < freeShippingThreshold) {
+        shippingCost = flatShippingRate;
+      }
+      
+      // Calculate GST on the discounted subtotal
+      const gstAmount = (discountedSubtotal * gstPercentage) / 100;
+
+      finalAmount = finalAmount + shippingCost + gstAmount;
     }
 
     const razorpay = new Razorpay({
