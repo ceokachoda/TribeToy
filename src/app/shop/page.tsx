@@ -8,6 +8,9 @@ import { Suspense } from "react";
 export const metadata = {
   title: "Shop All Toys - TribeToy",
   description: "Browse our complete collection of premium 3D printed toys, educational kits, cultural souvenirs, and utility decor.",
+  alternates: {
+    canonical: 'https://thetribetoy.com/shop',
+  },
 };
 
 export default async function ShopPage() {

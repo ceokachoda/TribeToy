@@ -11,9 +11,36 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   
   if (!product) return { title: 'Product Not Found' };
   
+  const title = `${product.name} - TribeToy`;
+  const description = product.description?.substring(0, 160) || `Buy ${product.name} at TribeToy.`;
+  const url = `https://thetribetoy.com/product/${id}`;
+  
   return {
-    title: `${product.name} - TribeToy`,
-    description: `Buy ${product.name} at TribeToy.`,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      images: [
+        {
+          url: product.image_url || '/logo-new.jpg',
+          width: 800,
+          height: 800,
+          alt: product.name,
+        }
+      ],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [product.image_url || '/logo-new.jpg'],
+    },
   };
 }
 
@@ -59,8 +86,29 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     isPremium: p.is_premium,
   }));
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.image_url ? [product.image_url] : undefined,
+    "description": product.description || `Buy ${product.name} at TribeToy.`,
+    "sku": product.id,
+    "offers": {
+      "@type": "Offer",
+      "url": `https://thetribetoy.com/product/${product.id}`,
+      "priceCurrency": "INR",
+      "price": parseFloat(product.price).toFixed(2),
+      "availability": product.stock_quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ProductClient product={mappedProduct} relatedProducts={mappedRelatedProducts as any} />
     </main>
   );

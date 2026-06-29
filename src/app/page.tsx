@@ -24,14 +24,23 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       title: config.seo.title,
       description: config.seo.description,
+      alternates: {
+        canonical: 'https://thetribetoy.com',
+      },
       openGraph: {
         title: config.seo.title,
         description: config.seo.description,
+        url: 'https://thetribetoy.com',
+        type: 'website',
       }
     };
   }
   
-  return {};
+  return {
+    alternates: {
+      canonical: 'https://thetribetoy.com',
+    }
+  };
 }
 
 export default async function Home() {
@@ -96,8 +105,39 @@ export default async function Home() {
     }
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://thetribetoy.com/#organization",
+        "name": "TribeToy",
+        "url": "https://thetribetoy.com",
+        "logo": "https://thetribetoy.com/logo-new.jpg",
+        "description": "India's most visually impressive 3D Printing company, bringing stories to life through sustainable, eco-friendly 3D printed toys and figures."
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://thetribetoy.com/#localbusiness",
+        "name": "TribeToy",
+        "url": "https://thetribetoy.com",
+        "logo": "https://thetribetoy.com/logo-new.jpg",
+        "image": "https://thetribetoy.com/logo-new.jpg",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": "Assam",
+          "addressCountry": "IN"
+        }
+      }
+    ]
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {sections.map(renderSection)}
     </>
   );

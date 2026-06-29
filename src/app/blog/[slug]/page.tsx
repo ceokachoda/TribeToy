@@ -13,9 +13,27 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   if (!blog) return { title: "Not Found" };
 
+  const title = `${blog.title} - TribeToy`;
+  const description = blog.excerpt;
+  const url = `https://thetribetoy.com/blog/${slug}`;
+
   return {
-    title: `${blog.title} - TribeToy`,
-    description: blog.excerpt,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
@@ -38,8 +56,32 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     tags: dbBlog.tags || [],
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": blog.title,
+    "image": blog.coverImage ? [blog.coverImage] : [],
+    "datePublished": dbBlog.created_at,
+    "author": [{
+        "@type": "Person",
+        "name": blog.author
+    }],
+    "publisher": {
+      "@type": "Organization",
+      "name": "TribeToy",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://thetribetoy.com/logo-new.jpg"
+      }
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="relative pt-32 md:pt-40 pb-12 px-6 lg:px-12 bg-background flex flex-col items-center">
         <div className="container max-w-5xl mx-auto flex flex-col items-center text-center">
