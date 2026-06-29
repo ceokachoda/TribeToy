@@ -114,6 +114,39 @@ export default function CheckoutClient() {
     }
   }, [pincode]);
 
+  const [isFirstOrder, setIsFirstOrder] = useState(false);
+
+  useEffect(() => {
+    const checkFirstOrder = async () => {
+      // Check if logged in or if phone is provided and at least 10 digits
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user && (!phone || phone.length < 10)) {
+        setIsFirstOrder(true);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/user/first-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: phone || null })
+        });
+        const data = await res.json();
+        setIsFirstOrder(!!data.isFirstOrder);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    
+    const timeoutId = setTimeout(() => {
+      checkFirstOrder();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [phone]);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -132,7 +165,14 @@ export default function CheckoutClient() {
   const discountAmount = appliedCoupon ? appliedCoupon.discount_amount : 0;
   const discountedSubtotal = totalPrice - discountAmount;
   
-  const shippingCost = (discountedSubtotal < freeShippingThreshold) ? shippingFlatRate : 0;
+  let shippingCost = shippingFlatRate;
+  
+  if (isFirstOrder && discountedSubtotal >= 399) {
+    shippingCost = 0;
+  } else if (discountedSubtotal >= freeShippingThreshold) {
+    shippingCost = 0;
+  }
+  
   const gstAmount = (discountedSubtotal * gstPercentage) / 100;
   
   const finalAmount = discountedSubtotal + shippingCost + gstAmount;

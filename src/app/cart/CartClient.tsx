@@ -79,10 +79,13 @@ export default function CartClient() {
   const [gstPercentage, setGstPercentage] = useState(0);
   const [shippingFlatRate, setShippingFlatRate] = useState(0);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+  const [isFirstOrder, setIsFirstOrder] = useState(false);
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchSettingsAndUser = async () => {
       const supabase = createClient();
+      
+      // Fetch global settings
       const { data: globalSettingsData } = await supabase
         .from("site_settings")
         .select("value")
@@ -94,8 +97,25 @@ export default function CartClient() {
         setShippingFlatRate(globalSettingsData.value.shipping_flat_rate || 0);
         setFreeShippingThreshold(globalSettingsData.value.free_shipping_threshold || 0);
       }
+
+      // Check first order status for logged-in user
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        try {
+          const res = await fetch("/api/user/first-order", { method: "POST" });
+          const data = await res.json();
+          if (data.isFirstOrder) {
+            setIsFirstOrder(true);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        // Guests assume first order until proven otherwise at checkout
+        setIsFirstOrder(true);
+      }
     };
-    fetchSettings();
+    fetchSettingsAndUser();
   }, []);
 
   const handleCheckout = async () => {
@@ -157,7 +177,14 @@ export default function CartClient() {
               </div>
               
               {(() => {
-                const shippingCost = totalPrice < freeShippingThreshold ? shippingFlatRate : 0;
+                let shippingCost = shippingFlatRate;
+                
+                if (isFirstOrder && totalPrice >= 399) {
+                  shippingCost = 0;
+                } else if (totalPrice >= freeShippingThreshold) {
+                  shippingCost = 0;
+                }
+                
                 const gstAmount = (totalPrice * gstPercentage) / 100;
                 const finalAmount = totalPrice + shippingCost + gstAmount;
                 

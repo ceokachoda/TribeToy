@@ -83,7 +83,30 @@ export async function POST(req: Request) {
       const flatShippingRate = settings.shipping_flat_rate || 0;
       const freeShippingThreshold = settings.free_shipping_threshold || 0;
 
-      if (discountedSubtotal < freeShippingThreshold) {
+      let isFirstOrder = false;
+
+      // Check first order status securely
+      try {
+        let query = adminSupabase.from("orders").select("id", { count: "exact", head: true }).neq("status", "cancelled");
+        if (userId) {
+          query = query.or(`user_id.eq.${userId},shipping_address->>phone.eq.${shipping_address?.phone}`);
+        } else if (shipping_address?.phone) {
+          query = query.eq("shipping_address->>phone", shipping_address.phone);
+        } else {
+          query = null as any; // No user or phone, assume not first order to be safe
+        }
+
+        if (query) {
+          const { count } = await query;
+          isFirstOrder = count === 0;
+        }
+      } catch (e) {
+        console.error("Error checking first order status:", e);
+      }
+
+      if (isFirstOrder && discountedSubtotal >= 399) {
+        shippingCost = 0;
+      } else if (discountedSubtotal < freeShippingThreshold) {
         shippingCost = flatShippingRate;
       }
       

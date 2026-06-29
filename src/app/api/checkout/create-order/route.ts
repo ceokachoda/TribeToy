@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const { data: { session } } = await supabase.auth.getSession();
 
-    const { items, coupon_code } = await req.json();
+    const { items, coupon_code, shipping_address } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Invalid items" }, { status: 400 });
@@ -83,7 +83,33 @@ export async function POST(req: Request) {
 
       // Add Shipping
       let shippingCost = 0;
-      if (discountedSubtotal < freeShippingThreshold) {
+      let isFirstOrder = false;
+
+      // Check first order status securely
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+        
+        let query = adminSupabase.from("orders").select("id", { count: "exact", head: true }).neq("status", "cancelled");
+        if (userId) {
+          query = query.or(`user_id.eq.${userId},shipping_address->>phone.eq.${shipping_address?.phone}`);
+        } else if (shipping_address?.phone) {
+          query = query.eq("shipping_address->>phone", shipping_address.phone);
+        } else {
+          query = null as any; // No user or phone, assume not first order to be safe
+        }
+
+        if (query) {
+          const { count } = await query;
+          isFirstOrder = count === 0;
+        }
+      } catch (e) {
+        console.error("Error checking first order status:", e);
+      }
+
+      if (isFirstOrder && discountedSubtotal >= 399) {
+        shippingCost = 0;
+      } else if (discountedSubtotal < freeShippingThreshold) {
         shippingCost = flatShippingRate;
       }
       
