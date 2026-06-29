@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, User, MapPin, CreditCard, ChevronRight, ChevronLeft, Download, Truck, CheckCircle2, Circle, X, Heart, Lock, Loader2, Phone, Shield } from "lucide-react";
+import { Package, User, MapPin, CreditCard, ChevronRight, ChevronLeft, Download, Truck, CheckCircle2, Circle, X, Heart, Lock, Loader2, Phone, Shield, Edit2, Trash2, Plus } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
@@ -51,6 +51,12 @@ function ProfileContent() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Addresses State
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
 
 
   // Phone OTP Modal State
@@ -78,16 +84,72 @@ function ProfileContent() {
   const handleSaveAddress = async () => {
     setIsSavingAddress(true);
     const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
+    if (userId) {
       try {
-        await supabase.from("users").update({ address: JSON.stringify(addressData) }).eq("id", session.user.id);
-        showToast("Address updated successfully!", "success");
+        if (editingAddressId) {
+          await supabase.from("addresses").update({
+            first_name: addressData.firstName,
+            last_name: addressData.lastName,
+            phone: addressData.phone,
+            street_address: addressData.streetAddress,
+            city: addressData.city,
+            state: addressData.state,
+            pincode: addressData.pincode
+          }).eq("id", editingAddressId);
+          showToast("Address updated successfully!", "success");
+        } else {
+          // If this is the first address, make it default
+          const isDefault = addresses.length === 0;
+          await supabase.from("addresses").insert({
+            user_id: userId,
+            first_name: addressData.firstName,
+            last_name: addressData.lastName,
+            phone: addressData.phone,
+            street_address: addressData.streetAddress,
+            city: addressData.city,
+            state: addressData.state,
+            pincode: addressData.pincode,
+            is_default: isDefault
+          });
+          showToast("Address added successfully!", "success");
+        }
+        
+        // Refresh addresses
+        const { data: newAddresses } = await supabase.from("addresses").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+        if (newAddresses) setAddresses(newAddresses);
+        
+        setShowAddressForm(false);
+        setEditingAddressId(null);
+        setAddressData({ firstName: "", lastName: "", phone: "", streetAddress: "", pincode: "", city: "", state: "" });
       } catch (error) {
         console.error("Error saving address:", error);
+        showToast("Error saving address", "error");
       }
     }
     setIsSavingAddress(false);
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    const supabase = createClient();
+    await supabase.from("addresses").delete().eq("id", id);
+    setAddresses(addresses.filter(a => a.id !== id));
+    showToast("Address deleted!", "success");
+  };
+
+  const handleSetDefaultAddress = async (id: string) => {
+    const supabase = createClient();
+    if (!userId) return;
+    
+    // Unset all default
+    await supabase.from("addresses").update({ is_default: false }).eq("user_id", userId);
+    // Set new default
+    await supabase.from("addresses").update({ is_default: true }).eq("id", id);
+    
+    setAddresses(addresses.map(a => ({
+      ...a,
+      is_default: a.id === id
+    })));
+    showToast("Default address updated!", "success");
   };
 
   const handleSavePhoneDirect = async () => {
@@ -203,7 +265,22 @@ function ProfileContent() {
         if (userData?.role === "admin") {
           setIsAdmin(true);
         }
-        if (userData?.address) {
+        
+        setUserId(session.user.id);
+        
+        // Fetch addresses from the new table
+        const { data: addressesData } = await supabase
+          .from("addresses")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false });
+          
+        if (addressesData) {
+          setAddresses(addressesData);
+        }
+        
+        // Legacy fallback just in case they have an old address and no new addresses
+        if ((!addressesData || addressesData.length === 0) && userData?.address) {
           try {
             const parsed = JSON.parse(userData.address);
             if (parsed && typeof parsed === 'object') {
@@ -216,11 +293,10 @@ function ProfileContent() {
                 city: parsed.city || "",
                 state: parsed.state || ""
               });
-            } else {
-              setAddressData(prev => ({ ...prev, streetAddress: userData.address }));
+              setShowAddressForm(true);
             }
           } catch (e) {
-            setAddressData(prev => ({ ...prev, streetAddress: userData.address }));
+            // Ignored
           }
         }
         
@@ -541,91 +617,210 @@ function ProfileContent() {
           )}
 
           {activeTab === "addresses" && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
-              <h2 className="text-2xl font-bold text-[#1a1a1a] mb-6">Saved Address</h2>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-6">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold text-[#1a1a1a]">Saved Addresses</h2>
+                {!showAddressForm && (
+                  <button 
+                    onClick={() => {
+                      setAddressData({ firstName: "", lastName: "", phone: "", streetAddress: "", pincode: "", city: "", state: "" });
+                      setEditingAddressId(null);
+                      setShowAddressForm(true);
+                    }}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors"
+                  >
+                    <Plus size={16} />
+                    <span>Add New</span>
+                  </button>
+                )}
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
-                  <input 
-                    type="text" 
-                    value={addressData.firstName}
-                    onChange={(e) => setAddressData({...addressData, firstName: e.target.value})}
-                    placeholder="First Name"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Last Name</label>
-                  <input 
-                    type="text" 
-                    value={addressData.lastName}
-                    onChange={(e) => setAddressData({...addressData, lastName: e.target.value})}
-                    placeholder="Last Name"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Phone Number</label>
-                  <input 
-                    type="tel" 
-                    value={addressData.phone}
-                    onChange={(e) => setAddressData({...addressData, phone: e.target.value})}
-                    placeholder="10-digit mobile number"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Pincode</label>
-                  <input 
-                    type="text" 
-                    value={addressData.pincode}
-                    onChange={(e) => setAddressData({...addressData, pincode: e.target.value})}
-                    placeholder="6-digit pincode"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2 md:col-span-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Street Address</label>
-                  <textarea 
-                    value={addressData.streetAddress}
-                    onChange={(e) => setAddressData({...addressData, streetAddress: e.target.value})}
-                    rows={2}
-                    placeholder="House No, Building, Street, Area"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all resize-none" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">City</label>
-                  <input 
-                    type="text" 
-                    value={addressData.city}
-                    onChange={(e) => setAddressData({...addressData, city: e.target.value})}
-                    placeholder="City"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">State</label>
-                  <input 
-                    type="text" 
-                    value={addressData.state}
-                    onChange={(e) => setAddressData({...addressData, state: e.target.value})}
-                    placeholder="State"
-                    className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
-                  />
-                </div>
-              </div>
+              {!showAddressForm ? (
+                addresses.length === 0 ? (
+                  <div className="bg-white rounded-[2rem] p-12 text-center border border-black/5 flex flex-col items-center shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
+                    <div className="w-20 h-20 bg-[#f4f5f4] rounded-full flex items-center justify-center mb-6">
+                      <MapPin className="w-10 h-10 text-[#8a958c]" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">No saved addresses</h3>
+                    <p className="text-[#5a6b5e] mb-8">Add an address to checkout quickly next time.</p>
+                    <button 
+                      onClick={() => {
+                        setAddressData({ firstName: "", lastName: "", phone: "", streetAddress: "", pincode: "", city: "", state: "" });
+                        setEditingAddressId(null);
+                        setShowAddressForm(true);
+                      }} 
+                      className="px-8 py-4 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors"
+                    >
+                      Add Address
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {addresses.map((address) => (
+                      <div key={address.id} className={`bg-white rounded-[2rem] p-6 border ${address.is_default ? 'border-[#4a5d4e]' : 'border-black/5'} shadow-[0_8px_30px_rgba(0,0,0,0.03)] relative`}>
+                        {address.is_default && (
+                          <div className="absolute top-0 right-0 bg-[#4a5d4e] text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-bl-xl rounded-tr-[2rem]">
+                            Default
+                          </div>
+                        )}
+                        <div className="mb-4 pr-16">
+                          <h3 className="font-bold text-[#1a1a1a] text-lg">{address.first_name} {address.last_name}</h3>
+                          <p className="text-[#5a6b5e] mt-2 leading-relaxed">
+                            {address.street_address}<br />
+                            {address.city}, {address.state} {address.pincode}
+                          </p>
+                          <p className="text-[#5a6b5e] font-medium mt-2 flex items-center gap-2">
+                            <Phone size={14} className="text-[#8a958c]" /> {address.phone}
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 pt-4 border-t border-black/5">
+                          <button 
+                            onClick={() => {
+                              setAddressData({
+                                firstName: address.first_name,
+                                lastName: address.last_name,
+                                phone: address.phone,
+                                streetAddress: address.street_address,
+                                pincode: address.pincode,
+                                city: address.city,
+                                state: address.state
+                              });
+                              setEditingAddressId(address.id);
+                              setShowAddressForm(true);
+                            }}
+                            className="flex items-center gap-2 text-sm font-bold text-[#4a5d4e] hover:bg-[#4a5d4e]/10 px-4 py-2 rounded-xl transition-colors"
+                          >
+                            <Edit2 size={16} /> Edit
+                          </button>
+                          
+                          <button 
+                            onClick={() => handleDeleteAddress(address.id)}
+                            className="flex items-center gap-2 text-sm font-bold text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl transition-colors"
+                          >
+                            <Trash2 size={16} /> Delete
+                          </button>
+                          
+                          {!address.is_default && (
+                            <button 
+                              onClick={() => handleSetDefaultAddress(address.id)}
+                              className="ml-auto text-xs font-bold uppercase tracking-widest text-[#8a958c] hover:text-[#1a1a1a] transition-colors"
+                            >
+                              Set Default
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              ) : (
+                <div className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] relative">
+                  <button 
+                    onClick={() => {
+                      setShowAddressForm(false);
+                      setEditingAddressId(null);
+                    }}
+                    className="absolute top-6 right-6 md:top-8 md:right-8 w-10 h-10 bg-[#f4f5f4] rounded-full flex items-center justify-center text-[#1a1a1a] hover:bg-[#e4e5e4] transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                  
+                  <h3 className="text-xl font-bold text-[#1a1a1a] mb-6">{editingAddressId ? 'Edit Address' : 'Add New Address'}</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
+                      <input 
+                        type="text" 
+                        value={addressData.firstName}
+                        onChange={(e) => setAddressData({...addressData, firstName: e.target.value})}
+                        placeholder="First Name"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Last Name</label>
+                      <input 
+                        type="text" 
+                        value={addressData.lastName}
+                        onChange={(e) => setAddressData({...addressData, lastName: e.target.value})}
+                        placeholder="Last Name"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Phone Number</label>
+                      <input 
+                        type="tel" 
+                        value={addressData.phone}
+                        onChange={(e) => setAddressData({...addressData, phone: e.target.value})}
+                        placeholder="10-digit mobile number"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Pincode</label>
+                      <input 
+                        type="text" 
+                        value={addressData.pincode}
+                        onChange={(e) => setAddressData({...addressData, pincode: e.target.value})}
+                        placeholder="6-digit pincode"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">Street Address</label>
+                      <textarea 
+                        value={addressData.streetAddress}
+                        onChange={(e) => setAddressData({...addressData, streetAddress: e.target.value})}
+                        rows={2}
+                        placeholder="House No, Building, Street, Area"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all resize-none" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">City</label>
+                      <input 
+                        type="text" 
+                        value={addressData.city}
+                        onChange={(e) => setAddressData({...addressData, city: e.target.value})}
+                        placeholder="City"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">State</label>
+                      <input 
+                        type="text" 
+                        value={addressData.state}
+                        onChange={(e) => setAddressData({...addressData, state: e.target.value})}
+                        placeholder="State"
+                        className="w-full px-5 py-4 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 outline-none font-medium text-[#1a1a1a] transition-all" 
+                      />
+                    </div>
+                  </div>
 
-              <div className="mt-8 flex justify-end">
-                <button 
-                  onClick={handleSaveAddress}
-                  disabled={isSavingAddress}
-                  className="px-8 py-4 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors flex items-center justify-center min-w-[200px] disabled:opacity-80 disabled:cursor-not-allowed"
-                >
-                  {isSavingAddress ? <Loader2 size={18} className="animate-spin" /> : "Save Address"}
-                </button>
-              </div>
+                  <div className="mt-8 flex justify-end gap-4">
+                    <button 
+                      onClick={() => {
+                        setShowAddressForm(false);
+                        setEditingAddressId(null);
+                      }}
+                      className="px-8 py-4 bg-[#f4f5f4] text-[#1a1a1a] rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#e4e5e4] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleSaveAddress}
+                      disabled={isSavingAddress}
+                      className="px-8 py-4 bg-[#1a1a1a] text-white rounded-full font-bold text-sm uppercase tracking-[0.1em] hover:bg-[#2a2a2a] transition-colors flex items-center justify-center min-w-[200px] disabled:opacity-80 disabled:cursor-not-allowed"
+                    >
+                      {isSavingAddress ? <Loader2 size={18} className="animate-spin" /> : "Save Address"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
 

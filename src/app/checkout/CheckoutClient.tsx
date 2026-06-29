@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { ArrowRight, CheckCircle2, ChevronLeft, CreditCard, Truck, Lock } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronLeft, CreditCard, Truck, Lock, Plus, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,11 @@ export default function CheckoutClient() {
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [phone, setPhone] = useState("");
   const [savedAddressData, setSavedAddressData] = useState<any>(null);
+
+  // Address Selection State
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
 
   // Global settings state
   const [gstPercentage, setGstPercentage] = useState(0);
@@ -68,17 +73,34 @@ export default function CheckoutClient() {
         if (userData?.phone && !session.user.user_metadata?.phone) {
           setPhone(userData.phone);
         }
-        
-        if (userData?.address) {
-          try {
-            const parsed = JSON.parse(userData.address);
-            if (parsed && typeof parsed === 'object') {
-              setSavedAddressData(parsed);
-              if (parsed.pincode) setPincode(parsed.pincode);
-              if (parsed.phone) setPhone(parsed.phone);
+        // Fetch addresses from the new table
+        const { data: addressesData } = await supabase
+          .from("addresses")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false });
+
+        if (addressesData && addressesData.length > 0) {
+          setSavedAddresses(addressesData);
+          const defaultAddr = addressesData.find((a: any) => a.is_default) || addressesData[0];
+          setSelectedAddressId(defaultAddr.id);
+          setShowNewAddressForm(false);
+          // Set phone for first order checks
+          setPhone(defaultAddr.phone);
+        } else {
+          setShowNewAddressForm(true);
+          
+          if (userData?.address) {
+            try {
+              const parsed = JSON.parse(userData.address);
+              if (parsed && typeof parsed === 'object') {
+                setSavedAddressData(parsed);
+                if (parsed.pincode) setPincode(parsed.pincode);
+                if (parsed.phone) setPhone(parsed.phone);
+              }
+            } catch (e) {
+              setSavedAddressData({ streetAddress: userData.address });
             }
-          } catch (e) {
-            setSavedAddressData({ streetAddress: userData.address });
           }
         }
       }
@@ -205,16 +227,34 @@ export default function CheckoutClient() {
     e.preventDefault();
     setIsProcessing(true);
 
-    const formData = new FormData(e.currentTarget);
-    const shipping_address = {
-      firstName: formData.get("firstName"),
-      lastName: formData.get("lastName"),
-      phone: formData.get("phone"),
-      address: formData.get("address"),
-      pincode,
-      state: stateName,
-      city: selectedCity
-    };
+    let shipping_address;
+    if (!showNewAddressForm && selectedAddressId) {
+      const selected = savedAddresses.find(a => a.id === selectedAddressId);
+      if (selected) {
+        shipping_address = {
+          firstName: selected.first_name,
+          lastName: selected.last_name,
+          phone: selected.phone,
+          address: selected.street_address,
+          pincode: selected.pincode,
+          state: selected.state,
+          city: selected.city
+        };
+      }
+    }
+
+    if (!shipping_address) {
+      const formData = new FormData(e.currentTarget);
+      shipping_address = {
+        firstName: formData.get("firstName"),
+        lastName: formData.get("lastName"),
+        phone: formData.get("phone"),
+        address: formData.get("address"),
+        pincode,
+        state: stateName,
+        city: selectedCity
+      };
+    }
 
     // If the user didn't have a phone number, update it in their profile
     const supabase = createClient();
@@ -341,12 +381,59 @@ export default function CheckoutClient() {
             <form id="checkout-form" onSubmit={handlePlaceOrder} className="bg-white rounded-[2rem] p-8 md:p-12 border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col gap-8">
               
               {/* Delivery Details */}
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <Truck className="text-[#4a5d4e]" />
-                  <h3 className="text-xl font-bold text-[#1a1a1a]">Delivery Details</h3>
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Truck className="text-[#4a5d4e]" />
+                    <h3 className="text-xl font-bold text-[#1a1a1a]">Delivery Details</h3>
+                  </div>
+                  {savedAddresses.length > 0 && !showNewAddressForm && (
+                    <button 
+                      type="button"
+                      onClick={() => setShowNewAddressForm(true)}
+                      className="text-sm font-bold text-[#4a5d4e] flex items-center gap-1 hover:underline"
+                    >
+                      <Plus size={16} /> Add New
+                    </button>
+                  )}
+                  {showNewAddressForm && savedAddresses.length > 0 && (
+                    <button 
+                      type="button"
+                      onClick={() => setShowNewAddressForm(false)}
+                      className="text-sm font-bold text-[#8a958c] flex items-center gap-1 hover:text-[#1a1a1a] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                {!showNewAddressForm && savedAddresses.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {savedAddresses.map((address) => (
+                      <div 
+                        key={address.id} 
+                        onClick={() => {
+                          setSelectedAddressId(address.id);
+                          setPhone(address.phone);
+                        }}
+                        className={`bg-white rounded-[1.5rem] p-5 border-2 cursor-pointer transition-all ${selectedAddressId === address.id ? 'border-[#4a5d4e] shadow-[0_4px_12px_rgba(74,93,78,0.1)]' : 'border-black/5 hover:border-[#4a5d4e]/30'}`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-bold text-[#1a1a1a]">{address.first_name} {address.last_name}</h4>
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedAddressId === address.id ? 'border-[#4a5d4e] bg-[#4a5d4e]' : 'border-black/20'}`}>
+                            {selectedAddressId === address.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                          </div>
+                        </div>
+                        <p className="text-[#5a6b5e] text-sm leading-relaxed">
+                          {address.street_address}<br />
+                          {address.city}, {address.state} {address.pincode}
+                        </p>
+                        <p className="text-[#1a1a1a] font-medium text-sm mt-3">{address.phone}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-[#8a958c] uppercase ml-1">First Name</label>
                     <input name="firstName" required type="text" defaultValue={savedAddressData?.firstName || ""} className="w-full px-5 py-3 rounded-2xl bg-[#f4f5f4] border border-transparent focus:border-[#4a5d4e]/30 focus:bg-white outline-none font-medium text-[#1a1a1a]" />
@@ -423,6 +510,7 @@ export default function CheckoutClient() {
                     )}
                   </div>
                 </div>
+                )}
               </div>
 
               <div className="h-px w-full bg-black/5" />
