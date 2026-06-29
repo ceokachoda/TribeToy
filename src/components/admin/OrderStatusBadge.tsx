@@ -53,7 +53,7 @@ export default function OrderStatusBadge({
 
   // Fallback to pending if status is somehow not in the config (e.g. legacy DB value)
   const config = STATUS_STYLES[status as string] || STATUS_STYLES.pending;
-  const baseClasses = `text-xs px-3 py-1.5 font-bold rounded-lg border flex items-center justify-between gap-2 transition-colors w-full ${config.bg} ${config.text} ${config.border}`;
+  const baseClasses = `text-xs pl-3 pr-8 py-1.5 font-bold rounded-lg border flex items-center justify-between gap-2 transition-colors w-full ${config.bg} ${config.text} ${config.border}`;
 
   if (!interactive) {
     return <span className={`inline-flex px-2 py-1 rounded-md text-[10px] font-bold ${config.bg} ${config.text} ${config.border}`}>{config.label}</span>;
@@ -66,7 +66,7 @@ export default function OrderStatusBadge({
         onChange={handleStatusChange}
         disabled={loading}
         title="Change Order Status"
-        className={`${baseClasses} outline-none cursor-pointer appearance-none z-10 relative bg-transparent`}
+        className={`${baseClasses} outline-none cursor-pointer appearance-none z-10 relative`}
       >
         {Object.entries(STATUS_STYLES).map(([key, val]) => (
           <option key={key} value={key} className="bg-white text-slate-900">
