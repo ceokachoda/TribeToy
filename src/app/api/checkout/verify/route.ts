@@ -95,7 +95,7 @@ export async function POST(req: Request) {
         razorpay_order_id,
         razorpay_payment_id,
         status: 'paid',
-        total_amount: finalAmount,
+        total_amount: amount,
         subtotal_amount: calculatedAmount,
         discount_amount: appliedDiscountAmount,
         coupon_id: appliedCouponId,

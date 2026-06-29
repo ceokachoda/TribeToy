@@ -107,7 +107,7 @@ export async function POST(req: Request) {
         console.error("Error checking first order status:", e);
       }
 
-      if (isFirstOrder && discountedSubtotal >= 399) {
+      if (isFirstOrder && (discountedSubtotal >= 399 || (calculatedAmount >= 399 && coupon_code?.toUpperCase() === "DISH10"))) {
         shippingCost = 0;
       } else if (discountedSubtotal < freeShippingThreshold) {
         shippingCost = flatShippingRate;
