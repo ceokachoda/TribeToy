@@ -99,6 +99,14 @@ export default function Navbar({ announcementConfig }: { announcementConfig?: an
     checkUser();
   }, [pathname]);
 
+  // Close menus on route change
+  useEffect(() => {
+    setUserMenuOpen(false);
+    setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
+    setMobileCategoriesOpen(false);
+  }, [pathname, searchParams]);
+
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
