@@ -189,7 +189,9 @@ export default function CheckoutClient() {
   
   let shippingCost = shippingFlatRate;
   
-  if (isFirstOrder && (discountedSubtotal >= 399 || couponCode.toUpperCase() === "DISH10")) {
+  if (appliedCoupon?.free_shipping) {
+    shippingCost = 0;
+  } else if (isFirstOrder && (discountedSubtotal >= 399 || couponCode.toUpperCase() === "DISH10" || couponCode.toUpperCase() === "JUS10")) {
     shippingCost = 0;
   } else if (discountedSubtotal >= freeShippingThreshold) {
     shippingCost = 0;

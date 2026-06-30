@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     
     // Apply coupon if provided
     let discountAmount = 0;
+    let isCouponFreeShipping = false;
     const { createClient: createAdminClient } = await import("@supabase/supabase-js");
     const adminSupabase = createAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
         .single();
 
       if (coupon && coupon.is_active && (coupon.max_uses === null || coupon.used_count < coupon.max_uses)) {
+        isCouponFreeShipping = coupon.free_shipping || false;
         if (coupon.discount_type === 'percentage') {
           discountAmount = (calculatedAmount * coupon.discount_value) / 100;
         } else if (coupon.discount_type === 'fixed') {
@@ -107,7 +109,9 @@ export async function POST(req: Request) {
         console.error("Error checking first order status:", e);
       }
 
-      if (isFirstOrder && (discountedSubtotal >= 399 || coupon_code?.toUpperCase() === "DISH10")) {
+      if (isCouponFreeShipping) {
+        shippingCost = 0;
+      } else if (isFirstOrder && (discountedSubtotal >= 399 || coupon_code?.toUpperCase() === "DISH10" || coupon_code?.toUpperCase() === "JUS10")) {
         shippingCost = 0;
       } else if (discountedSubtotal < freeShippingThreshold) {
         shippingCost = flatShippingRate;

@@ -12,6 +12,7 @@ interface Coupon {
   max_uses: number | null;
   used_count: number;
   is_active: boolean;
+  free_shipping: boolean;
   created_at: string;
 }
 
@@ -30,7 +31,8 @@ export default function MarketingPage() {
     discount_type: 'percentage',
     discount_value: '',
     max_uses: '',
-    is_active: true
+    is_active: true,
+    free_shipping: false
   });
 
   const fetchCoupons = async () => {
@@ -54,7 +56,7 @@ export default function MarketingPage() {
     setSaving(true);
     setError(null);
 
-    const { code, affiliate_name, discount_type, discount_value, max_uses, is_active } = formData;
+    const { code, affiliate_name, discount_type, discount_value, max_uses, is_active, free_shipping } = formData;
     
     if (!code || !discount_value) {
       setError("Code and Discount Value are required");
@@ -68,14 +70,15 @@ export default function MarketingPage() {
       discount_type,
       discount_value: parseFloat(discount_value),
       max_uses: max_uses ? parseInt(max_uses) : null,
-      is_active
+      is_active,
+      free_shipping
     });
 
     if (insertError) {
       setError(insertError.message);
     } else {
       setIsModalOpen(false);
-      setFormData({ code: '', affiliate_name: '', discount_type: 'percentage', discount_value: '', max_uses: '', is_active: true });
+      setFormData({ code: '', affiliate_name: '', discount_type: 'percentage', discount_value: '', max_uses: '', is_active: true, free_shipping: false });
       fetchCoupons();
     }
     setSaving(false);
@@ -140,7 +143,14 @@ export default function MarketingPage() {
                     </td>
                     <td className="p-4 font-medium">{coupon.affiliate_name || '-'}</td>
                     <td className="p-4">
-                      {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `₹${coupon.discount_value}`} off
+                      <div className="flex flex-col items-start gap-1">
+                        <span>{coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `₹${coupon.discount_value}`} off</span>
+                        {coupon.free_shipping && (
+                          <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            Free Delivery
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
@@ -228,6 +238,18 @@ export default function MarketingPage() {
                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-black outline-none"
                   />
                 </div>
+              </div>
+              
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.free_shipping}
+                    onChange={(e) => setFormData({ ...formData, free_shipping: e.target.checked })}
+                    className="w-4 h-4 text-black focus:ring-black border-gray-300 rounded"
+                  />
+                  Provides Free Delivery
+                </label>
               </div>
 
               <div>

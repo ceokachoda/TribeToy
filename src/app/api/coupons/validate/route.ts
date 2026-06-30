@@ -61,7 +61,8 @@ export async function POST(req: Request) {
       discount_amount: discountAmount,
       final_amount: finalAmount,
       discount_type: coupon.discount_type,
-      discount_value: coupon.discount_value
+      discount_value: coupon.discount_value,
+      free_shipping: coupon.free_shipping
     }, { status: 200 });
 
   } catch (error: any) {

@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     let finalAmount = calculatedAmount;
     let appliedCouponId = null;
     let appliedDiscountAmount = 0;
+    let isCouponFreeShipping = false;
 
     // Apply coupon if provided
     if (coupon_code) {
@@ -56,6 +57,7 @@ export async function POST(req: Request) {
 
       if (coupon && coupon.is_active && (coupon.max_uses === null || coupon.used_count < coupon.max_uses)) {
         appliedCouponId = coupon.id;
+        isCouponFreeShipping = coupon.free_shipping || false;
         if (coupon.discount_type === 'percentage') {
           appliedDiscountAmount = (calculatedAmount * coupon.discount_value) / 100;
         } else if (coupon.discount_type === 'fixed') {
@@ -104,7 +106,9 @@ export async function POST(req: Request) {
         console.error("Error checking first order status:", e);
       }
 
-      if (isFirstOrder && (discountedSubtotal >= 399 || coupon_code?.toUpperCase() === "DISH10")) {
+      if (isCouponFreeShipping) {
+        shippingCost = 0;
+      } else if (isFirstOrder && (discountedSubtotal >= 399 || coupon_code?.toUpperCase() === "DISH10" || coupon_code?.toUpperCase() === "JUS10")) {
         shippingCost = 0;
       } else if (discountedSubtotal < freeShippingThreshold) {
         shippingCost = flatShippingRate;
